@@ -1,6 +1,12 @@
 # 🏍️ Crazy Moto
 
-**Crazy Moto** es un videojuego de velocidad y habilidad desarrollado en Unity como proyecto integrador para la Feria de Ciencias. 
+**Crazy Moto** es un videojuego de velocidad y habilidad desarrollado en Unity como proyecto integrador para la Feria de Ciencias.
+
+---
+
+## 🛠️ TECNOLOGÍAS UTILIZADAS
+
+* **Motor de juego:** Unity 6.5 (6000.5.8f1)
 
 ---
 
