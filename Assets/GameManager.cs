@@ -6,8 +6,11 @@ public class GameManager : MonoBehaviour
 
     [Header("Dificultad")]
     public float velocidadInicial = 10f;
-    public float aceleracion = 0.2f;        // cuánto sube la velocidad por segundo
+    public float aceleracion = 0.2f;
     public float velocidadMaxima = 60f;
+
+    [Header("Obstáculo de prueba")]
+    [SerializeField] private float distanciaObstaculo = 50f;
 
     public float velocidadActual { get; private set; }
     public bool juegoTerminado { get; private set; }
@@ -21,26 +24,38 @@ public class GameManager : MonoBehaviour
     {
         velocidadActual = velocidadInicial;
         juegoTerminado = false;
+        CrearObstaculoDePrueba();
     }
 
     void Update()
     {
         if (juegoTerminado) return;
 
-        // El juego se hace más rápido con el tiempo
         velocidadActual += aceleracion * Time.deltaTime;
         velocidadActual = Mathf.Min(velocidadActual, velocidadMaxima);
     }
 
+    // Obstáculo temporal para comprobar el ciclo completo de la entrega.
+    void CrearObstaculoDePrueba()
+    {
+        GameObject obstaculo = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        obstaculo.name = "Obstaculo";
+        obstaculo.tag = "Obstaculo";
+        obstaculo.transform.position = new Vector3(0f, 1f, distanciaObstaculo);
+        obstaculo.transform.localScale = new Vector3(10f, 2f, 1.5f);
+
+        Renderer rendererObstaculo = obstaculo.GetComponent<Renderer>();
+        rendererObstaculo.material.color = Color.red;
+    }
+
     public void GameOver()
     {
-        if (juegoTerminado) return;   // evita llamarlo dos veces
+        if (juegoTerminado) return;
 
         juegoTerminado = true;
         Time.timeScale = 0f;
 
-        // Le avisa al menú que muestre la pantalla de Game Over
-        MenuManager menu = FindObjectOfType<MenuManager>();
+        MenuManager menu = FindFirstObjectByType<MenuManager>();
         if (menu != null)
             menu.MostrarGameOver();
     }
