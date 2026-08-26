@@ -55,6 +55,9 @@ public class GameManager : MonoBehaviour
         juegoTerminado = true;
         Time.timeScale = 0f;
 
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.ReproducirChoque();
+
         MenuManager menu = FindFirstObjectByType<MenuManager>();
         if (menu != null)
             menu.MostrarGameOver();

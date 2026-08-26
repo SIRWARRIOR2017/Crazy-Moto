@@ -13,14 +13,23 @@ public class RoadManager : MonoBehaviour
 
     void Start()
     {
+        if (jugador == null || prefabTramo == null)
+        {
+            Debug.LogError("RoadManager: falta asignar 'jugador' o 'prefabTramo' en el Inspector.");
+            enabled = false;
+            return;
+        }
+
         for (int i = 0; i < cantidadTramos; i++)
             CrearTramo();
     }
 
     void Update()
     {
-        // Si el tramo más viejo quedó atrás del jugador, lo reubico adelante
-        if (tramos.Count > 0 && jugador.position.z - tramos[0].position.z > largoTramo)
+        // Uso "while" (no "if"): si en un frame el jugador avanza más de un tramo
+        // entero (pico de lag, o si a futuro se sube la velocidad), reubico todos
+        // los tramos que hagan falta en vez de quedarme un frame atrás.
+        while (tramos.Count > 0 && jugador.position.z - tramos[0].position.z > largoTramo)
         {
             Transform t = tramos[0];
             tramos.RemoveAt(0);

@@ -17,9 +17,15 @@ public class PlayerController : MonoBehaviour
     private float anguloMoto = 0f;
     private float anguloCamara = 0f;
 
+    void Start()
+    {
+        if (cuerpo == null || pivotCamara == null)
+            Debug.LogError("PlayerController: falta asignar 'cuerpo' o 'pivotCamara' en el Inspector.");
+    }
+
     void Update()
     {
-        if (GameManager.Instance.juegoTerminado) return;
+        if (GameManager.Instance == null || GameManager.Instance.juegoTerminado) return;
 
         Avanzar();
         MoverLateral();

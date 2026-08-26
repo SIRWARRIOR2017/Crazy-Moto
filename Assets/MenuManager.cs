@@ -8,13 +8,25 @@ public class MenuManager : MonoBehaviour
     public GameObject panelJuego;
     public GameObject panelGameOver;
 
+    // Flag en memoria (no en disco, a diferencia de PlayerPrefs): sobrevive a la
+    // recarga de escena, pero nunca a un cierre del juego. Así, si la app se
+    // cierra de golpe justo después de apretar "Jugar", el próximo arranque
+    // siempre muestra el menú en vez de quedar pegado arrancando en partida.
+    private static bool irAJugar = false;
+
     void Start()
     {
+        if (panelMenu == null || panelJuego == null || panelGameOver == null)
+        {
+            Debug.LogError("MenuManager: falta asignar uno o más paneles en el Inspector.");
+            return;
+        }
+
         // Si venimos de apretar "Jugar", arrancamos jugando directo.
         // Si no (primera vez que abre, o volvió al menú), mostramos el menú.
-        if (PlayerPrefs.GetInt("IrAJugar", 0) == 1)
+        if (irAJugar)
         {
-            PlayerPrefs.SetInt("IrAJugar", 0);
+            irAJugar = false;
             EmpezarJuego();
         }
         else
@@ -35,7 +47,7 @@ public class MenuManager : MonoBehaviour
     // Botón JUGAR (recarga la escena para empezar limpio)
     public void Jugar()
     {
-        PlayerPrefs.SetInt("IrAJugar", 1);
+        irAJugar = true;
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
@@ -68,7 +80,7 @@ public class MenuManager : MonoBehaviour
     // Botón VOLVER A JUGAR (recarga y arranca jugando directo)
     public void VolverAJugar()
     {
-        PlayerPrefs.SetInt("IrAJugar", 1);
+        irAJugar = true;
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
@@ -76,7 +88,7 @@ public class MenuManager : MonoBehaviour
     // Botón MENÚ (recarga y muestra el menú)
     public void VolverAlMenu()
     {
-        PlayerPrefs.SetInt("IrAJugar", 0);
+        irAJugar = false;
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
