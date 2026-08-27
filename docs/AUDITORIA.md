@@ -2,14 +2,15 @@
 
 Fecha: 2026-08-26. Solo diagnóstico, **no se aplicó ningún cambio**.
 
-> Nota (2026-08-27): tras la reorganización del repo, este archivo vive en
-> `docs/`, los scripts en `Assets/Scripts/` y el prefab en
-> `Assets/Prefabs/Tramo.prefab`. Estado de los puntos de esta auditoría:
-> **1.5 y 1.6 resueltos** (pase de robustez). **1.3 resuelto por decisión de
-> diseño**: no habrá salto, la mecánica vertical es el wheelie. **1.4 resuelto**:
-> `TrafficManager` reemplazó al obstáculo de prueba con generación real de autos.
-> El resto sigue vigente. Ver "Decisiones tomadas" en `CLAUDE.md` y
-> `docs/ENTREGAS.md`.
+> Nota (2026-08-27): este documento es una foto del 26/8 y quedó viejo en varios
+> puntos. Tras la reorganización del repo vive en `docs/`, los scripts en
+> `Assets/Scripts/` y el prefab en `Assets/Prefabs/Tramo.prefab`. Estado real:
+> **1.3 resuelto por decisión de diseño** (no habrá salto; la mecánica vertical
+> es el wheelie), **1.4 resuelto** (`TrafficManager`), **1.5 y 1.6 resueltos**
+> (pase de robustez). Del checklist de la sección 2, ya están hechos el Audio
+> Manager (`AudioManager.cs`, con sonido de choque) y los **datos persistentes**
+> (`RankingData` = ScriptableObject + `ranking.json`). Para el estado al día ver
+> `docs/ENTREGAS.md` y "Decisiones tomadas" en `CLAUDE.md`.
 
 ---
 

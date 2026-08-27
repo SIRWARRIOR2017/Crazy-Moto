@@ -42,7 +42,9 @@ de estado.
   entera, así que no hace falta que estén en la jerarquía a mano). `GameOver()`
   pone `Time.timeScale = 0`, dispara `AudioManager.ReproducirChoque()` y busca un
   `MenuManager` en la escena (`FindAnyObjectByType`) para mostrar el panel de Game
-  Over.
+  Over. Además, en `GameOver()` guarda el puntaje en el ranking:
+  `RankingData.Instance.Agregar(nombre, puntaje)` con el nombre de
+  `PlayerPrefs("NombreJugador")`.
 - **`PlayerController.cs`** — Vive en el GameObject "Jugador" (tag `Player`). Cada
   `Update()` avanza el transform en Z según `GameManager.Instance.velocidadActual`,
   mueve lateralmente con `Input.GetAxisRaw("Horizontal")` (A-D) clampeado a
@@ -67,8 +69,21 @@ de estado.
 - **`Hud.cs`** — Se crea en runtime desde `GameManager`. Arma por código dos
   textos TMP: "Puntaje: N" como hijo de `MenuManager.panelJuego` y
   "Puntaje final: N" como hijo de `MenuManager.panelGameOver`, así aparecen y
-  desaparecen con esos paneles. No guarda nada (la persistencia del puntaje es la
-  entrega del 10 de septiembre).
+  desaparecen con esos paneles.
+- **`RankingData.cs`** — Datos persistentes (entrega del 10 de septiembre). Es un
+  `ScriptableObject` pero **no hay un `.asset`**: se usa vía `RankingData.Instance`
+  (un `static` con `CreateInstance`, sobrevive a la recarga de escena). La lista
+  de puntajes se guarda/lee de `ranking.json` en `Application.persistentDataPath`
+  (un ScriptableObject por sí solo no persiste cambios de runtime en el build).
+  `Agregar(nombre, puntaje)` = **una fila por jugador**: si el nombre ya está
+  (sin distinguir mayúsculas) se queda con su mejor puntaje. `PuestoDe(nombre)`
+  da el puesto (1 = primero) o −1. Ordena de mayor a menor. `Deduplicar()` limpia
+  nombres repetidos de datos viejos al cargar. `BorrarTodo()` vacía todo.
+- **`MenuRanking.cs`** — Se crea en runtime desde `MenuManager`. Arma por código,
+  dentro de `MenuManager.panelMenu`: un `TMP_InputField` "Tu nombre" (guarda en
+  `PlayerPrefs("NombreJugador")`), la tabla de **Top 10** (más una línea "Estás en
+  el puesto N" si el jugador quedó afuera del top 10) y un botón rojo **"Reiniciar
+  tabla"** que llama a `RankingData.Instance.BorrarTodo()`.
 - **`RoadManager.cs`** — Pool circular de tramos de camino (prefab
   `Assets/Prefabs/Tramo.prefab`):
   crea `cantidadTramos` al `Start()`, y en `Update()` cuando el tramo más viejo
@@ -77,8 +92,10 @@ de estado.
 - **`MenuManager.cs`** — Controla 3 paneles (menú / juego / game over) con
   `SetActive`. Usa un `static bool irAJugar` en memoria (no `PlayerPrefs`) para
   saber, al recargar la escena, si debe arrancar jugando directo o mostrar el
-  menú. Todos los botones de UI llaman a sus métodos públicos vía `OnClick`
-  configurado en el Inspector (no hay listeners por código).
+  menú. Los botones que ya estaban en la escena (Jugar/Salir/Continuar/Menú)
+  llaman a sus métodos públicos vía `OnClick` del Inspector; el botón "Reiniciar
+  tabla" lo agrega `MenuRanking` por código. En `Start()` crea el `MenuRanking`
+  si no existe.
 - **`AudioManager.cs`** — Singleton (`AudioManager.Instance`, mismo patrón que
   `GameManager`, se recrea con cada recarga de escena). Tiene un `AudioSource`
   para música (loop) y otro para efectos (`PlayOneShot`); si no se asignan a
@@ -115,10 +132,10 @@ directo al singleton) o por referencias asignadas a mano en el Inspector
   obstáculo de prueba en `GameManager.cs`).
 - Reinicio de partida = recargar la escena, nunca resetear campos a mano.
 - `PlayerPrefs` se usa solo para preferencias que deben sobrevivir a cerrar y
-  volver a abrir el juego (ej: `"Volumen"`), nunca para flags de un solo uso
-  entre una recarga de escena y la siguiente (eso se resuelve con un `static`
-  en memoria — ver el bug que se corrigió en `MenuManager`, sección de
-  decisiones).
+  volver a abrir el juego (`"Volumen"`, `"NombreJugador"`), nunca para flags de un
+  solo uso entre una recarga de escena y la siguiente (eso se resuelve con un
+  `static` en memoria — ver el bug que se corrigió en `MenuManager`, sección de
+  decisiones). Los datos de juego (el ranking) van en JSON, no en `PlayerPrefs`.
 
 ## Qué NO tocar
 
@@ -133,23 +150,24 @@ directo al singleton) o por referencias asignadas a mano en el Inspector
 
 ## Estado actual (resumen — detalle completo en docs/AUDITORIA.md)
 
-**Funciona:** loop completo — menú → jugar → esquivar autos que vienen de frente
-por 3 carriles (A-D, movimiento libre) → sostener wheelie (Shift) para sumar
-puntaje a costa de casi no poder esquivar → chocar un auto → Game Over con
-puntaje final → Continuar/Menú, todo recargando la escena. El puntaje se muestra
-en pantalla (HUD) pero **no se guarda** todavía.
+**Funciona:** loop completo — en el menú ponés tu nombre → jugar → esquivar autos
+que vienen de frente por 3 carriles (A-D, movimiento libre) → sostener wheelie
+(Shift) para sumar puntaje a costa de casi no poder esquivar → chocar un auto →
+Game Over con puntaje final → Continuar/Menú, todo recargando la escena. El
+puntaje se guarda en un ranking persistente (`ranking.json`) que se ve en el
+menú: Top 10 + "estás en el puesto N" + botón "Reiniciar tabla".
 
 **A medias:** UI escalable configurada (CanvasScaler con "Scale With Screen
-Size"); el HUD de puntaje existe pero está armado por código (`Hud.cs`), sin
-estilo. Los autos son cubos rojos creados en runtime (`TrafficManager.cs`), sin
-arte. El pooling de `RoadManager` funciona pero el prefab `Tramo` es visualmente
-mucho más corto (3 unidades) que la distancia entre spawns (`largoTramo = 30`),
-así que el camino se ve con huecos grandes.
+Size"); el HUD de puntaje y toda la UI de ranking están armados por código
+(`Hud.cs`, `MenuRanking.cs`), sin estilo. Los autos son cubos rojos creados en
+runtime (`TrafficManager.cs`), sin arte. El pooling de `RoadManager` funciona
+pero el prefab `Tramo` es visualmente mucho más corto (3 unidades) que la
+distancia entre spawns (`largoTramo = 30`), así que el camino se ve con huecos
+grandes.
 
-**No existe todavía:** datos persistentes (el puntaje no se guarda ni hay
-ranking), sonido de fondo/click (solo suena el choque), partículas, luces de
-efecto, efectos de cámara. **Decidido que NO habrá salto**: la mecánica vertical
-es el wheelie (ver "Decisiones tomadas").
+**No existe todavía:** sonido de fondo/click (solo suena el choque), partículas,
+luces de efecto, efectos de cámara. **Decidido que NO habrá salto**: la mecánica
+vertical es el wheelie (ver "Decisiones tomadas").
 
 ## Reglas de trabajo (del usuario, permanentes)
 
@@ -238,6 +256,17 @@ es el wheelie (ver "Decisiones tomadas").
   (`TrafficManager`, `Hud`) que `GameManager` instancia en runtime. El alumno lo
   probó en Unity y funciona. Pendiente de pasar a arte/escena real: los autos
   (hoy cubos de `CreatePrimitive`) y el HUD (hoy texto TMP armado por código).
+- **2026-08-27** — Datos persistentes (entrega del 10 de septiembre), decisiones
+  del alumno: identificación por **nombre puesto una vez en el menú** (se guarda
+  en `PlayerPrefs`); el ranking se ve **solo en el menú** (Top 10 + "estás en el
+  puesto N" si quedás afuera); persistencia con **ScriptableObject + archivo
+  JSON**. Implementado por código sin tocar la escena: `RankingData.cs`
+  (ScriptableObject, sin `.asset`, backing JSON en `persistentDataPath`) y
+  `MenuRanking.cs` (campo de nombre + tabla + botón "Reiniciar tabla", todo UI
+  armada por código dentro de `PanelMenu`). `Agregar` mantiene una fila por
+  jugador (se queda el mejor puntaje). Se descartó el `.asset` hecho a mano
+  porque Unity lo importaba antes de compilar el script y quedaba "missing
+  script". El alumno lo probó y funciona.
 
 ## Actividades futuras (tener en cuenta al programar, para no rehacer)
 
@@ -247,10 +276,11 @@ es el wheelie (ver "Decisiones tomadas").
   `LeerWheelie()` dentro de `PlayerController`: cuando llegue el Arduino se
   cambian esos dos métodos (leer del puerto serie) y nada más. No dispersar
   llamadas a `Input.*` por otros scripts.
-- **Autos y HUD a arte real:** cuando haya modelos/estilo, `TrafficManager` debe
-  instanciar un prefab de auto en vez de `CreatePrimitive`, y el HUD debería ser
-  objetos de UI en la escena (dentro de `PanelJuego` / `PanelGameOver`) en vez de
-  crearse por código en `Hud.cs`.
+- **Autos y UI a arte real:** cuando haya modelos/estilo, `TrafficManager` debe
+  instanciar un prefab de auto en vez de `CreatePrimitive`, y toda la UI armada
+  por código (`Hud.cs` en `PanelJuego`/`PanelGameOver`, y `MenuRanking.cs` en
+  `PanelMenu`: campo de nombre, tabla de ranking y botón "Reiniciar tabla")
+  debería pasar a ser objetos de UI en la escena.
 
 ## Pendiente de fecha (checklist de la feria)
 

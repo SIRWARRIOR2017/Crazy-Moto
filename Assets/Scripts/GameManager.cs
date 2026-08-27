@@ -65,6 +65,10 @@ public class GameManager : MonoBehaviour
         juegoTerminado = true;
         Time.timeScale = 0f;
 
+        // Guardar el puntaje en el ranking persistente (JSON en disco).
+        string nombre = PlayerPrefs.GetString("NombreJugador", "Jugador");
+        RankingData.Instance.Agregar(nombre, puntaje);
+
         if (AudioManager.Instance != null)
             AudioManager.Instance.ReproducirChoque();
 

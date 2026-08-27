@@ -22,6 +22,11 @@ public class MenuManager : MonoBehaviour
             return;
         }
 
+        // El campo de nombre y la tabla de ranking se arman por código (ver
+        // MenuRanking); se crea acá para que exista en cada carga de escena.
+        if (FindAnyObjectByType<MenuRanking>() == null)
+            new GameObject("MenuRanking").AddComponent<MenuRanking>();
+
         // Si venimos de apretar "Jugar", arrancamos jugando directo.
         // Si no (primera vez que abre, o volvió al menú), mostramos el menú.
         if (irAJugar)

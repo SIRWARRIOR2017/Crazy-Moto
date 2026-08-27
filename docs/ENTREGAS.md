@@ -25,13 +25,14 @@ lo que hay **hoy en el proyecto**.
 | 20 ago | 1 | ✅ Cumplida | Loop completo iniciar → terminar → continuar. |
 | 27 ago | 1 | ✅ Cumplida | Controladores programados y pusheados. |
 | 03 sep | 1 | ✅ Cumplida | Mecánica principal: esquivar autos por 3 carriles + wheelie de riesgo-recompensa + puntaje en pantalla. Probada el 27 ago. |
-| 10 sep | 1 | ❌ Pendiente | Sonido a medias (solo choque); sin datos persistentes con ScriptableObject. |
+| 10 sep | 1 | 🟡 A medias | Datos persistentes ✅ (ranking con ScriptableObject + JSON, probado). Falta la parte de sonido. |
 | 17 sep | 1 | ❌ Pendiente | Sin partículas, sin Cinemachine, iluminación solo la default. |
 | 28 sep | 1 | ❌ Pendiente | Sin build, sin carpeta de Drive, sin link en el README. |
 | 05 nov | 2 | ❌ Pendiente | Sin itch.io, sin video, sin decoración. |
 
-**Estado al 2026-08-27:** 4 entregas cumplidas (13, 20, 27 ago y 3 sep, esta
-última adelantada); la del 6 ago queda a un paso (falta solo el boceto).
+**Estado al 2026-08-27:** 4 entregas cumplidas (13, 20, 27 ago y 3 sep); del
+10 sep ya está la mitad (datos persistentes); la del 6 ago queda a un paso
+(falta solo el boceto).
 
 ---
 
@@ -177,12 +178,17 @@ código (sin arte). Funciona; el arte real es trabajo de las entregas de estéti
 
 ### b) Datos persistentes (ScriptableObject o base de datos)
 
-- ❌ **No existe.** Lo único que se persiste es `PlayerPrefs("Volumen")`, que no
-  es un ScriptableObject ni guarda datos del juego (puntaje, ranking, config).
-- Para cerrarla hay que decidir **qué se persiste** (mejor puntaje, ranking,
-  config) y hacerlo con un ScriptableObject o un archivo/BD.
+- ✅ **Hecho (probado el 2026-08-27).** `RankingData` es un `ScriptableObject`
+  que guarda el ranking en `ranking.json` (`Application.persistentDataPath`).
+- El jugador pone su nombre una vez en el menú (`PlayerPrefs("NombreJugador")`);
+  al chocar, su puntaje entra al ranking (`RankingData.Agregar`).
+- El menú muestra el **Top 10** ordenado de mayor a menor, una línea "Estás en el
+  puesto N" si quedás afuera, y un botón "Reiniciar tabla".
+- Una fila por jugador: si repetís nombre, se queda tu mejor puntaje.
+- Se probó cerrando y reabriendo Unity: el ranking persiste.
 
-**Veredicto: ❌ PENDIENTE** (las dos partes).
+**Veredicto: la parte de datos persistentes está CUMPLIDA. Falta la parte de
+sonido** (música de fondo + efectos de la mecánica).
 
 ---
 
@@ -229,6 +235,7 @@ código (sin arte). Funciona; el arte real es trabajo de las entregas de estéti
 1. **Cerrar la entrega del 6 de agosto:** agregar el **boceto del juego** al
    documento (falta solo eso). Volcar también al punto 1.6 del documento el texto
    de "1 jugador" y del ranking (comparación de puntajes de mayor a menor).
-2. **Próxima entrega con código: 10 de septiembre** — datos persistentes
-   (guardar el puntaje / armar el ranking con ScriptableObject) y completar el
-   sonido (música de fondo + efectos de la mecánica).
+2. **10 de septiembre** — falta solo la parte de sonido: conseguir y asignar
+   música de fondo (`musicaFondo`) y efectos de la mecánica (motor, wheelie,
+   autos). Los datos persistentes ya están.
+3. **17 de septiembre** — partículas, efectos de cámara e iluminación.
