@@ -193,23 +193,25 @@ armado y probado, pero suena en silencio hasta que se le asignen clips).
   `AUDITORIA.md` y los dos `.docx` de requisitos. Todo en un solo commit en la
   rama `reorg/estructura-y-gitignore`.
 - **2026-08-27** — Se creó `docs/ENTREGAS.md`: el cronograma completo de entregas
-  de la feria (fechas, puntaje y estado de cada una contra lo que hay en el
-  repo). Mantenerlo actualizado cada vez que se cierra o cambia el estado de una
-  entrega. Puntos a tener presentes: el profesor pone CERO a lo entregado fuera
-  de tiempo; en el repo, `docs/documento.docx` figura subido el 18 de agosto
-  (fecha límite era el 13) y `docs/PROYECTO FERIA DE CIENCIAS.docx` el 13 de
-  agosto (fecha límite era el 6) — hay que confirmar con el profesor qué fecha
-  cuenta. Entregas del 20 y 27 de agosto: cumplidas. Próxima en riesgo: 3 de
-  septiembre (mecánica principal), que necesita la decisión de diseño del salto.
+  de la feria (fechas, puntaje y estado de cada una). Mantenerlo actualizado cada
+  vez que se cierra o cambia el estado de una entrega. Datos confirmados por el
+  alumno ese día: (a) la fecha que cuenta es la **del documento de cada entrega**,
+  no la del commit, así que las entregas del 6 y 13 de agosto están dentro de
+  plazo; (b) el juego es de **1 jugador**, no multiplayer; (c) el **ranking** es
+  una comparación de jugadores por puntaje, ordenada de mayor a menor (el más alto
+  primero). Estado: 13, 20 y 27 de agosto cumplidas; la del 6 de agosto queda a
+  falta solo del boceto del juego. Próxima con trabajo de código: 3 de septiembre
+  (mecánica principal), que necesita la decisión de diseño del salto.
 
 ## Pendiente de fecha (checklist de la feria)
 
 Detalle completo y actualizado en `docs/ENTREGAS.md`. Resumen de lo que falta y
 es decisión del alumno (no de código):
 
-- Boceto del juego, definición de multijugador, y detalle del ranking/puntaje
-  siguen sin escribirse en `docs/PROYECTO FERIA DE CIENCIAS.docx` (entrega del
-  6 de agosto, todavía incompleta).
+- El **boceto del juego** sigue sin hacerse (entrega del 6 de agosto). Multiplayer
+  (1 jugador) y ranking (comparación de puntajes de mayor a menor) ya están
+  definidos, pero conviene volcarlos al punto 1.6 de
+  `docs/PROYECTO FERIA DE CIENCIAS.docx`, que hoy los tiene vacíos.
 - `musicaFondo` y `sonidoClick` en `AudioManager` siguen vacíos (solo
   `sonidoChoque` tiene clip asignado). Hace falta para la entrega de sonido del
   10 de septiembre.

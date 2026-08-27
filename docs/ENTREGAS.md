@@ -1,19 +1,18 @@
 # Cronograma de entregas — Crazy Moto
 
 Calendario de entregas de la feria de ciencias, con el estado de cada una según
-lo que hay **hoy en el repositorio**.
+lo que hay **hoy en el proyecto**.
 
-- Fecha de análisis: **2026-08-27**.
+- Fecha de análisis: **2026-08-27** (última actualización: 2026-08-27).
 - Alumnos: Joaquín Pastorino y Santiago Castiñeira.
 - **Regla del profesor: los trabajos entregados fuera de tiempo valen CERO.**
 - Total en juego: **10 puntos** (8 entregas de 1 punto + 1 entrega de 2 puntos).
 
-> ⚠️ **Importante sobre las fechas.** El estado de abajo se basa en la fecha de
-> los commits de git (`git log`). Si el profesor evalúa la entrega por otro canal
-> (un documento compartido, el aula virtual, un correo), esas fechas pueden ser
-> distintas. **Confirmar con el profesor cómo se registra la fecha de entrega**,
-> sobre todo en las entregas del 6 y 13 de agosto, que en el repo aparecen
-> cargadas después de su fecha límite.
+> **Sobre las fechas.** Lo que cuenta es la **fecha del documento de cada
+> entrega**, no la fecha del commit en git (confirmado por el alumno el
+> 2026-08-27). Con ese criterio, las entregas del 6 y 13 de agosto están **dentro
+> de plazo** (los documentos llevan fecha 30 de julio y 13 de agosto
+> respectivamente), aunque en el repo se hayan subido después.
 
 ---
 
@@ -21,9 +20,9 @@ lo que hay **hoy en el repositorio**.
 
 | Fecha | Pts | Estado | Riesgo |
 |---|---|---|---|
-| 06 ago | 1 | ⚠️ Incompleta | Falta boceto, multiplayer y detalle de ranking. En el repo el documento aparece el 13 ago (tarde). |
-| 13 ago | 1 | ⚠️ En riesgo | `documento.docx` se subió al repo el **18 ago** (5 días tarde). UI base sí estaba; el slider llegó el 26 ago. |
-| 20 ago | 1 | ✅ Cumplida | Loop completo iniciar → terminar → continuar, commits del 18 ago (a tiempo). |
+| 06 ago | 1 | ⚠️ Casi | Multiplayer y ranking ya definidos. **Solo falta el boceto** en el documento. |
+| 13 ago | 1 | ✅ Cumplida | Plan de trabajo (`documento.docx`, fecha 13 ago) + UI base (paneles, botones) funcionando. |
+| 20 ago | 1 | ✅ Cumplida | Loop completo iniciar → terminar → continuar. |
 | 27 ago | 1 | ✅ Cumplida (vence hoy) | Controladores programados y pusheados hoy. |
 | 03 sep | 1 | ❌ Pendiente | Falta decidir si hay salto real y programar el generador de obstáculos. |
 | 10 sep | 1 | ❌ Pendiente | Sonido a medias (solo choque); sin datos persistentes con ScriptableObject. |
@@ -31,8 +30,8 @@ lo que hay **hoy en el repositorio**.
 | 28 sep | 1 | ❌ Pendiente | Sin build, sin carpeta de Drive, sin link en el README. |
 | 05 nov | 2 | ❌ Pendiente | Sin itch.io, sin video, sin decoración. |
 
-**Puntos evaluables hasta hoy (4):** 2 sólidos (20 y 27 ago), 2 en riesgo por
-fecha (6 y 13 ago).
+**Puntos evaluables hasta hoy (4):** 3 cumplidos (13, 20 y 27 ago); el del 6 ago
+queda a un paso (falta solo el boceto).
 
 ---
 
@@ -49,16 +48,17 @@ Se responden en `docs/PROYECTO FERIA DE CIENCIAS.docx`.
 | 3 | Upgrade (qué mejora/castiga al finalizar) | ✅ Definido en 1.3: el juego se acelera y se pone más difícil con el tiempo. |
 | 4 | Mecánica principal | ✅ Definida en 1.4: controlar el wheelie y superar obstáculos consecutivos. |
 | 5 | Recursos físicos para la feria | ✅ Definido en 1.5: computadora, enchufe, cargador, 2 mesas, proyector, silla y teclado. |
-| 6 | ¿Multiplayer? | ❌ **Sin definir.** El campo de "Detalles adicionales" (que incluye multijugador) está vacío. |
-| 7 | ¿Competitivo? / Ranking | ⚠️ **A medias.** Está respondido "Sí, es competitivo", pero falta el detalle del formato de competencia y del ranking. |
+| 6 | ¿Multiplayer? | ✅ **Definido: no.** El juego es de **1 jugador** (confirmado por el alumno el 2026-08-27). |
+| 7 | ¿Competitivo? / Ranking | ✅ **Definido.** Sí es competitivo. El ranking es una **comparación de jugadores y sus puntajes**: se ordena de mayor a menor, el puntaje más alto figura primero y el más bajo último (confirmado el 2026-08-27). Falta decidir lo técnico (¿local o en línea?, ¿ingreso de nombre?, ¿cuántos puestos se muestran?). |
 
-**Veredicto: INCOMPLETA.** Faltan el boceto, la definición de multiplayer y el
-detalle del ranking. Además, el documento aparece en el repo recién el
-**2026-08-13** (commit `44561d3`), después de la fecha límite.
+**Veredicto: CASI COMPLETA.** Idea, condiciones, loop, upgrade, mecánica,
+recursos, multiplayer (1 jugador) y ranking (comparación de puntajes, de mayor a
+menor) están definidos. **Solo falta el boceto del juego.**
 
-**Para cerrarla:** agregar el boceto (foto de un dibujo sirve), escribir si el
-juego es 1 jugador o multijugador, y describir cómo funciona el ranking
-(¿local?, ¿ingreso de nombre?, ¿top 10?).
+**Para cerrarla:** agregar el boceto al documento (una foto de un dibujo a mano
+alcanza). Conviene también volcar al documento (`docs/PROYECTO FERIA DE
+CIENCIAS.docx`, punto 1.6) el texto de multiplayer y ranking que hoy solo está
+acá.
 
 ---
 
@@ -66,13 +66,11 @@ juego es 1 jugador o multijugador, y describir cómo funciona el ranking
 
 ### a) Documento "documento" con el PLAN de trabajo (uso de IA)
 
-- Archivo: `docs/documento.docx`.
+- Archivo: `docs/documento.docx` (fecha del documento: 13 de agosto de 2026).
 - ✅ El documento existe y tiene el plan de trabajo, el alcance y la forma de
   trabajo con IA.
-- ⚠️ **En riesgo por fecha:** en el repo se subió el **2026-08-18** (commit
-  `210aec5`), 5 días después de la fecha límite. El documento por dentro dice
-  "Fecha 13 de agosto de 2026", pero si la entrega se mide por el repo, esto
-  cae en "fuera de tiempo = CERO".
+- ✅ **Dentro de plazo:** cuenta la fecha del documento (13 ago), no la del
+  commit (que fue el 18 ago).
 
 ### b) Interfaz de usuario programada y funcionando
 
@@ -81,15 +79,14 @@ juego es 1 jugador o multijugador, y describir cómo funciona el ranking
 | Paneles (menú / juego / game over) | ✅ `MenuManager` los controla con `SetActive`. En la escena desde el 13 ago. |
 | Botones (Jugar, Salir, Continuar, Menú) | ✅ Cableados por `OnClick` a métodos de `MenuManager`. |
 | Textos (TMP) | ⚠️ Hay textos en título y botones. **El HUD de juego (`PanelJuego`) está vacío** (no hay velocidad, distancia ni puntaje). |
-| Slider (volumen) | ✅ `SliderVolumen` + `VolumenSlider.cs`, pero agregado el **2026-08-26** (después del 13 ago). |
+| Slider (volumen) | ✅ `SliderVolumen` + `VolumenSlider.cs`. |
 | Fondos | ⚠️ Hay un `Background` en el menú. Sin fondo/arte durante el juego. |
 
-**Veredicto: EN RIESGO.** La UI base (paneles + botones) estaba a tiempo, pero
-el `documento.docx` se subió tarde al repo y el slider llegó el 26 de agosto.
+**Veredicto: ✅ CUMPLIDA.** El plan de trabajo cuenta por su fecha (13 ago) y la
+UI base (paneles, botones, slider, textos de menú) está programada y funcionando.
 
-**Para cerrarla:** confirmar con el profesor si vale la fecha interna del
-documento o la del repo. Si vale la del repo, ya no hay nada que hacer con esta
-entrega.
+**Pendiente para más adelante (no bloquea esta entrega):** el HUD de juego
+(`PanelJuego`) está vacío; se llena cuando exista el puntaje.
 
 ---
 
@@ -227,10 +224,11 @@ físicas como colisiones o detecciones).
 
 ## Qué hacer ahora (prioridad)
 
-1. **Confirmar con el profesor** cómo se registran las fechas de entrega, por las
-   dudas de las del 6 y 13 de agosto.
-2. **Cerrar la entrega del 6 de agosto** en el documento: boceto, multiplayer,
-   detalle de ranking. Es contenido de diseño, lo escribe el alumno.
-3. **Decisión de diseño del salto** (bloquea la entrega del 3 de septiembre).
-4. Programar la mecánica principal (salto si aplica + generador de obstáculos)
+1. **Cerrar la entrega del 6 de agosto:** agregar el **boceto del juego** al
+   documento (falta solo eso). Volcar también al punto 1.6 del documento el texto
+   de "1 jugador" y del ranking (comparación de puntajes de mayor a menor).
+2. **Decisión de diseño del salto** (bloquea la entrega del 3 de septiembre):
+   ¿el wheelie incluye salto vertical real o el juego se queda con esquive
+   lateral?
+3. Programar la mecánica principal (salto si aplica + generador de obstáculos)
    antes del 3 de septiembre.
