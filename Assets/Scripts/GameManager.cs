@@ -9,11 +9,15 @@ public class GameManager : MonoBehaviour
     public float aceleracion = 0.2f;
     public float velocidadMaxima = 60f;
 
-    [Header("Obstáculo de prueba")]
-    [SerializeField] private float distanciaObstaculo = 50f;
+    [Header("Puntaje")]
+    public float puntosPorSegundoEnWheelie = 100f;   // solo se suma mientras se sostiene el wheelie
 
     public float velocidadActual { get; private set; }
     public bool juegoTerminado { get; private set; }
+    public int puntaje { get; private set; }
+
+    private float puntajeExacto;
+    private PlayerController jugador;
 
     void Awake()
     {
@@ -24,7 +28,19 @@ public class GameManager : MonoBehaviour
     {
         velocidadActual = velocidadInicial;
         juegoTerminado = false;
-        CrearObstaculoDePrueba();
+        puntaje = 0;
+        puntajeExacto = 0f;
+
+        jugador = FindAnyObjectByType<PlayerController>();
+
+        // El tráfico y el HUD se crean en tiempo de ejecución: la escena se
+        // recarga entera para reiniciar, así que no hace falta que existan a mano
+        // en la jerarquía (misma idea que el resto de los managers).
+        if (FindAnyObjectByType<TrafficManager>() == null)
+            new GameObject("TrafficManager").AddComponent<TrafficManager>();
+
+        if (FindAnyObjectByType<Hud>() == null)
+            new GameObject("Hud").AddComponent<Hud>();
     }
 
     void Update()
@@ -33,19 +49,13 @@ public class GameManager : MonoBehaviour
 
         velocidadActual += aceleracion * Time.deltaTime;
         velocidadActual = Mathf.Min(velocidadActual, velocidadMaxima);
-    }
 
-    // Obstáculo temporal para comprobar el ciclo completo de la entrega.
-    void CrearObstaculoDePrueba()
-    {
-        GameObject obstaculo = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        obstaculo.name = "Obstaculo";
-        obstaculo.tag = "Obstaculo";
-        obstaculo.transform.position = new Vector3(0f, 1f, distanciaObstaculo);
-        obstaculo.transform.localScale = new Vector3(10f, 2f, 1.5f);
-
-        Renderer rendererObstaculo = obstaculo.GetComponent<Renderer>();
-        rendererObstaculo.material.color = Color.red;
+        // Solo se suma puntaje mientras el jugador sostiene el wheelie.
+        if (jugador != null && jugador.haciendoWheelie)
+        {
+            puntajeExacto += puntosPorSegundoEnWheelie * Time.deltaTime;
+            puntaje = Mathf.FloorToInt(puntajeExacto);
+        }
     }
 
     public void GameOver()
@@ -58,7 +68,7 @@ public class GameManager : MonoBehaviour
         if (AudioManager.Instance != null)
             AudioManager.Instance.ReproducirChoque();
 
-        MenuManager menu = FindFirstObjectByType<MenuManager>();
+        MenuManager menu = FindAnyObjectByType<MenuManager>();
         if (menu != null)
             menu.MostrarGameOver();
     }

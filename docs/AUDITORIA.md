@@ -4,8 +4,12 @@ Fecha: 2026-08-26. Solo diagnóstico, **no se aplicó ningún cambio**.
 
 > Nota (2026-08-27): tras la reorganización del repo, este archivo vive en
 > `docs/`, los scripts en `Assets/Scripts/` y el prefab en
-> `Assets/Prefabs/Tramo.prefab`. Los riesgos 1.5 y 1.6 ya se resolvieron
-> (ver "Decisiones tomadas" en `CLAUDE.md`).
+> `Assets/Prefabs/Tramo.prefab`. Estado de los puntos de esta auditoría:
+> **1.5 y 1.6 resueltos** (pase de robustez). **1.3 resuelto por decisión de
+> diseño**: no habrá salto, la mecánica vertical es el wheelie. **1.4 resuelto**:
+> `TrafficManager` reemplazó al obstáculo de prueba con generación real de autos.
+> El resto sigue vigente. Ver "Decisiones tomadas" en `CLAUDE.md` y
+> `docs/ENTREGAS.md`.
 
 ---
 

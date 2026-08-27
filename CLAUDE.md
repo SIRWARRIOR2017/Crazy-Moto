@@ -18,11 +18,14 @@ y `docs/documento.docx`) que definen dos cosas distintas:
   derrota por obstáculo, pantalla de Game Over con botón Continuar. Este alcance
   ya está prácticamente implementado.
 - **`PROYECTO FERIA DE CIENCIAS.docx`**: la visión completa del juego para la
-  feria. Describe un loop de "saltar obstáculos controlando la inclinación en el
-  aire", puntaje, y comparación contra un ranking de otros jugadores (dice que el
-  juego "es competitivo"). Esto es mucho más grande que lo que hay hoy: no hay
-  salto real, no hay puntaje, no hay ranking, no hay sonido, ni partículas, ni luces,
-  ni datos persistentes. Ver `docs/AUDITORIA.md` para el detalle punto por punto.
+  feria. Habla de "saltar obstáculos controlando la inclinación en el aire",
+  puntaje, y comparación contra un ranking de otros jugadores (dice que el juego
+  "es competitivo"). Con las decisiones de diseño ya tomadas, ese loop se
+  concretó así: **no hay salto** — se esquivan autos que vienen de frente por
+  3 carriles y el wheelie (sin cambio de Y) es lo que da puntaje. Ya están el
+  movimiento, la generación de obstáculos y el puntaje en pantalla; **faltan**
+  la persistencia del puntaje / ranking, el sonido de fondo, las partículas, las
+  luces y los efectos de cámara. Ver `docs/AUDITORIA.md` y `docs/ENTREGAS.md`.
 
 ## Arquitectura real
 
@@ -32,20 +35,40 @@ de estado.
 
 - **`GameManager.cs`** — Singleton (`GameManager.Instance`, sin `DontDestroyOnLoad`,
   se reinicia solo porque la escena entera se recarga). Lleva `velocidadActual`
-  (acelera con el tiempo hasta `velocidadMaxima`) y `juegoTerminado`. En `Start()`
-  crea un **cubo rojo hardcodeado** como único obstáculo de prueba
-  (`CrearObstaculoDePrueba`), a una Z fija. `GameOver()` pone `Time.timeScale = 0`
-  y busca un `MenuManager` en la escena (`FindFirstObjectByType`) para pedirle que
-  muestre el panel de Game Over.
-- **`PlayerController.cs`** — Vive en el GameObject "Jugador". Cada `Update()` avanza
-  el transform en Z según `GameManager.Instance.velocidadActual`, mueve
-  lateralmente con `Input.GetAxis("Horizontal")` clampeado a `limiteLateral`, e
-  inclina dos transforms (`cuerpo` y `pivotCamara`) al mantener Space (wheelie es
-  **puramente visual**, no hay salto ni cambio de Y). Detecta derrota con
-  `OnTriggerEnter` chequeando `tag == "Obstaculo"` y llama a
-  `GameManager.Instance.GameOver()`. La cámara es hija de `pivotCamara`, que es
-  hijo del jugador — el seguimiento de cámara es gratis por jerarquía, no hay
-  script de cámara.
+  (acelera con el tiempo hasta `velocidadMaxima`), `juegoTerminado` y `puntaje`
+  (int). El puntaje **solo sube mientras el jugador sostiene el wheelie**
+  (`puntosPorSegundoEnWheelie`). En `Start()` crea por código, si no existen, un
+  `TrafficManager` y un `Hud` (misma idea que el resto: la escena se recarga
+  entera, así que no hace falta que estén en la jerarquía a mano). `GameOver()`
+  pone `Time.timeScale = 0`, dispara `AudioManager.ReproducirChoque()` y busca un
+  `MenuManager` en la escena (`FindAnyObjectByType`) para mostrar el panel de Game
+  Over.
+- **`PlayerController.cs`** — Vive en el GameObject "Jugador" (tag `Player`). Cada
+  `Update()` avanza el transform en Z según `GameManager.Instance.velocidadActual`,
+  mueve lateralmente con `Input.GetAxisRaw("Horizontal")` (A-D) clampeado a
+  `limiteLateral` (±3, los 3 carriles son −3 / 0 / +3 pero el movimiento es libre
+  entre ellos), e inclina dos transforms (`cuerpo` y `pivotCamara`) al mantener
+  **Shift** = wheelie. El wheelie **no es salto** (no hay cambio de Y): es una
+  inclinación visual que además (a) hace que el jugador se mueva mucho más lento
+  de costado (`factorLateralEnWheelie`) y (b) es la única forma de sumar puntaje.
+  Todo el input crudo se lee solo en `LeerLateral()` y `LeerWheelie()` (para
+  cambiarlo por el manubrio de Arduino a futuro sin tocar la lógica). Detecta
+  derrota con `OnTriggerEnter` chequeando `tag == "Obstaculo"`. La cámara es hija
+  de `pivotCamara`, que es hijo del jugador — el seguimiento es gratis por
+  jerarquía, no hay script de cámara.
+- **`TrafficManager.cs`** — Se crea en runtime desde `GameManager`. Autos (cubos
+  rojos creados con `CreatePrimitive`, tag `Obstaculo`, sin trigger) que vienen de
+  frente ("autopista en contramano") por los 3 carriles. Pool circular igual que
+  `RoadManager`. Genera "filas" de **1 o 2 autos, nunca los 3**, así siempre queda
+  un carril libre para esquivar. La distancia entre filas baja de
+  `distanciaEntreFilasInicial` a `...Minima` a medida que sube `velocidadActual`.
+  Todos los valores son ajustables en el Inspector del GameObject que crea en
+  runtime.
+- **`Hud.cs`** — Se crea en runtime desde `GameManager`. Arma por código dos
+  textos TMP: "Puntaje: N" como hijo de `MenuManager.panelJuego` y
+  "Puntaje final: N" como hijo de `MenuManager.panelGameOver`, así aparecen y
+  desaparecen con esos paneles. No guarda nada (la persistencia del puntaje es la
+  entrega del 10 de septiembre).
 - **`RoadManager.cs`** — Pool circular de tramos de camino (prefab
   `Assets/Prefabs/Tramo.prefab`):
   crea `cantidadTramos` al `Start()`, y en `Update()` cuando el tramo más viejo
@@ -110,21 +133,23 @@ directo al singleton) o por referencias asignadas a mano en el Inspector
 
 ## Estado actual (resumen — detalle completo en docs/AUDITORIA.md)
 
-**Funciona:** loop completo de la primera entrega — menú → jugar → moverse
-lateral + wheelie visual → chocar contra el cubo de prueba → Game Over →
-Continuar/Menú, todo recargando la escena.
+**Funciona:** loop completo — menú → jugar → esquivar autos que vienen de frente
+por 3 carriles (A-D, movimiento libre) → sostener wheelie (Shift) para sumar
+puntaje a costa de casi no poder esquivar → chocar un auto → Game Over con
+puntaje final → Continuar/Menú, todo recargando la escena. El puntaje se muestra
+en pantalla (HUD) pero **no se guarda** todavía.
 
 **A medias:** UI escalable configurada (CanvasScaler con "Scale With Screen
-Size") pero sin HUD real durante el juego (no hay velocidad, distancia ni
-puntaje en pantalla); el pooling de `RoadManager` funciona pero el prefab
-`Tramo` es visualmente mucho más corto (3 unidades) que la distancia entre
-spawns (`largoTramo = 30`), así que el camino se ve con huecos grandes.
+Size"); el HUD de puntaje existe pero está armado por código (`Hud.cs`), sin
+estilo. Los autos son cubos rojos creados en runtime (`TrafficManager.cs`), sin
+arte. El pooling de `RoadManager` funciona pero el prefab `Tramo` es visualmente
+mucho más corto (3 unidades) que la distancia entre spawns (`largoTramo = 30`),
+así que el camino se ve con huecos grandes.
 
-**No existe todavía:** salto real (el wheelie no cambia la posición Y),
-generación de obstáculos variados/progresivos (solo hay uno fijo), puntaje,
-ranking/competitivo, partículas, luces de efectos, datos persistentes vía
-ScriptableObject, y archivos de audio reales (el controlador de sonido está
-armado y probado, pero suena en silencio hasta que se le asignen clips).
+**No existe todavía:** datos persistentes (el puntaje no se guarda ni hay
+ranking), sonido de fondo/click (solo suena el choque), partículas, luces de
+efecto, efectos de cámara. **Decidido que NO habrá salto**: la mecánica vertical
+es el wheelie (ver "Decisiones tomadas").
 
 ## Reglas de trabajo (del usuario, permanentes)
 
@@ -202,6 +227,30 @@ armado y probado, pero suena en silencio hasta que se le asignen clips).
   primero). Estado: 13, 20 y 27 de agosto cumplidas; la del 6 de agosto queda a
   falta solo del boceto del juego. Próxima con trabajo de código: 3 de septiembre
   (mecánica principal), que necesita la decisión de diseño del salto.
+- **2026-08-27** — Mecánica principal (entrega del 3 de septiembre), decisiones
+  del alumno: el juego es "una autopista en contramano", vienen autos de frente
+  por 3 carriles (X = −3 / 0 / +3) y se esquivan **solo** con movimiento lateral
+  libre A-D. **No hay salto**: la moto solo hace wheelie (tecla Shift). Mientras
+  se sostiene el wheelie, el jugador se mueve mucho más lento de costado (riesgo)
+  y **solo así se suma puntaje** (avanzar sin wheelie no da puntos). Se implementó
+  todo por código sin tocar la escena: `PlayerController` reescrito, `GameManager`
+  sin el `CrearObstaculoDePrueba` y con `puntaje`, y dos scripts nuevos
+  (`TrafficManager`, `Hud`) que `GameManager` instancia en runtime. El alumno lo
+  probó en Unity y funciona. Pendiente de pasar a arte/escena real: los autos
+  (hoy cubos de `CreatePrimitive`) y el HUD (hoy texto TMP armado por código).
+
+## Actividades futuras (tener en cuenta al programar, para no rehacer)
+
+- **Manubrio con Arduino:** más adelante se va a armar un controlador físico
+  (manubrio + botones) con Arduino para reemplazar el teclado y hacerlo más
+  inmersivo. Por eso el input crudo del jugador está aislado en `LeerLateral()` y
+  `LeerWheelie()` dentro de `PlayerController`: cuando llegue el Arduino se
+  cambian esos dos métodos (leer del puerto serie) y nada más. No dispersar
+  llamadas a `Input.*` por otros scripts.
+- **Autos y HUD a arte real:** cuando haya modelos/estilo, `TrafficManager` debe
+  instanciar un prefab de auto en vez de `CreatePrimitive`, y el HUD debería ser
+  objetos de UI en la escena (dentro de `PanelJuego` / `PanelGameOver`) en vez de
+  crearse por código en `Hud.cs`.
 
 ## Pendiente de fecha (checklist de la feria)
 

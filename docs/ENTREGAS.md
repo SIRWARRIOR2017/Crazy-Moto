@@ -23,15 +23,15 @@ lo que hay **hoy en el proyecto**.
 | 06 ago | 1 | ⚠️ Casi | Multiplayer y ranking ya definidos. **Solo falta el boceto** en el documento. |
 | 13 ago | 1 | ✅ Cumplida | Plan de trabajo (`documento.docx`, fecha 13 ago) + UI base (paneles, botones) funcionando. |
 | 20 ago | 1 | ✅ Cumplida | Loop completo iniciar → terminar → continuar. |
-| 27 ago | 1 | ✅ Cumplida (vence hoy) | Controladores programados y pusheados hoy. |
-| 03 sep | 1 | ❌ Pendiente | Falta decidir si hay salto real y programar el generador de obstáculos. |
+| 27 ago | 1 | ✅ Cumplida | Controladores programados y pusheados. |
+| 03 sep | 1 | ✅ Cumplida | Mecánica principal: esquivar autos por 3 carriles + wheelie de riesgo-recompensa + puntaje en pantalla. Probada el 27 ago. |
 | 10 sep | 1 | ❌ Pendiente | Sonido a medias (solo choque); sin datos persistentes con ScriptableObject. |
 | 17 sep | 1 | ❌ Pendiente | Sin partículas, sin Cinemachine, iluminación solo la default. |
 | 28 sep | 1 | ❌ Pendiente | Sin build, sin carpeta de Drive, sin link en el README. |
 | 05 nov | 2 | ❌ Pendiente | Sin itch.io, sin video, sin decoración. |
 
-**Puntos evaluables hasta hoy (4):** 3 cumplidos (13, 20 y 27 ago); el del 6 ago
-queda a un paso (falta solo el boceto).
+**Estado al 2026-08-27:** 4 entregas cumplidas (13, 20, 27 ago y 3 sep, esta
+última adelantada); la del 6 ago queda a un paso (falta solo el boceto).
 
 ---
 
@@ -142,24 +142,26 @@ programado" alcanza; el contenido de audio se termina de completar para el
 Pedido: mecánica principal programada y funcionando (movimientos, interacciones
 físicas como colisiones o detecciones).
 
+Diseño final (decidido el 2026-08-27): "autopista en contramano" — vienen autos
+de frente por 3 carriles y se esquivan **solo** con movimiento lateral A-D.
+**No hay salto**; la moto solo hace wheelie (Shift), que frena el movimiento
+lateral y es la única forma de sumar puntaje.
+
 | Parte | Estado |
 |---|---|
-| Movimiento lateral | ✅ `PlayerController.MoverLateral()` con `Input.GetAxis("Horizontal")` y clamp. |
-| Avance automático | ✅ `PlayerController.Avanzar()` según `velocidadActual`. |
-| Wheelie | ⚠️ **Solo visual.** Inclina la moto y la cámara, pero **no hay salto** (la posición Y nunca cambia). El documento describe el loop como "saltar el obstáculo controlando la inclinación en el aire". |
-| Colisión / detección | ✅ `OnTriggerEnter` con tag `Obstaculo`. |
-| Obstáculos consecutivos y progresivos | ❌ **No existe.** Hay un solo obstáculo fijo; una vez pasado, no se puede volver a perder. |
+| Movimiento lateral libre (A-D) entre 3 carriles | ✅ `PlayerController.MoverLateral()`, `Input.GetAxisRaw("Horizontal")`, clamp ±3. |
+| Avance automático + aceleración con el tiempo | ✅ `PlayerController.Avanzar()` + `GameManager` sube `velocidadActual`. |
+| Wheelie (Shift) con penalización de control | ✅ Mientras se sostiene, el jugador se mueve al 30% de costado (`factorLateralEnWheelie`). |
+| Generación de obstáculos progresiva | ✅ `TrafficManager`: autos de frente por los 3 carriles, filas de 1-2 autos (nunca las 3), se juntan a más velocidad. Pooling. |
+| Colisión / detección | ✅ `OnTriggerEnter` con tag `Obstaculo` → `GameOver()`. |
 
-**Veredicto: ❌ PENDIENTE.** La mecánica central tal como está definida (wheelie
-+ superar obstáculos consecutivos cada vez más difíciles) **no está completa**.
+**Veredicto: ✅ CUMPLIDA (probada en Unity el 2026-08-27).** La mecánica central
+—esquivar autos por carriles + wheelie de riesgo-recompensa— está programada y
+funcionando.
 
-**Para cerrarla, en orden:**
-1. **Decisión de diseño:** ¿el wheelie incluye salto vertical real o el juego se
-   queda con esquive lateral? (Bloquea el resto.)
-2. Si hay salto: programar el salto y el control de inclinación en el aire.
-3. Generador de obstáculos (tipo `RoadManager` pero para obstáculos): spawn a lo
-   largo del camino, variedad y dificultad que sube con el tiempo/velocidad.
-4. Sacar el `CrearObstaculoDePrueba` hardcodeado de `GameManager`.
+**Nota:** los autos son cubos creados por código y el HUD es texto TMP armado por
+código (sin arte). Funciona; el arte real es trabajo de las entregas de estética
+(28 de septiembre).
 
 ---
 
@@ -171,7 +173,7 @@ físicas como colisiones o detecciones).
   (`Assets/Sounds/Crash.mp3`).
 - ❌ Falta: música de fondo (`musicaFondo`) y sonido de UI (`sonidoClick`) — no
   hay archivos de audio para esos campos.
-- ❌ Faltan sonidos de la mecánica (motor, wheelie, salto si se agrega).
+- ❌ Faltan sonidos de la mecánica (motor, wheelie, autos pasando).
 
 ### b) Datos persistentes (ScriptableObject o base de datos)
 
@@ -227,8 +229,6 @@ físicas como colisiones o detecciones).
 1. **Cerrar la entrega del 6 de agosto:** agregar el **boceto del juego** al
    documento (falta solo eso). Volcar también al punto 1.6 del documento el texto
    de "1 jugador" y del ranking (comparación de puntajes de mayor a menor).
-2. **Decisión de diseño del salto** (bloquea la entrega del 3 de septiembre):
-   ¿el wheelie incluye salto vertical real o el juego se queda con esquive
-   lateral?
-3. Programar la mecánica principal (salto si aplica + generador de obstáculos)
-   antes del 3 de septiembre.
+2. **Próxima entrega con código: 10 de septiembre** — datos persistentes
+   (guardar el puntaje / armar el ranking con ScriptableObject) y completar el
+   sonido (música de fondo + efectos de la mecánica).
