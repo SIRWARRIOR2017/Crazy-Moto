@@ -10,8 +10,8 @@ de **feria de ciencias** de dos alumnos (Joaquín Pastorino y Santiago Castiñei
 No es un producto comercial: priorizar que el juego sea jugable y cumpla el
 checklist de la feria por sobre cualquier arquitectura "prolija".
 
-Hay dos documentos de requisitos en la raíz (`PROYECTO FERIA DE CIENCIAS.docx` y
-`documento.docx`) que definen dos cosas distintas:
+Hay dos documentos de requisitos en `docs/` (`docs/PROYECTO FERIA DE CIENCIAS.docx`
+y `docs/documento.docx`) que definen dos cosas distintas:
 
 - **`documento.docx`** ("Plan de trabajo"): el alcance de la **primera entrega**
   (20 de agosto): menú, jugar, movimiento lateral + wheelie, una condición de
@@ -22,7 +22,7 @@ Hay dos documentos de requisitos en la raíz (`PROYECTO FERIA DE CIENCIAS.docx` 
   aire", puntaje, y comparación contra un ranking de otros jugadores (dice que el
   juego "es competitivo"). Esto es mucho más grande que lo que hay hoy: no hay
   salto real, no hay puntaje, no hay ranking, no hay sonido, ni partículas, ni luces,
-  ni datos persistentes. Ver `AUDITORIA.md` para el detalle punto por punto.
+  ni datos persistentes. Ver `docs/AUDITORIA.md` para el detalle punto por punto.
 
 ## Arquitectura real
 
@@ -46,7 +46,8 @@ de estado.
   `GameManager.Instance.GameOver()`. La cámara es hija de `pivotCamara`, que es
   hijo del jugador — el seguimiento de cámara es gratis por jerarquía, no hay
   script de cámara.
-- **`RoadManager.cs`** — Pool circular de tramos de camino (prefab `Tramo`):
+- **`RoadManager.cs`** — Pool circular de tramos de camino (prefab
+  `Assets/Prefabs/Tramo.prefab`):
   crea `cantidadTramos` al `Start()`, y en `Update()` cuando el tramo más viejo
   queda a más de `largoTramo` detrás del jugador, lo reubica adelante de todo
   (`Queue` implementada a mano con `List<Transform>`).
@@ -83,7 +84,10 @@ directo al singleton) o por referencias asignadas a mano en el Inspector
   `[SerializeField] private`.
 - Estado que otros scripts necesitan leer pero no escribir se expone como
   auto-propiedad con setter privado (`public bool juegoTerminado { get; private set; }`).
-- Sin namespaces, sin carpetas por feature — todos los `.cs` sueltos en `Assets/`.
+- Sin namespaces. Todos los scripts del proyecto viven en `Assets/Scripts/` (sin
+  subcarpetas por feature); los prefabs en `Assets/Prefabs/`; el asset de Input
+  (`InputSystem_Actions.inputactions`) y los perfiles de URP en `Assets/Settings/`.
+  Materiales propios (cuando haya) van en `Assets/Materials/`.
 - Comentarios mínimos, solo cuando algo no es obvio (ver el comentario sobre el
   obstáculo de prueba en `GameManager.cs`).
 - Reinicio de partida = recargar la escena, nunca resetear campos a mano.
@@ -96,15 +100,15 @@ directo al singleton) o por referencias asignadas a mano en el Inspector
 ## Qué NO tocar
 
 - `Assets/TextMesh Pro/**` — paquete importado, no es código del proyecto.
-- `Assets/TutorialInfo/**`, `Assets/Readme.asset` — plantilla default de Unity.
 - `Assets/Settings/**` (perfiles de URP) salvo que la tarea sea explícitamente de
-  gráficos/rendering.
+  gráficos/rendering. Excepción: `Assets/Settings/InputSystem_Actions.inputactions`
+  se movió acá en la reorganización y sí es un asset del proyecto.
 - Cualquier `.meta` — los administra Unity, nunca a mano.
 - `Packages/manifest.json` — no agregar/quitar dependencias sin que se pida.
 - `ProjectSettings/**` — no tocar salvo que la tarea lo requiera explícitamente
   (y avisando, igual que con `.unity`/`.prefab`).
 
-## Estado actual (resumen — detalle completo en AUDITORIA.md)
+## Estado actual (resumen — detalle completo en docs/AUDITORIA.md)
 
 **Funciona:** loop completo de la primera entrega — menú → jugar → moverse
 lateral + wheelie visual → chocar contra el cubo de prueba → Game Over →
@@ -175,11 +179,24 @@ armado y probado, pero suena en silencio hasta que se le asignen clips).
   escena (siguiendo los pasos que le pasé) y ya le asignó un clip real:
   `Assets/Sounds/Crash.mp3` en el campo `sonidoChoque`. El choque contra el
   obstáculo ya suena.
+- **2026-08-27** — Reorganización del repo para que se vea ordenado en GitHub
+  (Unity cerrado durante la operación). (1) Los 6 scripts pasaron de la raíz de
+  `Assets/` a `Assets/Scripts/`; `Tramo.prefab` a `Assets/Prefabs/`;
+  `InputSystem_Actions.inputactions` a `Assets/Settings/`. Cada archivo se movió
+  con su `.meta` al lado (`git mv`), así los GUID no cambian y ni la escena ni el
+  prefab pierden referencias. (2) Se borró la plantilla URP que no usa el juego:
+  `Assets/TutorialInfo/**` y `Assets/Readme.asset` (12 archivos, no los
+  referenciaba nada). (3) Se borró `Assets/Gris.mat` (material suelto sin ningún
+  uso). (4) Se borró `My project.slnx` (solución autogenerada y obsoleta) y se
+  agregó `*.slnx` al `.gitignore`, junto con `.idea/` y `.vscode/`
+  (`.vscode/` además se dejó de trackear). (5) `docs/` nueva: se movieron ahí
+  `AUDITORIA.md` y los dos `.docx` de requisitos. Todo en un solo commit en la
+  rama `reorg/estructura-y-gitignore`.
 
 ## Pendiente de fecha (checklist de la feria)
 
 - Boceto del juego, definición de multijugador, y detalle del ranking/puntaje
-  siguen sin escribirse en `PROYECTO FERIA DE CIENCIAS.docx` (son decisiones de
+  siguen sin escribirse en `docs/PROYECTO FERIA DE CIENCIAS.docx` (son decisiones de
   diseño del usuario, no de código).
 - `musicaFondo` y `sonidoClick` en `AudioManager` siguen vacíos (solo
   `sonidoChoque` tiene clip asignado). No bloquea el checklist, pero falta si

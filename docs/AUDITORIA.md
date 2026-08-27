@@ -2,6 +2,11 @@
 
 Fecha: 2026-08-26. Solo diagnóstico, **no se aplicó ningún cambio**.
 
+> Nota (2026-08-27): tras la reorganización del repo, este archivo vive en
+> `docs/`, los scripts en `Assets/Scripts/` y el prefab en
+> `Assets/Prefabs/Tramo.prefab`. Los riesgos 1.5 y 1.6 ya se resolvieron
+> (ver "Decisiones tomadas" en `CLAUDE.md`).
+
 ---
 
 ## 1. Bugs y riesgos
@@ -10,7 +15,7 @@ Ordenados de más grave a menos grave.
 
 ### 1.1 — El camino visual tiene huecos enormes (ROMPE HOY, visual)
 
-**Dónde:** `Assets/Tramo.prefab` (escala `{1.2, 1, 3}` sobre el cubo default de
+**Dónde:** `Assets/Prefabs/Tramo.prefab` (escala `{1.2, 1, 3}` sobre el cubo default de
 Unity) vs `RoadManager.cs:9` (`largoTramo = 30`).
 
 **Qué pasa:** cada segmento de camino mide 3 unidades de largo en Z, pero
@@ -111,7 +116,7 @@ antes de implementar pausa.
 
 ### 1.8 — `MeshCollider` de `Tramo` no cumple ninguna función (DEUDA TÉCNICA MENOR, funciona)
 
-**Dónde:** `Assets/Tramo.prefab` (componente `MeshCollider`, `m_IsTrigger: 0`).
+**Dónde:** `Assets/Prefabs/Tramo.prefab` (componente `MeshCollider`, `m_IsTrigger: 0`).
 
 **Qué pasa:** el jugador tiene Y fija (`Rigidbody` kinemático, sin gravedad) y
 solo reacciona a colisiones por tag vía `OnTriggerEnter`. El `MeshCollider` de
@@ -224,7 +229,7 @@ Depende del punto 3.
 Ajustar `Tramo` (escala, o un mesh nuevo) para que cubra `largoTramo` sin
 huecos.
 *Tamaño: S (si alcanza con reescalar) a M (si hace falta modelar/texturizar
-algo nuevo). Archivo: `Assets/Tramo.prefab`.* Toca un prefab → requiere tu OK.
+algo nuevo). Archivo: `Assets/Prefabs/Tramo.prefab`.* Toca un prefab → requiere tu OK.
 No depende de nada técnico, se puede hacer en paralelo con el punto 4.
 
 **6. Puntaje + HUD.**
