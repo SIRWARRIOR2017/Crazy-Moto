@@ -192,12 +192,24 @@ armado y probado, pero suena en silencio hasta que se le asignen clips).
   (`.vscode/` además se dejó de trackear). (5) `docs/` nueva: se movieron ahí
   `AUDITORIA.md` y los dos `.docx` de requisitos. Todo en un solo commit en la
   rama `reorg/estructura-y-gitignore`.
+- **2026-08-27** — Se creó `docs/ENTREGAS.md`: el cronograma completo de entregas
+  de la feria (fechas, puntaje y estado de cada una contra lo que hay en el
+  repo). Mantenerlo actualizado cada vez que se cierra o cambia el estado de una
+  entrega. Puntos a tener presentes: el profesor pone CERO a lo entregado fuera
+  de tiempo; en el repo, `docs/documento.docx` figura subido el 18 de agosto
+  (fecha límite era el 13) y `docs/PROYECTO FERIA DE CIENCIAS.docx` el 13 de
+  agosto (fecha límite era el 6) — hay que confirmar con el profesor qué fecha
+  cuenta. Entregas del 20 y 27 de agosto: cumplidas. Próxima en riesgo: 3 de
+  septiembre (mecánica principal), que necesita la decisión de diseño del salto.
 
 ## Pendiente de fecha (checklist de la feria)
 
+Detalle completo y actualizado en `docs/ENTREGAS.md`. Resumen de lo que falta y
+es decisión del alumno (no de código):
+
 - Boceto del juego, definición de multijugador, y detalle del ranking/puntaje
-  siguen sin escribirse en `docs/PROYECTO FERIA DE CIENCIAS.docx` (son decisiones de
-  diseño del usuario, no de código).
+  siguen sin escribirse en `docs/PROYECTO FERIA DE CIENCIAS.docx` (entrega del
+  6 de agosto, todavía incompleta).
 - `musicaFondo` y `sonidoClick` en `AudioManager` siguen vacíos (solo
-  `sonidoChoque` tiene clip asignado). No bloquea el checklist, pero falta si
-  se quiere música de fondo.
+  `sonidoChoque` tiene clip asignado). Hace falta para la entrega de sonido del
+  10 de septiembre.
