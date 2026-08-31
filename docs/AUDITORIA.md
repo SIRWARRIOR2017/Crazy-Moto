@@ -11,6 +11,9 @@ Fecha: 2026-08-26. Solo diagnóstico, **no se aplicó ningún cambio**.
 > Manager (`AudioManager.cs`, con sonido de choque) y los **datos persistentes**
 > (`RankingData` = ScriptableObject + `ranking.json`). Para el estado al día ver
 > `docs/ENTREGAS.md` y "Decisiones tomadas" en `CLAUDE.md`.
+>
+> Nota (2026-08-31): **1.1 resuelto** (`Tramo.prefab` reescalado a `{10, 1, 30}`,
+> el camino ya no tiene huecos) y **1.8 resuelto** (se le sacó el `MeshCollider`).
 
 ---
 

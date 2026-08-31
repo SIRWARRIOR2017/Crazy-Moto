@@ -77,6 +77,12 @@ crashlytics-build.properties
 # Packed Addressables
 /[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
 
+# Config local de Unity MCP / AI Assistant (rutas propias de cada máquina,
+# paquete embebido pesado). No se versiona: cada quien lo configura local.
+/.mcp.json
+/Packages/com.unity.ai.assistant/
+/ProjectSettings/Packages/
+
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*

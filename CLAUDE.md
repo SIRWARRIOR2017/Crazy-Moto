@@ -48,8 +48,8 @@ de estado.
 - **`PlayerController.cs`** — Vive en el GameObject "Jugador" (tag `Player`). Cada
   `Update()` avanza el transform en Z según `GameManager.Instance.velocidadActual`,
   mueve lateralmente con `Input.GetAxisRaw("Horizontal")` (A-D) clampeado a
-  `limiteLateral` (±3, los 3 carriles son −3 / 0 / +3 pero el movimiento es libre
-  entre ellos), e inclina dos transforms (`cuerpo` y `pivotCamara`) al mantener
+  `limiteLateral` (en la escena está en ±4; los 3 carriles son −3 / 0 / +3 pero
+  el movimiento es libre entre ellos y un poco más allá), e inclina dos transforms (`cuerpo` y `pivotCamara`) al mantener
   **Shift** = wheelie. El wheelie **no es salto** (no hay cambio de Y): es una
   inclinación visual que además (a) hace que el jugador se mueva mucho más lento
   de costado (`factorLateralEnWheelie`) y (b) es la única forma de sumar puntaje.
@@ -80,36 +80,59 @@ de estado.
   da el puesto (1 = primero) o −1. Ordena de mayor a menor. `Deduplicar()` limpia
   nombres repetidos de datos viejos al cargar. `BorrarTodo()` vacía todo.
 - **`MenuRanking.cs`** — Se crea en runtime desde `MenuManager`. Arma por código,
-  dentro de `MenuManager.panelMenu`: un `TMP_InputField` "Tu nombre" (guarda en
-  `PlayerPrefs("NombreJugador")`), la tabla de **Top 10** (más una línea "Estás en
-  el puesto N" si el jugador quedó afuera del top 10) y un botón rojo **"Reiniciar
-  tabla"** que llama a `RankingData.Instance.BorrarTodo()`.
+  dentro de `MenuManager.panelMenu`, la tabla de **Top 10** (más una línea "Estás
+  en el puesto N" si el jugador quedó afuera del top 10). El campo "Tu nombre" y
+  el botón "Reiniciar tabla" **ya no están acá**: se movieron a `MenuOpciones`,
+  que llama a `MenuRanking.Refrescar()` cuando cambian.
+- **`MenuOpciones.cs`** — Se crea en runtime desde `MenuManager`. Arma por código
+  el `PanelOpciones` (hermano de los otros paneles, hijo del `Canvas`) y lo
+  registra en `MenuManager.panelOpciones`. Contenido en secciones apiladas con
+  `VerticalLayoutGroup`: **AUDIO** (3 sliders: "Volumen general" →
+  `AudioListener.volume`, "Volumen música" → `AudioManager.musica.volume`,
+  "Volumen efectos" → `AudioManager.efectos.volume`), **PERFIL** (campo "Tu nombre
+  (para el ranking)" → `PlayerPrefs("NombreJugador")`), **DATOS** (botón "Reiniciar
+  tabla de ranking" → `RankingData.Instance.BorrarTodo()`), **CONTROLES** (texto
+  informativo "Mover: A / D · Wheelie: Shift", no editable hasta el Arduino), y un
+  botón "Volver". Además, en `Start()` agrega el **botón "Opciones"** al menú
+  principal: clona `BotonJugar` (para heredar el estilo), le cambia el texto y el
+  `OnClick` (evento nuevo → `MenuManager.MostrarOpciones()`, descartando el
+  listener heredado de "Jugar"), lo ubica entre Jugar y Salir y reacomoda los 3.
 - **`RoadManager.cs`** — Pool circular de tramos de camino (prefab
-  `Assets/Prefabs/Tramo.prefab`):
+  `Assets/Prefabs/Tramo.prefab`, un cubo en escala `{10, 1, 30}` — mide exactamente
+  `largoTramo` de largo, así los tramos encajan sin huecos; sin `MeshCollider`, el
+  jugador nunca colisiona con el camino). El prefab tiene 12 hijos `LineaCarril`
+  (cubos finos con `Assets/Materials/LineaCarril.mat`, URP Unlit blanco): las
+  líneas discontinuas que separan los 3 carriles, en X = ±1.5, período 5 en Z
+  (segmento de 2 + hueco de 3) que divide justo los 30 del tramo para que tilen
+  sin cortes en las uniones:
   crea `cantidadTramos` al `Start()`, y en `Update()` cuando el tramo más viejo
   queda a más de `largoTramo` detrás del jugador, lo reubica adelante de todo
   (`Queue` implementada a mano con `List<Transform>`).
-- **`MenuManager.cs`** — Controla 3 paneles (menú / juego / game over) con
-  `SetActive`. Usa un `static bool irAJugar` en memoria (no `PlayerPrefs`) para
-  saber, al recargar la escena, si debe arrancar jugando directo o mostrar el
-  menú. Los botones que ya estaban en la escena (Jugar/Salir/Continuar/Menú)
-  llaman a sus métodos públicos vía `OnClick` del Inspector; el botón "Reiniciar
-  tabla" lo agrega `MenuRanking` por código. En `Start()` crea el `MenuRanking`
-  si no existe.
+- **`MenuManager.cs`** — Controla 4 paneles (menú / juego / game over con
+  `SetActive`, y `panelOpciones` que se arma por código — ver `MenuOpciones`).
+  Usa un `static bool irAJugar` en memoria (no `PlayerPrefs`) para saber, al
+  recargar la escena, si debe arrancar jugando directo o mostrar el menú. Los
+  botones que ya estaban en la escena (Jugar/Salir/Continuar/Menú) llaman a sus
+  métodos públicos vía `OnClick` del Inspector; los botones "Opciones", "Volver"
+  y "Reiniciar tabla" los cablea `MenuOpciones` por código. `MostrarOpciones()` /
+  `VolverDeOpciones()` alternan menú ↔ opciones. En `Start()` crea el
+  `MenuRanking` y el `MenuOpciones` si no existen.
 - **`AudioManager.cs`** — Singleton (`AudioManager.Instance`, mismo patrón que
   `GameManager`, se recrea con cada recarga de escena). Tiene un `AudioSource`
   para música (loop) y otro para efectos (`PlayOneShot`); si no se asignan a
-  mano en el Inspector, se crean solos en `Awake()`. Expone
-  `ReproducirChoque()` (enganchado desde `GameManager.GameOver()`) y
-  `ReproducirClick()` (todavía sin usar — ver nota más abajo). Los campos de
-  `AudioClip` (`musicaFondo`, `sonidoChoque`, `sonidoClick`) están vacíos a
-  propósito: no hay archivos de audio en el proyecto todavía, hay que
-  arrastrarlos en el Inspector cuando existan.
-- **`VolumenSlider.cs`** — Vive en el Slider de volumen dentro de `PanelMenu`.
-  Al arrancar lee el volumen guardado en `PlayerPrefs("Volumen")` (default 1) y
-  lo aplica a `AudioListener.volume` (afecta todo el audio del juego, no pasa
-  por `AudioManager`). Su método `CambiarVolumen(float)` está enganchado al
-  evento `On Value Changed` del Slider en el Inspector.
+  mano en el Inspector, se crean solos en `Awake()`. **No reproduce nada al
+  arrancar**: la música es solo del menú, la dispara `MenuManager.MostrarMenu()`
+  con `ReproducirMusicaMenu()` (y `EmpezarJuego()` llama a `DetenerMusica()`).
+  Maneja **3 volúmenes** que se ajustan en Opciones y se guardan en `PlayerPrefs`
+  (`Volumen` → `AudioListener.volume`, `VolumenMusica` → `musica.volume`,
+  `VolumenEfectos` → `efectos.volume`): los aplica en `Awake()` y los cambia con
+  `SetVolumenGeneral/Musica/Efectos` (las claves están como constantes públicas
+  `AudioManager.ClaveVolumen*`). Expone además `ReproducirChoque()` (enganchado
+  desde `GameManager.GameOver()`) y `ReproducirClick()` (todavía sin usar). Los
+  campos de `AudioClip` (`musicaFondo`, `sonidoChoque`, `sonidoClick`) están
+  vacíos salvo `sonidoChoque` (`Crash.mp3`): faltan los otros archivos, hay que
+  arrastrarlos en el Inspector cuando existan. (El viejo `VolumenSlider.cs` se
+  eliminó: su función pasó a `MenuOpciones` + `AudioManager`.)
 
 Comunicación entre scripts: casi todo pasa por `GameManager.Instance` (acceso
 directo al singleton) o por referencias asignadas a mano en el Inspector
@@ -132,7 +155,8 @@ directo al singleton) o por referencias asignadas a mano en el Inspector
   obstáculo de prueba en `GameManager.cs`).
 - Reinicio de partida = recargar la escena, nunca resetear campos a mano.
 - `PlayerPrefs` se usa solo para preferencias que deben sobrevivir a cerrar y
-  volver a abrir el juego (`"Volumen"`, `"NombreJugador"`), nunca para flags de un
+  volver a abrir el juego (`"Volumen"`, `"VolumenMusica"`, `"VolumenEfectos"`,
+  `"NombreJugador"`), nunca para flags de un
   solo uso entre una recarga de escena y la siguiente (eso se resuelve con un
   `static` en memoria — ver el bug que se corrigió en `MenuManager`, sección de
   decisiones). Los datos de juego (el ranking) van en JSON, no en `PlayerPrefs`.
@@ -158,16 +182,20 @@ puntaje se guarda en un ranking persistente (`ranking.json`) que se ve en el
 menú: Top 10 + "estás en el puesto N" + botón "Reiniciar tabla".
 
 **A medias:** UI escalable configurada (CanvasScaler con "Scale With Screen
-Size"); el HUD de puntaje y toda la UI de ranking están armados por código
-(`Hud.cs`, `MenuRanking.cs`), sin estilo. Los autos son cubos rojos creados en
-runtime (`TrafficManager.cs`), sin arte. El pooling de `RoadManager` funciona
-pero el prefab `Tramo` es visualmente mucho más corto (3 unidades) que la
-distancia entre spawns (`largoTramo = 30`), así que el camino se ve con huecos
-grandes.
+Size"); el HUD de puntaje, la tabla de ranking y todo el panel de Opciones están
+armados por código (`Hud.cs`, `MenuRanking.cs`, `MenuOpciones.cs`), en greybox
+sin estilo. El menú tiene 3 botones (Jugar / Opciones / Salir) y Opciones agrupa
+en secciones los 3 volúmenes, el nombre, el reinicio del ranking y la ayuda de
+controles. Los autos son cubos rojos creados en runtime (`TrafficManager.cs`),
+sin arte. El camino ya no tiene huecos (el prefab `Tramo` se reescaló a
+`{10, 1, 30}`) y tiene líneas de carril discontinuas, pero sigue siendo un cubo
+gris sin textura ni arte.
 
-**No existe todavía:** sonido de fondo/click (solo suena el choque), partículas,
-luces de efecto, efectos de cámara. **Decidido que NO habrá salto**: la mecánica
-vertical es el wheelie (ver "Decisiones tomadas").
+**No existe todavía:** música de menú, sonido de click, ruidos de la partida
+(motor de la moto, autos pasando) — solo suena el choque; partículas, luces de
+efecto, efectos de cámara. **Decidido que NO habrá salto** (la mecánica vertical
+es el wheelie) y que la **música va solo en el menú**, no durante la partida
+(ver "Decisiones tomadas").
 
 ## Reglas de trabajo (del usuario, permanentes)
 
@@ -267,6 +295,62 @@ vertical es el wheelie (ver "Decisiones tomadas").
   jugador (se queda el mejor puntaje). Se descartó el `.asset` hecho a mano
   porque Unity lo importaba antes de compilar el script y quedaba "missing
   script". El alumno lo probó y funciona.
+- **2026-08-31** — Puente Unity MCP configurado. El alumno habilitó en Project
+  Settings → AI: el Unity MCP Server (bridge "Running", las 54 tools habilitadas)
+  y el Gateway con provider "Claude Code". El archivo `.mcp.json` en la raíz del
+  repo apunta al relay (`~/.unity/relay/relay_win.exe --mcp`). A partir de acá
+  puedo leer y editar escena, prefabs, assets y consola de Unity directamente
+  desde la sesión, sin que el alumno tenga que pegar código a mano. Las carpetas
+  `Packages/com.unity.ai.assistant/` y `ProjectSettings/Packages/` aparecieron
+  con esto. Se descartó Figma (el alumno prefiere pulir el proyecto antes de
+  meter arte/modelos).
+- **2026-08-31** — Se arregló el camino con huecos (bug 1.1 de `docs/AUDITORIA.md`).
+  El prefab `Assets/Prefabs/Tramo.prefab` pasó de escala `{1.2, 1, 3}` a
+  `{10, 1, 30}`: ahora cada tramo mide exactamente `largoTramo` (30), así que el
+  pooling de `RoadManager` los coloca uno tras otro sin vacíos, y el ancho (10)
+  cubre los 3 carriles. Se le quitó el `MeshCollider` (no cumplía ninguna función,
+  bug 1.8) y se le puso la posición local en `{0,0,0}` (tenía un offset heredado).
+  Editado en el `.prefab` YAML y reimportado por MCP; sin errores de consola.
+  Queda pendiente que el alumno lo pruebe en Play y revise la altura del piso.
+- **2026-08-31** — Líneas de carril. El alumno pidió líneas que separen los
+  carriles y eligió **discontinuas tipo autopista**. Se agregaron al prefab
+  `Tramo` 12 hijos `LineaCarril` (6 en X=−1.5 y 6 en X=+1.5), cubos finos
+  (~0.15 × 0.06 × 2 en mundo) con material nuevo `Assets/Materials/LineaCarril.mat`
+  (URP Unlit blanco, primer material propio del proyecto → se creó la carpeta
+  `Assets/Materials/`). El período en Z es 5 (segmento 2 + hueco 3) y divide
+  exacto los 30 del tramo, así las líneas no se cortan en las uniones entre
+  tramos. Hecho con `Unity_RunCommand` (script que abre el prefab con
+  `PrefabUtility.LoadPrefabContents`, agrega los hijos y guarda); el script borra
+  y regenera los `LineaCarril` si se vuelve a correr. Verificado en Play: las
+  líneas renderizan.
+- **2026-08-31** — Decisión de diseño (audio): la **música va solo en el menú**.
+  Durante la partida no hay música — solo se van a escuchar los sonidos "reales"
+  de la moto (motor en loop) y de los autos pasando. **Implementado:** `AudioManager`
+  ya no reproduce nada en `Start()` (se le sacó ese método); tiene
+  `ReproducirMusicaMenu()` y `DetenerMusica()`. `MenuManager.MostrarMenu()` llama
+  a `ReproducirMusicaMenu()` y `EmpezarJuego()` llama a `DetenerMusica()` por las
+  dudas. Compila sin errores. Falta el archivo de música (campo `musicaFondo`
+  sigue vacío) y los sonidos de moto/autos (ni archivos ni código todavía).
+- **2026-08-31** — Menú de Opciones (pedido del alumno). Botón **"Opciones"** en
+  el menú, entre Jugar y Salir, que abre un `PanelOpciones` con la config repartida
+  en secciones, cada control con nombre descriptivo. Decisiones del alumno:
+  volumen **separado en 3** (general / música / efectos), el campo "Tu nombre"
+  **solo** en Opciones (ya no en el menú), y sección **"Controles"** informativa
+  (no editable). Implementación: nuevo `MenuOpciones.cs` (arma el panel y el botón
+  por código, patrón de `MenuRanking`); `AudioManager` maneja los 3 volúmenes;
+  `MenuManager` gana `panelOpciones` + `MostrarOpciones()`/`VolverDeOpciones()`;
+  `MenuRanking` perdió el campo de nombre y el botón "Reiniciar" (se fueron a
+  Opciones); se eliminó `VolumenSlider.cs` y el objeto `SliderVolumen` de la
+  escena. Cambios en la escena (`SampleScene.unity`, guardada por MCP): se quitó
+  `SliderVolumen`, se reubicaron `BotonJugar` (y=120) y `BotonSalir` (y=−40); el
+  botón "Opciones" NO está en la escena, lo agrega `MenuOpciones` en runtime (por
+  eso en el Editor sin Play no se ve, igual que la tabla de ranking). Verificado
+  en Play: el botón abre el panel, están los 3 sliders + campo de nombre + 2
+  botones + textos de sección, sin errores de consola. Nota de MCP: `RunCommand`
+  falla con "User interactions are not supported" si el script llama a
+  `EditorSceneManager.SaveScene` o `AssetDatabase.DeleteAsset`; hay que guardar la
+  escena con `Unity_ManageScene` (Action "Save") y borrar assets con
+  `Unity_ManageAsset` (Action "Delete"), no desde `RunCommand`.
 
 ## Actividades futuras (tener en cuenta al programar, para no rehacer)
 
@@ -278,9 +362,9 @@ vertical es el wheelie (ver "Decisiones tomadas").
   llamadas a `Input.*` por otros scripts.
 - **Autos y UI a arte real:** cuando haya modelos/estilo, `TrafficManager` debe
   instanciar un prefab de auto en vez de `CreatePrimitive`, y toda la UI armada
-  por código (`Hud.cs` en `PanelJuego`/`PanelGameOver`, y `MenuRanking.cs` en
-  `PanelMenu`: campo de nombre, tabla de ranking y botón "Reiniciar tabla")
-  debería pasar a ser objetos de UI en la escena.
+  por código (`Hud.cs` en `PanelJuego`/`PanelGameOver`; `MenuRanking.cs` con la
+  tabla de ranking; `MenuOpciones.cs` con el panel de Opciones entero y el botón
+  "Opciones" del menú) debería pasar a ser objetos de UI en la escena.
 
 ## Pendiente de fecha (checklist de la feria)
 
