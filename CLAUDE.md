@@ -108,15 +108,32 @@ de estado.
   crea `cantidadTramos` al `Start()`, y en `Update()` cuando el tramo más viejo
   queda a más de `largoTramo` detrás del jugador, lo reubica adelante de todo
   (`Queue` implementada a mano con `List<Transform>`).
-- **`MenuManager.cs`** — Controla 4 paneles (menú / juego / game over con
-  `SetActive`, y `panelOpciones` que se arma por código — ver `MenuOpciones`).
+- **`MenuManager.cs`** — Controla 5 paneles (menú / juego / game over con
+  `SetActive`, y `panelOpciones` + `panelPausa` que se arman por código — ver
+  `MenuOpciones` y `MenuPausa`).
   Usa un `static bool irAJugar` en memoria (no `PlayerPrefs`) para saber, al
   recargar la escena, si debe arrancar jugando directo o mostrar el menú. Los
   botones que ya estaban en la escena (Jugar/Salir/Continuar/Menú) llaman a sus
   métodos públicos vía `OnClick` del Inspector; los botones "Opciones", "Volver"
   y "Reiniciar tabla" los cablea `MenuOpciones` por código. `MostrarOpciones()` /
   `VolverDeOpciones()` alternan menú ↔ opciones. En `Start()` crea el
-  `MenuRanking` y el `MenuOpciones` si no existen.
+  `MenuRanking`, el `MenuOpciones` y el `MenuPausa` si no existen. Expone
+  `estaPausado { get; private set; }` — la variable que distingue *por qué* el
+  juego está en `Time.timeScale = 0` (menú / game over / pausa), lo que resuelve
+  el punto 1.7 de `docs/AUDITORIA.md`. `Pausar()` / `Reanudar()` /
+  `AlternarPausa()` solo actúan si `panelJuego` está activo y el juego no
+  terminó; `VolverDeOpciones()` vuelve a la pausa si Opciones se abrió desde ahí.
+- **`MenuPausa.cs`** — Se crea en runtime desde `MenuManager` (patrón de
+  `MenuOpciones`). Arma por código el `PanelPausa` (hermano de los otros paneles,
+  hijo del `Canvas`) y lo registra en `MenuManager.panelPausa`: título "PAUSA" +
+  3 botones centrados apilados **Continuar** (`MenuManager.Reanudar()`) /
+  **Opciones** (`MenuManager.MostrarOpciones()`, el mismo `PanelOpciones` del
+  menú; su "Volver" regresa a la pausa) / **Salir** (`MenuManager.VolverAlMenu()`,
+  vuelve al menú principal). Además agrega el botón **"II"** en la esquina
+  superior derecha de `MenuManager.panelJuego` (aparece/desaparece con él, como
+  el texto de puntaje del HUD). En `Update()` lee **Escape**: si Opciones está
+  abierto hace de "Volver", si no llama a `AlternarPausa()`. Es el único lugar
+  del proyecto que lee `Input` de Escape.
 - **`AudioManager.cs`** — Singleton (`AudioManager.Instance`, mismo patrón que
   `GameManager`, se recrea con cada recarga de escena). Tiene un `AudioSource`
   para música (loop) y otro para efectos (`PlayOneShot`); si no se asignan a
@@ -128,7 +145,9 @@ de estado.
   `VolumenEfectos` → `efectos.volume`): los aplica en `Awake()` y los cambia con
   `SetVolumenGeneral/Musica/Efectos` (las claves están como constantes públicas
   `AudioManager.ClaveVolumen*`). Expone además `ReproducirChoque()` (enganchado
-  desde `GameManager.GameOver()`) y `ReproducirClick()` (todavía sin usar). Los
+  desde `GameManager.GameOver()`) y `ReproducirClick()` (lo llama
+  `MenuManager.Reanudar()` — el botón "Continuar" de la pausa no recarga escena,
+  así que el click sí llega a sonar; mudo hasta que haya clip en `sonidoClick`). Los
   campos de `AudioClip` (`musicaFondo`, `sonidoChoque`, `sonidoClick`) están
   vacíos salvo `sonidoChoque` (`Crash.mp3`): faltan los otros archivos, hay que
   arrastrarlos en el Inspector cuando existan. (El viejo `VolumenSlider.cs` se
@@ -179,7 +198,9 @@ que vienen de frente por 3 carriles (A-D, movimiento libre) → sostener wheelie
 (Shift) para sumar puntaje a costa de casi no poder esquivar → chocar un auto →
 Game Over con puntaje final → Continuar/Menú, todo recargando la escena. El
 puntaje se guarda en un ranking persistente (`ranking.json`) que se ve en el
-menú: Top 10 + "estás en el puesto N" + botón "Reiniciar tabla".
+menú: Top 10 + "estás en el puesto N" + botón "Reiniciar tabla". Durante la
+partida se puede **pausar** con Escape o con el botón "II" del HUD: pantalla con
+Continuar / Opciones / Salir (al menú).
 
 **A medias:** UI escalable configurada (CanvasScaler con "Scale With Screen
 Size"); el HUD de puntaje, la tabla de ranking y todo el panel de Opciones están
@@ -351,6 +372,19 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   `EditorSceneManager.SaveScene` o `AssetDatabase.DeleteAsset`; hay que guardar la
   escena con `Unity_ManageScene` (Action "Save") y borrar assets con
   `Unity_ManageAsset` (Action "Delete"), no desde `RunCommand`.
+- **2026-09-03** — Pausa durante la partida (pedido del alumno). Se activa con
+  **Escape** y con un botón **"II"** en la esquina superior derecha del HUD.
+  Decisiones del alumno: al pausar aparece una pantalla con 3 botones centrados
+  —**Continuar**, **Opciones**, **Salir**— donde "Opciones" abre el mismo
+  `PanelOpciones` del menú (su "Volver" regresa a la pausa) y "Salir" vuelve al
+  menú principal. Implementado por código sin tocar escena ni prefabs: nuevo
+  `MenuPausa.cs` (arma el panel y el botón "II" en runtime, patrón de
+  `MenuOpciones`); `MenuManager` gana `panelPausa`, `estaPausado` y
+  `Pausar()`/`Reanudar()`/`AlternarPausa()`. De paso se resolvió el punto 1.7 de
+  `docs/AUDITORIA.md`: `estaPausado` es la variable que faltaba para que menú,
+  game over y pausa no se pisen al compartir `Time.timeScale = 0`. El botón
+  "Continuar" engancha `AudioManager.ReproducirClick()` (mudo hasta que haya
+  clip). Verificado en Play por el alumno.
 
 ## Actividades futuras (tener en cuenta al programar, para no rehacer)
 
@@ -364,7 +398,8 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   instanciar un prefab de auto en vez de `CreatePrimitive`, y toda la UI armada
   por código (`Hud.cs` en `PanelJuego`/`PanelGameOver`; `MenuRanking.cs` con la
   tabla de ranking; `MenuOpciones.cs` con el panel de Opciones entero y el botón
-  "Opciones" del menú) debería pasar a ser objetos de UI en la escena.
+  "Opciones" del menú; `MenuPausa.cs` con el panel de pausa y el botón "II" del
+  HUD) debería pasar a ser objetos de UI en la escena.
 
 ## Pendiente de fecha (checklist de la feria)
 

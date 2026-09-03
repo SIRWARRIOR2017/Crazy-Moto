@@ -14,6 +14,11 @@ Fecha: 2026-08-26. Solo diagnóstico, **no se aplicó ningún cambio**.
 >
 > Nota (2026-08-31): **1.1 resuelto** (`Tramo.prefab` reescalado a `{10, 1, 30}`,
 > el camino ya no tiene huecos) y **1.8 resuelto** (se le sacó el `MeshCollider`).
+>
+> Nota (2026-09-03): **1.7 resuelto** al agregar la pausa. `MenuManager` ahora
+> tiene `estaPausado`, la variable que faltaba para distinguir *por qué* el juego
+> está en `Time.timeScale = 0` (menú / game over / pausa). Ver el nuevo
+> `MenuPausa.cs` y la decisión del 2026-09-03 en `CLAUDE.md`.
 
 ---
 
@@ -108,7 +113,11 @@ carga.
 sistema robusto ante cualquier valor futuro de velocidad/largo, sin cambiar el
 comportamiento normal.
 
-### 1.7 — `Time.timeScale` es un interruptor global compartido por menú y game-over (DEUDA TÉCNICA — funciona hoy, va a chocar con una futura pausa)
+### 1.7 — `Time.timeScale` es un interruptor global compartido por menú y game-over (RESUELTO 2026-09-03)
+
+**Resuelto:** al implementar la pausa se agregó `MenuManager.estaPausado`, que
+identifica el tercer estado. Menú, game over y pausa ya no se pisan.
+
 
 **Dónde:** `GameManager.cs:56` y `MenuManager.cs:29`.
 
