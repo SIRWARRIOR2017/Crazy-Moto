@@ -29,9 +29,11 @@ y `docs/documento.docx`) que definen dos cosas distintas:
 
 ## Arquitectura real
 
-Todo vive en una sola escena (`Assets/Scenes/SampleScene.unity`) que se recarga
+Todo vive en una sola escena (`Assets/Scenes/ESCENA 1.unity`) que se recarga
 completa (`SceneManager.LoadScene`) para "reiniciar" el juego — no hay reseteo manual
-de estado.
+de estado. (La escena se llamaba `SampleScene.unity` hasta el 2026-09-08; el
+alumno la renombró desde Unity, así que conserva el mismo GUID
+`99c9720ab356a0642a771bea13969a05` y las referencias del build no se rompieron.)
 
 - **`GameManager.cs`** — Singleton (`GameManager.Instance`, sin `DontDestroyOnLoad`,
   se reinicia solo porque la escena entera se recarga). Lleva `velocidadActual`
@@ -50,7 +52,10 @@ de estado.
   mueve lateralmente con `Input.GetAxisRaw("Horizontal")` (A-D) clampeado a
   `limiteLateral` (en la escena está en ±4; los 3 carriles son −3 / 0 / +3 pero
   el movimiento es libre entre ellos y un poco más allá), e inclina dos transforms (`cuerpo` y `pivotCamara`) al mantener
-  **Shift** = wheelie. El wheelie **no es salto** (no hay cambio de Y): es una
+  **Shift** = wheelie. `cuerpo` (GameObject "Cuerpo") tiene como hijo
+  `MotoModelo` — el modelo 3D de la moto (`Moto.glb`), que se inclina con el
+  wheelie; antes ahí había un cubo llamado `Modelo` que se borró. El wheelie
+  **no es salto** (no hay cambio de Y): es una
   inclinación visual que además (a) hace que el jugador se mueva mucho más lento
   de costado (`factorLateralEnWheelie`) y (b) es la única forma de sumar puntaje.
   Todo el input crudo se lee solo en `LeerLateral()` y `LeerWheelie()` (para
@@ -58,14 +63,27 @@ de estado.
   derrota con `OnTriggerEnter` chequeando `tag == "Obstaculo"`. La cámara es hija
   de `pivotCamara`, que es hijo del jugador — el seguimiento es gratis por
   jerarquía, no hay script de cámara.
-- **`TrafficManager.cs`** — Se crea en runtime desde `GameManager`. Autos (cubos
-  rojos creados con `CreatePrimitive`, tag `Obstaculo`, sin trigger) que vienen de
-  frente ("autopista en contramano") por los 3 carriles. Pool circular igual que
-  `RoadManager`. Genera "filas" de **1 o 2 autos, nunca los 3**, así siempre queda
-  un carril libre para esquivar. La distancia entre filas baja de
-  `distanciaEntreFilasInicial` a `...Minima` a medida que sube `velocidadActual`.
-  Todos los valores son ajustables en el Inspector del GameObject que crea en
-  runtime.
+- **`TrafficManager.cs`** — Se crea en runtime desde `GameManager`. Autos con
+  tag `Obstaculo` que vienen de frente ("autopista en contramano") por los 3
+  carriles. Pool circular igual que `RoadManager`. Genera "filas" de **1 o 2
+  autos, nunca los 3**, así siempre queda un carril libre para esquivar. La
+  distancia entre filas baja de `distanciaEntreFilasInicial` a `...Minima` a
+  medida que sube `velocidadActual`. Los modelos de auto se cargan con
+  `Resources.LoadAll<GameObject>("Autos")` de `Assets/Resources/Autos/`: cada
+  auto del pool instancia uno de esos prefabs al azar. Si esa carpeta está vacía
+  cae a un **cubo rojo** de `CreatePrimitive` (`tamanoCuboFallback`) para que el
+  juego siga andando sin arte. Cada auto lleva el tag `Obstaculo` en la raíz y,
+  si el prefab no trajo `Collider`, se le agrega un `BoxCollider` genérico con
+  aviso por consola. El jugador detecta el choque con su propio trigger
+  (`OnTriggerEnter`), así que al auto le alcanza con un collider sólido, no
+  trigger. Todos los valores son ajustables en el Inspector del GameObject que
+  crea en runtime.
+  Los prefabs de `Resources/Autos/` (`Auto.prefab` = BMW, `Prius.prefab`) tienen
+  la misma estructura: **raíz = GameObject vacío** con `BoxCollider` + tag +
+  escala + giro de juego, y el `.glb` como **hijo sin tocar** (mantiene la
+  rotación de conversión de glTFast, `270,0,0`). Nunca setear la rotación en la
+  raíz del `.glb` directamente: se pierde esa conversión y el modelo queda de
+  costado. Los `.glb` crudos están en `Assets/Models/`, no en `Resources`.
 - **`Hud.cs`** — Se crea en runtime desde `GameManager`. Arma por código dos
   textos TMP: "Puntaje: N" como hijo de `MenuManager.panelJuego` y
   "Puntaje final: N" como hijo de `MenuManager.panelGameOver`, así aparecen y
@@ -207,10 +225,12 @@ Size"); el HUD de puntaje, la tabla de ranking y todo el panel de Opciones está
 armados por código (`Hud.cs`, `MenuRanking.cs`, `MenuOpciones.cs`), en greybox
 sin estilo. El menú tiene 3 botones (Jugar / Opciones / Salir) y Opciones agrupa
 en secciones los 3 volúmenes, el nombre, el reinicio del ranking y la ayuda de
-controles. Los autos son cubos rojos creados en runtime (`TrafficManager.cs`),
-sin arte. El camino ya no tiene huecos (el prefab `Tramo` se reescaló a
-`{10, 1, 30}`) y tiene líneas de carril discontinuas, pero sigue siendo un cubo
-gris sin textura ni arte.
+controles. Los autos y la moto del jugador ya son **modelos 3D reales** (`.glb`
+vía glTFast): `TrafficManager` instancia `Auto.prefab` / `Prius.prefab` de
+`Assets/Resources/Autos/` (fallback a cubo rojo si la carpeta está vacía) y la
+moto es `Cuerpo/MotoModelo` en la escena. El camino ya no tiene huecos (el prefab
+`Tramo` se reescaló a `{10, 1, 30}`) y tiene líneas de carril discontinuas, pero
+sigue siendo un cubo gris sin textura ni arte.
 
 **No existe todavía:** música de menú, sonido de click, ruidos de la partida
 (motor de la moto, autos pasando) — solo suena el choque; partículas, luces de
@@ -318,13 +338,14 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   script". El alumno lo probó y funciona.
 - **2026-08-31** — Puente Unity MCP configurado. El alumno habilitó en Project
   Settings → AI: el Unity MCP Server (bridge "Running", las 54 tools habilitadas)
-  y el Gateway con provider "Claude Code". El archivo `.mcp.json` en la raíz del
-  repo apunta al relay (`~/.unity/relay/relay_win.exe --mcp`). A partir de acá
-  puedo leer y editar escena, prefabs, assets y consola de Unity directamente
-  desde la sesión, sin que el alumno tenga que pegar código a mano. Las carpetas
-  `Packages/com.unity.ai.assistant/` y `ProjectSettings/Packages/` aparecieron
-  con esto. Se descartó Figma (el alumno prefiere pulir el proyecto antes de
-  meter arte/modelos).
+  y el Gateway con provider "Claude Code". A partir de acá puedo leer y editar
+  escena, prefabs, assets y consola de Unity directamente desde la sesión, sin
+  que el alumno tenga que pegar código a mano. Se descartó Figma (el alumno
+  prefiere pulir el proyecto antes de meter arte/modelos). (La config exacta del
+  cliente cambió — ver 2026-09-08: el paquete es `com.unity.ai.assistant` y la
+  config vive en `~/.claude.json`, no en un `.mcp.json` del repo. `.gitignore`
+  ignora `Packages/com.unity.ai.assistant/` y `ProjectSettings/Packages/`, así
+  que cada máquina reinstala el paquete por su cuenta.)
 - **2026-08-31** — Se arregló el camino con huecos (bug 1.1 de `docs/AUDITORIA.md`).
   El prefab `Assets/Prefabs/Tramo.prefab` pasó de escala `{1.2, 1, 3}` a
   `{10, 1, 30}`: ahora cada tramo mide exactamente `largoTramo` (30), así que el
@@ -371,7 +392,11 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   falla con "User interactions are not supported" si el script llama a
   `EditorSceneManager.SaveScene` o `AssetDatabase.DeleteAsset`; hay que guardar la
   escena con `Unity_ManageScene` (Action "Save") y borrar assets con
-  `Unity_ManageAsset` (Action "Delete"), no desde `RunCommand`.
+  `Unity_ManageAsset` (Action "Delete"), no desde `RunCommand`. (Ampliación
+  2026-09-08: `RunCommand` tampoco deja usar `System.Reflection` —rechaza el
+  namespace—; `Unity_ManageAsset` "Move" reporta error pero igual mueve el
+  archivo, hay que verificar en disco; y en Play mode el juego solo avanza si
+  `Application.runInBackground = true` o el Editor tiene foco.)
 - **2026-09-03** — Pausa durante la partida (pedido del alumno). Se activa con
   **Escape** y con un botón **"II"** en la esquina superior derecha del HUD.
   Decisiones del alumno: al pausar aparece una pantalla con 3 botones centrados
@@ -385,6 +410,46 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   game over y pausa no se pisen al compartir `Time.timeScale = 0`. El botón
   "Continuar" engancha `AudioManager.ReproducirClick()` (mudo hasta que haya
   clip). Verificado en Play por el alumno.
+- **2026-09-08** — Modelos 3D con glTFast (pedido del alumno). (1) Se agregó el
+  paquete `com.unity.cloud.gltfast` (`6.20.0`) al `manifest.json` para importar
+  `.glb`. (2) El alumno renombró la escena `SampleScene.unity` → `ESCENA 1.unity`
+  desde Unity (mismo GUID); se corrigió el `path` en
+  `ProjectSettings/EditorBuildSettings.asset` y el `templateDefaultScene` de
+  `ProjectSettings.asset`, que habían quedado apuntando al nombre viejo. (3)
+  Modelos en `Assets/Models/`: `Moto.glb` (12,9 MB), `Auto.glb` (13,7 MB) y
+  `Toyota Prius 2012.glb` (3,6 MB) — low-poly, importados sin warnings. (Primero
+  el alumno bajó modelos de 150/47/43 MB: el de 150 MB ni siquiera pushea a
+  GitHub —límite de 100 MB por archivo— y eran demasiado pesados en texturas; los
+  reemplazó por estos. Regla: modelos de juego por debajo de ~5 MB; si hace falta
+  achicar, `gltf-transform resize`.) **Decisión: los `.glb` van commiteados al
+  repo** (no Git LFS, no `.gitignore`) porque el compañero clona el proyecto y
+  tiene que funcionar sin bajar nada aparte. (4) Se rehízo el puente Unity MCP:
+  el alumno reinstaló el paquete `com.unity.ai.assistant` (`2.19.0-pre.2`) y
+  activó el "Unity MCP Server" en Project Settings → AI; la config de cliente
+  quedó en `~/.claude.json` (clave global `mcpServers.unity-mcp`, apunta a
+  `~/.unity/relay/relay_win.exe --mcp`), NO en un `.mcp.json` del repo. Con eso
+  Claude volvió a poder leer/editar la escena. Esta vez `com.unity.ai.assistant`
+  quedó como dependencia de registro en `Packages/manifest.json` (antes era
+  embebido/gitignoreado); es un `pre.2` y necesita cuenta de Unity con IA — si le
+  molesta a Santiago al clonar, se puede borrar esa línea (glTFast sí queda).
+  (5) **Swap de modelos hecho por
+  MCP:** `TrafficManager` reescrito para instanciar prefabs de
+  `Assets/Resources/Autos/` (`Resources.LoadAll`, fallback a cubo rojo). Los 3
+  `.glb` estaban en unidades y ejes distintos (Auto y Moto en milímetros y
+  apuntando al eje X; Prius con el largo en Y) y con la rotación de conversión de
+  glTFast en la raíz (`270,0,0`). Solución: cada modelo va **envuelto en un
+  GameObject vacío** que lleva la escala, el giro de juego y el `BoxCollider`; el
+  `.glb` hijo NO se toca (conserva su `270,0,0`). Auto y Prius quedaron como
+  `Auto.prefab` / `Prius.prefab` en `Resources/Autos/` (~4,3 / 4,5 m de largo,
+  tag `Obstaculo` en la raíz, collider ajustado a la malla, mirando −Z = de
+  frente al jugador). La moto es `Cuerpo/MotoModelo` en la escena (~2 m, mirando
+  +Z = el jugador la ve de atrás), reemplaza al cubo `Modelo` que se borró. Los
+  `.glb` crudos viven en `Assets/Models/` (fuera de `Resources` para que
+  `LoadAll` no los duplique). Verificado por MCP: compila sin errores, los
+  prefabs cargan, el tráfico spawnea filas de 1-2 autos. **Falta que el alumno lo
+  pruebe jugando de verdad** (que el choque dispare el Game Over, que se sienta
+  bien el tamaño del hitbox del `Jugador` —sigue en 1×1×1— frente a la moto de
+  2 m).
 
 ## Actividades futuras (tener en cuenta al programar, para no rehacer)
 
@@ -394,12 +459,12 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   `LeerWheelie()` dentro de `PlayerController`: cuando llegue el Arduino se
   cambian esos dos métodos (leer del puerto serie) y nada más. No dispersar
   llamadas a `Input.*` por otros scripts.
-- **Autos y UI a arte real:** cuando haya modelos/estilo, `TrafficManager` debe
-  instanciar un prefab de auto en vez de `CreatePrimitive`, y toda la UI armada
-  por código (`Hud.cs` en `PanelJuego`/`PanelGameOver`; `MenuRanking.cs` con la
-  tabla de ranking; `MenuOpciones.cs` con el panel de Opciones entero y el botón
-  "Opciones" del menú; `MenuPausa.cs` con el panel de pausa y el botón "II" del
-  HUD) debería pasar a ser objetos de UI en la escena.
+- **UI a arte real:** toda la UI armada por código (`Hud.cs` en
+  `PanelJuego`/`PanelGameOver`; `MenuRanking.cs` con la tabla de ranking;
+  `MenuOpciones.cs` con el panel de Opciones entero y el botón "Opciones" del
+  menú; `MenuPausa.cs` con el panel de pausa y el botón "II" del HUD) debería
+  pasar a ser objetos de UI en la escena. (Los autos ya usan modelos reales vía
+  `TrafficManager` + `Assets/Resources/Autos/`.)
 
 ## Pendiente de fecha (checklist de la feria)
 
