@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: e4fafcd8dbcaf744cbf7b977ec03a518
+guid: d1540dca8ac445641ba0766fdb32e590
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -25,4 +25,8 @@ ScriptedImporter:
     lightIntensityFactor: 1
     sceneObjectCreation: 2
   assetDependencies: []
-  reportItems: []
+  reportItems:
+  - type: 2
+    code: 20
+    messages:
+    - KHR_materials_specular

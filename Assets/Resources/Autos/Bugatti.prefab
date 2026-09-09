@@ -1,0 +1,132 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4180094946790940665
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 717646687937751894}
+  - component: {fileID: 7755091856806337193}
+  - component: {fileID: 4948888144850591283}
+  m_Layer: 0
+  m_Name: Bugatti
+  m_TagString: Obstaculo
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &717646687937751894
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4180094946790940665}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.8804825, y: 0.8804825, z: 0.8804825}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2488741393980203727}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &7755091856806337193
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4180094946790940665}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.2984345, y: 1.416927, z: 5.1108346}
+  m_Center: {x: -0.00000011920929, y: 0.7084635, z: 0.00000023841858}
+--- !u!114 &4948888144850591283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4180094946790940665}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ae64457bc996dc47ae583ef0cb52070, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RuedasAuto
+  radioRueda: 0
+--- !u!1001 &290987576634553663
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 717646687937751894}
+    m_Modifications:
+    - target: {fileID: -6689036041284674117, guid: d1540dca8ac445641ba0766fdb32e590, type: 3}
+      propertyPath: m_Name
+      value: bugatti_veyron_fully_rigged.
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: d1540dca8ac445641ba0766fdb32e590, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.00065743923
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: d1540dca8ac445641ba0766fdb32e590, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.01309824
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: d1540dca8ac445641ba0766fdb32e590, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1.579498
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: d1540dca8ac445641ba0766fdb32e590, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: d1540dca8ac445641ba0766fdb32e590, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: d1540dca8ac445641ba0766fdb32e590, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: d1540dca8ac445641ba0766fdb32e590, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: d1540dca8ac445641ba0766fdb32e590, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: d1540dca8ac445641ba0766fdb32e590, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774220344278030320, guid: d1540dca8ac445641ba0766fdb32e590, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: -5645937942226959685, guid: d1540dca8ac445641ba0766fdb32e590, type: 3}
+--- !u!4 &2488741393980203727 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2774220344278030320, guid: d1540dca8ac445641ba0766fdb32e590, type: 3}
+  m_PrefabInstance: {fileID: 290987576634553663}
+  m_PrefabAsset: {fileID: 0}

@@ -53,16 +53,22 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   `limiteLateral` (en la escena está en ±4; los 3 carriles son −3 / 0 / +3 pero
   el movimiento es libre entre ellos y un poco más allá), e inclina dos transforms (`cuerpo` y `pivotCamara`) al mantener
   **Shift** = wheelie. `cuerpo` (GameObject "Cuerpo") tiene como hijo
-  `MotoModelo` — el modelo 3D de la moto (`Moto.glb`), que se inclina con el
-  wheelie; antes ahí había un cubo llamado `Modelo` que se borró. El wheelie
-  **no es salto** (no hay cambio de Y): es una
+  `MotoModelo` — el wrapper con el modelo 3D de la moto (`DirtBike.glb`), que se
+  inclina con el wheelie; antes ahí había un cubo llamado `Modelo` que se borró.
+  `MotoModelo` también lleva el componente `MotoAnimada` (ruedas + manubrio).
+  El wheelie **no es salto** (no hay cambio de Y): es una
   inclinación visual que además (a) hace que el jugador se mueva mucho más lento
   de costado (`factorLateralEnWheelie`) y (b) es la única forma de sumar puntaje.
   Todo el input crudo se lee solo en `LeerLateral()` y `LeerWheelie()` (para
-  cambiarlo por el manubrio de Arduino a futuro sin tocar la lógica). Detecta
-  derrota con `OnTriggerEnter` chequeando `tag == "Obstaculo"`. La cámara es hija
-  de `pivotCamara`, que es hijo del jugador — el seguimiento es gratis por
-  jerarquía, no hay script de cámara.
+  cambiarlo por el manubrio de Arduino a futuro sin tocar la lógica). Expone
+  `EntradaLateral` (la entrada lateral cruda −1..1) para que la lea quien la
+  necesite (ej. `MotoAnimada` para el manubrio) sin dispersar `Input.*`. Detecta
+  derrota con `OnTriggerEnter` chequeando `tag == "Obstaculo"`. La cámara **ya no
+  es hija de `pivotCamara`**: desde el 2026-09-09 es primera persona y la maneja
+  `CamaraJugador.cs` (ver abajo). `pivotCamara` quedó sin hijos y sin uso real
+  (el código que lo inclina en `AnimarWheelie` sigue ahí pero no hace nada
+  visible); `PlayerController` todavía lo pide en el Inspector para no tirar el
+  error de referencia nula.
 - **`TrafficManager.cs`** — Se crea en runtime desde `GameManager`. Autos con
   tag `Obstaculo` que vienen de frente ("autopista en contramano") por los 3
   carriles. Pool circular igual que `RoadManager`. Genera "filas" de **1 o 2
@@ -78,12 +84,37 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   (`OnTriggerEnter`), así que al auto le alcanza con un collider sólido, no
   trigger. Todos los valores son ajustables en el Inspector del GameObject que
   crea en runtime.
-  Los prefabs de `Resources/Autos/` (`Auto.prefab` = BMW, `Prius.prefab`) tienen
+  Los prefabs de `Resources/Autos/` (`Bugatti.prefab`, `McLaren.prefab`) tienen
   la misma estructura: **raíz = GameObject vacío** con `BoxCollider` + tag +
   escala + giro de juego, y el `.glb` como **hijo sin tocar** (mantiene la
   rotación de conversión de glTFast, `270,0,0`). Nunca setear la rotación en la
   raíz del `.glb` directamente: se pierde esa conversión y el modelo queda de
   costado. Los `.glb` crudos están en `Assets/Models/`, no en `Resources`.
+  Cada prefab de auto lleva además `RuedasAuto` (hace girar las 4 ruedas).
+- **`RuedasAuto.cs`** — Va en la raíz de los prefabs de auto (`Bugatti.prefab`,
+  `McLaren.prefab`). Hace girar las 4 ruedas según cuánto se desplaza el auto
+  (lo mide solo, entre frames — el `TrafficManager` lo mueve desde afuera).
+  Encuentra las ruedas por nombre ("Wheel", sin "Brake"), deduplica anidadas, y
+  gira cada una con `RotateAround` sobre su **centro visual** (el pivote del
+  hueso no está centrado). Se resetea en `OnEnable` para el reciclado del pool.
+- **`MotoAnimada.cs`** — Va en `Cuerpo/MotoModelo`. (a) Gira `wheel_f` y
+  `wheel_r` de la `DirtBike` según `GameManager.velocidadActual` (mismo truco de
+  `RotateAround` sobre el centro visual). (b) Dobla `handle_main` (todo el
+  conjunto manubrio + horquilla + rueda delantera) hacia el lado de
+  `PlayerController.EntradaLateral`, con `SmoothDamp` (`anguloMaxDireccion` 16°,
+  `suavizadoDireccion` 0.10s). Reset del manubrio a su pose inicial cada frame +
+  `RotateAround` sobre `transform.up`.
+- **`CamaraJugador.cs`** — Vive en la `Main Camera` (que ahora cuelga de la raíz
+  de la escena, no del jugador). Sigue a `PuntoCamara` (un vacío hijo del
+  `Jugador`, en `local (0, 1.45, -0.55)` — primera persona, apenas detrás del
+  manubrio). **La posición va pegada al objetivo, sin retardo** (en 1ª persona el
+  retardo de posición hace que todo lo cercano —manubrio, rueda— se deslice de
+  lado y maree). Lo "cómodo" va solo en la **rotación**, con `Slerp`:
+  (a) **roll** — se tumba `gradosRoll` (5°) hacia el lado según
+  `PlayerController.EntradaLateral` suavizada (NO la velocidad, que temblaba);
+  (b) **wheelie** — mientras `PlayerController.haciendoWheelie` la vista sube
+  `gradosPitchWheelie` (18°) hacia el cielo. `pitchBase` (3°) = cuánto mira a la
+  calle en reposo. Todo ajustable en el Inspector. La `Main Camera` tiene FOV 72.
 - **`Hud.cs`** — Se crea en runtime desde `GameManager`. Arma por código dos
   textos TMP: "Puntaje: N" como hijo de `MenuManager.panelJuego` y
   "Puntaje final: N" como hijo de `MenuManager.panelGameOver`, así aparecen y
@@ -225,16 +256,22 @@ Size"); el HUD de puntaje, la tabla de ranking y todo el panel de Opciones está
 armados por código (`Hud.cs`, `MenuRanking.cs`, `MenuOpciones.cs`), en greybox
 sin estilo. El menú tiene 3 botones (Jugar / Opciones / Salir) y Opciones agrupa
 en secciones los 3 volúmenes, el nombre, el reinicio del ranking y la ayuda de
-controles. Los autos y la moto del jugador ya son **modelos 3D reales** (`.glb`
-vía glTFast): `TrafficManager` instancia `Auto.prefab` / `Prius.prefab` de
-`Assets/Resources/Autos/` (fallback a cubo rojo si la carpeta está vacía) y la
-moto es `Cuerpo/MotoModelo` en la escena. El camino ya no tiene huecos (el prefab
-`Tramo` se reescaló a `{10, 1, 30}`) y tiene líneas de carril discontinuas, pero
-sigue siendo un cubo gris sin textura ni arte.
+controles. Los autos y la moto del jugador ya son **modelos 3D reales con rig**
+(`.glb` vía glTFast): `TrafficManager` instancia `Bugatti.prefab` / `McLaren.prefab`
+de `Assets/Resources/Autos/` (fallback a cubo rojo si la carpeta está vacía) y la
+moto es `Cuerpo/MotoModelo` (`DirtBike.glb`) en la escena. Las 4 ruedas de cada
+auto y las 2 de la moto giran (`RuedasAuto` / `MotoAnimada`), y el manubrio de la
+moto dobla con el input. La cámara es **primera persona** (`CamaraJugador` en la
+`Main Camera`): posición pegada al `PuntoCamara` de la moto, roll al inclinarse y
+la vista sube al cielo mientras se sostiene el wheelie. El camino ya no tiene
+huecos (el prefab `Tramo` se reescaló a `{10, 1, 30}`) y tiene líneas de carril
+discontinuas, pero sigue siendo un cubo gris sin textura ni arte.
 
 **No existe todavía:** música de menú, sonido de click, ruidos de la partida
 (motor de la moto, autos pasando) — solo suena el choque; partículas, luces de
-efecto, efectos de cámara. **Decidido que NO habrá salto** (la mecánica vertical
+efecto. (La cámara ya tiene efectos propios —roll, subida al cielo en el
+wheelie— pero no hay Cinemachine ni shake de choque.) **Decidido que NO habrá
+salto** (la mecánica vertical
 es el wheelie) y que la **música va solo en el menú**, no durante la partida
 (ver "Decisiones tomadas").
 
@@ -446,12 +483,73 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   +Z = el jugador la ve de atrás), reemplaza al cubo `Modelo` que se borró. Los
   `.glb` crudos viven en `Assets/Models/` (fuera de `Resources` para que
   `LoadAll` no los duplique). Verificado por MCP: compila sin errores, los
-  prefabs cargan, el tráfico spawnea filas de 1-2 autos. **Falta que el alumno lo
-  pruebe jugando de verdad** (que el choque dispare el Game Over, que se sienta
-  bien el tamaño del hitbox del `Jugador` —sigue en 1×1×1— frente a la moto de
-  2 m).
-
-## Actividades futuras (tener en cuenta al programar, para no rehacer)
+  prefabs cargan, el tráfico spawnea filas de 1-2 autos. El alumno lo probó
+  jugando y **funciona bien** (el choque dispara el Game Over). Commiteado y
+  pusheado en `11856ab` (rama `crazymoto-rama`). Pendiente de afinar si molesta:
+  el hitbox del `Jugador` sigue en 1×1×1 frente a la moto de 2 m; el pool son 20
+  autos con modelos detallados (bajar a ~10 si caen los FPS en la notebook).
+- **2026-09-09** — Se sacó una **capa gris** que tapaba el juego al apretar
+  Jugar: `PanelJuego` traía un componente `Image` de pantalla completa (blanco al
+  39 %, la basura por defecto de un "UI Panel"). `PanelJuego` es solo el
+  contenedor del HUD, así que se le quitó el `Image` (queda `RectTransform` +
+  `CanvasRenderer` vacío). **Ojo:** `PanelGameOver` tiene el **mismo** `Image`
+  blanco 39 % — ahí hace de dim del Game Over y quedó, pero si se quiere que se
+  vea mejor conviene cambiarlo a negro ~55 %. Editado por MCP en `ESCENA 1.unity`.
+- **2026-09-09** — Cambio de modelos por unos **con rig / partes separadas** (el
+  alumno borró los anteriores y bajó nuevos). En `Assets/Models/`:
+  `DirtBike.glb` (0,7 MB, moto del jugador), `bugatti_veyron_fully_rigged..glb`
+  (7,7 MB) y `mclaren_mp4_rigged.glb` (3,2 MB) para tráfico. Se **descartó**
+  `lexus_rx_350__rigged__rigged_driver_human.glb` (27 MB / 480k vértices +
+  conductor humano que se separaba): demasiado pesado para el pool de tráfico.
+  Los 3 usados tienen las ruedas como transforms separados: los autos tienen
+  `.../Car Rig_XX/DEF-Wheel.Ft.L/R` y `DEF-Wheel.Bk.L/R`; la `DirtBike` tiene
+  `wheel_f`, `wheel_r` y `handle_main` (todo el conjunto manubrio+horquilla, para
+  girar la dirección) bajo
+  `DirtBike_GBL/global_bone/root/root.001/...`. Prefabs nuevos armados con el
+  mismo patrón wrapper: `Assets/Resources/Autos/Bugatti.prefab` y `McLaren.prefab`
+  (~4,5 m, tag `Obstaculo`, collider a la malla, mirando −Z). La moto es
+  `Cuerpo/MotoModelo` con `DirtBike` de hijo (~2,1 m, mirando +Z). Se borraron
+  `Auto.prefab` y `Prius.prefab` viejos. Verificado por MCP: sin errores, los 2
+  prefabs cargan, tráfico spawnea. Pendiente (pedido del alumno, en curso):
+  cámara en 1ª persona + wheelie que tape la vista; ruedas girando; manubrio de
+  la moto moviéndose con el input.
+- **2026-09-09** — Cámara en **primera persona** (pedido del alumno). Nuevo
+  `CamaraJugador.cs` en la `Main Camera` + un vacío `PuntoCamara` hijo del
+  `Jugador`. La `Main Camera` se sacó de `PivotCamara` y ahora cuelga de la raíz;
+  la maneja el script (sigue a `PuntoCamara` con suavizado en X/Y, pegada en Z).
+  Decisiones probadas por MCP con capturas: vista con el manubrio abajo y la
+  calle despejada; al hacer wheelie la vista sube 18° al cielo (queda una franja
+  de horizonte, no ciego del todo); se tumba ~6° hacia donde te movés; FOV 72.
+  `PivotCamara` quedó sin uso pero se dejó (ver `PlayerController`). Falta que el
+  alumno lo pruebe jugando con teclado (sensación del suavizado y el roll).
+- **2026-09-09** — Ruedas girando + manubrio (pedido del alumno). Los modelos
+  nuevos traen las ruedas como transforms separados, pero **con el pivote fuera
+  del centro de la rueda** (rig de Blender) → hay que girarlas con
+  `RotateAround` alrededor del **centro visual** (bounds combinado de sus
+  mallas), no de su pivote, y **deduplicar** (a veces hay un transform "Wheel"
+  adentro de otro). Dos scripts nuevos: `RuedasAuto.cs` (en `Bugatti.prefab` y
+  `McLaren.prefab`; mide su propia velocidad por el desplazamiento entre frames,
+  gira las 4 ruedas) y `MotoAnimada.cs` (en `Cuerpo/MotoModelo`; gira `wheel_f` y
+  `wheel_r` según `GameManager.velocidadActual` y dobla `handle_main` —todo el
+  conjunto manubrio+horquilla— según `PlayerController.EntradaLateral`, con
+  `SmoothDamp`). `PlayerController` ahora expone `EntradaLateral` (la entrada
+  lateral cruda) para que la use `MotoAnimada` sin duplicar llamadas a `Input`.
+  Verificado por MCP: las ruedas giran en su lugar sin salirse ni derivar, el
+  manubrio dobla para el lado correcto (D → derecha).
+  **Corrección (mismo día):** la primera versión usaba `Rotate` incremental y la
+  rueda de la moto "salía volando" / temblaba de lado (el `RotateAround` acumula
+  error de FP frame a frame y se espirala). Se cambió a: guardar la pose inicial,
+  acumular un **ángulo escalar mod 360**, y cada frame resetear la rueda y
+  aplicar el total con un solo `RotateAround`. Además `factorVisual` (0.5) baja la
+  velocidad de giro visual para que no estroboscopie. El pivote del `RotateAround`
+  es el **centroide de los vértices** de la rueda (cae sobre el eje), no el centro
+  de la bounding box (se corría por el disco de freno / la corona). El eje real
+  de las 3 ruedas es X del mundo (medido: ±0.3°). Verificado: el centro queda
+  fijo, no deriva. El otro "temblar de lado a lado" que reportó el alumno NO era
+  la rueda sino la **cámara** (seguía la posición con retardo lateral → todo lo
+  cercano se deslizaba): se corrigió dejando la posición pegada (ver
+  `CamaraJugador`) y el roll ahora sale de la entrada suavizada, no de la
+  velocidad. Falta que el alumno confirme jugando.
 
 - **Manubrio con Arduino:** más adelante se va a armar un controlador físico
   (manubrio + botones) con Arduino para reemplazar el teclado y hacerlo más
