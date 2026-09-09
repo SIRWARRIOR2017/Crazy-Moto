@@ -75,17 +75,28 @@ public class PlayerController : MonoBehaviour
     }
 
     // ---- Entrada del jugador ----
-    // Todo el input crudo se lee SOLO en estos dos métodos. El día que armemos el
-    // manubrio con Arduino, se cambian estos dos (leer del puerto serie en vez
-    // del teclado) y la lógica de movimiento queda igual.
+    // Todo el input crudo se lee SOLO en estos dos métodos, así cambiar el mando
+    // no toca la lógica de movimiento.
+    //
+    // Hoy hay dos mandos: la cámara web (vision/deteccion.py -> EntradaCamara) y
+    // el teclado. La cámara tiene prioridad mientras esté mandando datos y viendo
+    // a alguien; si se cierra el script, se traba o el jugador se sale de cuadro,
+    // vuelve solo al teclado. Eso es a propósito: en la feria el juego nunca tiene
+    // que quedar sin control.
 
     float LeerLateral()
     {
+        if (EntradaCamara.Instance != null && EntradaCamara.Instance.Activa)
+            return EntradaCamara.Instance.Lateral;
+
         return Input.GetAxisRaw("Horizontal");   // A / D (y flechas)
     }
 
     bool LeerWheelie()
     {
+        if (EntradaCamara.Instance != null && EntradaCamara.Instance.Activa)
+            return EntradaCamara.Instance.Wheelie;
+
         return Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
     }
 

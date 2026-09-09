@@ -1,0 +1,7 @@
+# Control por cámara de Crazy Moto.
+# Instalar con:  python -m pip install -r requirements.txt
+#
+# mediapipe ya arrastra opencv y numpy como dependencias, pero los dejamos
+# anotados para que se vea qué usa el script.
+mediapipe>=1.0.1
+opencv-contrib-python>=5.0.0

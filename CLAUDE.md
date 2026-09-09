@@ -69,6 +69,18 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   (el código que lo inclina en `AnimarWheelie` sigue ahí pero no hace nada
   visible); `PlayerController` todavía lo pide en el Inspector para no tirar el
   error de referencia nula.
+- **`EntradaCamara.cs`** — Recibe el control por **cámara web** que manda
+  `vision/deteccion.py` por UDP a `127.0.0.1:5005`. El paquete es una línea de
+  texto `lateral;wheelie;detectado` (ej. `-0.350;0;1`). Lee el socket en un
+  **hilo aparte** (`ReceiveFrom` bloquea); el hilo no toca la API de Unity, solo
+  escribe campos `volatile` que `Update()` copia a las propiedades públicas.
+  `Activa` = están llegando paquetes **y** la cámara ve a alguien; si deja de
+  llegar algo por 0,5 s, se limpia todo y `PlayerController` vuelve solo al
+  teclado. Es el **único objeto del proyecto con `DontDestroyOnLoad`**, y a
+  propósito: es dueño de un recurso del sistema operativo (el puerto UDP) y
+  reabrirlo en cada recarga de escena —que acá pasa en cada partida— puede fallar
+  con "address already in use". Lo crea `GameManager.Start()` con
+  `EntradaCamara.CrearSiNoExiste()`, que no hace nada si ya existe.
 - **`TrafficManager.cs`** — Se crea en runtime desde `GameManager`. Autos con
   tag `Obstaculo` que vienen de frente ("autopista en contramano") por los 3
   carriles. Pool circular igual que `RoadManager`. Genera "filas" de **1 o 2
@@ -140,12 +152,22 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   `AudioListener.volume`, "Volumen música" → `AudioManager.musica.volume`,
   "Volumen efectos" → `AudioManager.efectos.volume`), **PERFIL** (campo "Tu nombre
   (para el ranking)" → `PlayerPrefs("NombreJugador")`), **DATOS** (botón "Reiniciar
-  tabla de ranking" → `RankingData.Instance.BorrarTodo()`), **CONTROLES** (texto
-  informativo "Mover: A / D · Wheelie: Shift", no editable hasta el Arduino), y un
+  tabla de ranking" → `RankingData.Instance.BorrarTodo()`), **CÁMARA** (botón
+  "Probar cámara" → `MenuManager.MostrarPruebaCamara()`), **CONTROLES** (texto
+  informativo con los gestos de cámara y las teclas, no editable), y un
   botón "Volver". Además, en `Start()` agrega el **botón "Opciones"** al menú
   principal: clona `BotonJugar` (para heredar el estilo), le cambia el texto y el
   `OnClick` (evento nuevo → `MenuManager.MostrarOpciones()`, descartando el
   listener heredado de "Jugar"), lo ubica entre Jugar y Salir y reacomoda los 3.
+- **`MenuCamara.cs`** — Se crea en runtime desde `MenuManager`. Arma por código el
+  `PanelCamara` (hermano de los otros paneles) y lo registra en
+  `MenuManager.panelCamara`. Es la pantalla de **"Probar cámara"**: sirve para que
+  el jugador se acomode antes de jugar. Muestra en vivo, leyendo de
+  `EntradaCamara`: el estado de la conexión (sin señal / conectada pero no te veo
+  / listo), una barra con la dirección, una luz que se prende con el wheelie y la
+  ayuda de los gestos. No abre la webcam por su cuenta (la tiene el script de
+  Python), solo dibuja lo que llega por UDP. Se ve con el juego en
+  `timeScale = 0`, por eso `EntradaCamara` usa `Time.unscaledTime`.
 - **`RoadManager.cs`** — Pool circular de tramos de camino (prefab
   `Assets/Prefabs/Tramo.prefab`, un cubo en escala `{10, 1, 30}` — mide exactamente
   `largoTramo` de largo, así los tramos encajan sin huecos; sin `MeshCollider`, el
@@ -157,16 +179,19 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   crea `cantidadTramos` al `Start()`, y en `Update()` cuando el tramo más viejo
   queda a más de `largoTramo` detrás del jugador, lo reubica adelante de todo
   (`Queue` implementada a mano con `List<Transform>`).
-- **`MenuManager.cs`** — Controla 5 paneles (menú / juego / game over con
-  `SetActive`, y `panelOpciones` + `panelPausa` que se arman por código — ver
-  `MenuOpciones` y `MenuPausa`).
+- **`MenuManager.cs`** — Controla 6 paneles (menú / juego / game over con
+  `SetActive`, y `panelOpciones` + `panelPausa` + `panelCamara` que se arman por
+  código — ver `MenuOpciones`, `MenuPausa` y `MenuCamara`).
   Usa un `static bool irAJugar` en memoria (no `PlayerPrefs`) para saber, al
   recargar la escena, si debe arrancar jugando directo o mostrar el menú. Los
   botones que ya estaban en la escena (Jugar/Salir/Continuar/Menú) llaman a sus
   métodos públicos vía `OnClick` del Inspector; los botones "Opciones", "Volver"
   y "Reiniciar tabla" los cablea `MenuOpciones` por código. `MostrarOpciones()` /
-  `VolverDeOpciones()` alternan menú ↔ opciones. En `Start()` crea el
-  `MenuRanking`, el `MenuOpciones` y el `MenuPausa` si no existen. Expone
+  `VolverDeOpciones()` alternan menú ↔ opciones, y `MostrarPruebaCamara()` /
+  `VolverDePruebaCamara()` alternan opciones ↔ probar cámara (esa pantalla siempre
+  se abre y se cierra contra Opciones). En `Start()` crea el
+  `MenuRanking`, el `MenuOpciones`, el `MenuPausa` y el `MenuCamara` si no
+  existen. Expone
   `estaPausado { get; private set; }` — la variable que distingue *por qué* el
   juego está en `Time.timeScale = 0` (menú / game over / pausa), lo que resuelve
   el punto 1.7 de `docs/AUDITORIA.md`. `Pausar()` / `Reanudar()` /
@@ -196,10 +221,10 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   `AudioManager.ClaveVolumen*`). Expone además `ReproducirChoque()` (enganchado
   desde `GameManager.GameOver()`) y `ReproducirClick()` (lo llama
   `MenuManager.Reanudar()` — el botón "Continuar" de la pausa no recarga escena,
-  así que el click sí llega a sonar; mudo hasta que haya clip en `sonidoClick`). Los
-  campos de `AudioClip` (`musicaFondo`, `sonidoChoque`, `sonidoClick`) están
-  vacíos salvo `sonidoChoque` (`Crash.mp3`): faltan los otros archivos, hay que
-  arrastrarlos en el Inspector cuando existan. (El viejo `VolumenSlider.cs` se
+  así que el click sí llega a sonar). Los tres campos de `AudioClip` ya tienen
+  clip asignado en la escena (2026-09-09): `musicaFondo` =
+  `Sounds/Breakneck_Boulevard.mp3`, `sonidoChoque` = `Sounds/Crash.mp3`,
+  `sonidoClick` = `Sounds/mouse-click-sound.mp3`. (El viejo `VolumenSlider.cs` se
   eliminó: su función pasó a `MenuOpciones` + `AudioManager`.)
 
 Comunicación entre scripts: casi todo pasa por `GameManager.Instance` (acceso
@@ -218,7 +243,9 @@ directo al singleton) o por referencias asignadas a mano en el Inspector
 - Sin namespaces. Todos los scripts del proyecto viven en `Assets/Scripts/` (sin
   subcarpetas por feature); los prefabs en `Assets/Prefabs/`; el asset de Input
   (`InputSystem_Actions.inputactions`) y los perfiles de URP en `Assets/Settings/`.
-  Materiales propios (cuando haya) van en `Assets/Materials/`.
+  Materiales propios (cuando haya) van en `Assets/Materials/`. El código Python
+  del control por cámara va en `vision/`, en la **raíz del repo y fuera de
+  `Assets/`**, para que Unity no lo importe como assets.
 - Comentarios mínimos, solo cuando algo no es obvio (ver el comentario sobre el
   obstáculo de prueba en `GameManager.cs`).
 - Reinicio de partida = recargar la escena, nunca resetear campos a mano.
@@ -243,8 +270,9 @@ directo al singleton) o por referencias asignadas a mano en el Inspector
 ## Estado actual (resumen — detalle completo en docs/AUDITORIA.md)
 
 **Funciona:** loop completo — en el menú ponés tu nombre → jugar → esquivar autos
-que vienen de frente por 3 carriles (A-D, movimiento libre) → sostener wheelie
-(Shift) para sumar puntaje a costa de casi no poder esquivar → chocar un auto →
+que vienen de frente por 3 carriles (A-D o **cámara web**, movimiento libre) →
+sostener wheelie (Shift o los dos brazos tirados hacia el cuerpo) para sumar
+puntaje a costa de casi no poder esquivar → chocar un auto →
 Game Over con puntaje final → Continuar/Menú, todo recargando la escena. El
 puntaje se guarda en un ranking persistente (`ranking.json`) que se ve en el
 menú: Top 10 + "estás en el puesto N" + botón "Reiniciar tabla". Durante la
@@ -267,8 +295,8 @@ la vista sube al cielo mientras se sostiene el wheelie. El camino ya no tiene
 huecos (el prefab `Tramo` se reescaló a `{10, 1, 30}`) y tiene líneas de carril
 discontinuas, pero sigue siendo un cubo gris sin textura ni arte.
 
-**No existe todavía:** música de menú, sonido de click, ruidos de la partida
-(motor de la moto, autos pasando) — solo suena el choque; partículas, luces de
+**No existe todavía:** ruidos ambientales de la partida (motor de la moto, autos
+pasando) — la música de menú, el click y el choque ya suenan; partículas, luces de
 efecto. (La cámara ya tiene efectos propios —roll, subida al cielo en el
 wheelie— pero no hay Cinemachine ni shake de choque.) **Decidido que NO habrá
 salto** (la mecánica vertical
@@ -550,13 +578,45 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   cercano se deslizaba): se corrigió dejando la posición pegada (ver
   `CamaraJugador`) y el roll ahora sale de la entrada suavizada, no de la
   velocidad. Falta que el alumno confirme jugando.
+- **2026-09-09** — Audio completo (cierra la entrega del 10 de septiembre). El
+  alumno consiguió y asignó en el Inspector los clips que faltaban:
+  `Assets/Sounds/Breakneck_Boulevard.mp3` en `musicaFondo` (música del menú) y
+  `Assets/Sounds/mouse-click-sound.mp3` en `sonidoClick`. Con `Crash.mp3` ya
+  puesto, los 3 campos de `AudioManager` tienen clip. `docs/ENTREGAS.md`
+  actualizado: la entrega del 10 de septiembre pasa a ✅ cumplida.
+- **2026-09-09** — **Control por cámara web** (reemplaza al manubrio de Arduino,
+  que salía caro). El jugador se sienta frente a la cámara con los brazos como si
+  agarrara un manubrio: **tira un brazo y empuja el otro para doblar**, y **tira
+  los dos a la vez para el wheelie**. Decisión técnica clave: **no se usa la
+  coordenada Z** de MediaPipe (con una sola cámara la profundidad es estimada y
+  tiembla). Se mide el **ángulo del codo** (hombro-codo-muñeca) en 2D, que es lo
+  mismo pero por el eje confiable: tirar el brazo lo dobla. De ahí salen las dos
+  señales, y son independientes: `dirección = flexión_der − flexión_izq` (la
+  diferencia) y `wheelie = promedio de las dos flexiones`. Doblar mueve la
+  diferencia y deja quieto el promedio, y al revés, así un gesto no pisa al otro.
+  Se descartaron: girar el puño (necesita un segundo modelo y la mano cerrada se
+  detecta peor) y abrir la boca (confiable pero incómodo de sostener, y el
+  wheelie es una acción sostenida). Archivos nuevos: `vision/deteccion.py`
+  (Python 3.14 + MediaPipe 1.0.1 + OpenCV), `vision/modelo/pose_landmarker_lite.task`
+  (5,5 MB, **commiteado** igual que los `.glb` para que Santiago no baje nada),
+  `vision/README.md`, `vision/requirements.txt`, `Assets/Scripts/EntradaCamara.cs`
+  y `Assets/Scripts/MenuCamara.cs`. Editados: `PlayerController` (los dos métodos
+  de input), `GameManager` (crea `EntradaCamara`), `MenuManager` (`panelCamara` +
+  2 métodos) y `MenuOpciones` (sección CÁMARA). **Sin tocar escena ni prefabs.**
+  Ojo con MediaPipe: la **1.0.1 eliminó `mp.solutions`**, hay que usar la API de
+  Tasks (`vision.PoseLandmarker` + archivo `.task`); y `cv2.putText` no dibuja
+  acentos ni eñes, por eso los textos de la ventana de OpenCV van sin tildes.
+  Verificado: los 16 scripts compilan con el Roslyn de Unity, la API de MediaPipe
+  corre, la matemática da los signos correctos y el UDP llega con el formato que
+  espera `EntradaCamara`. **Falta que el alumno lo pruebe con la cámara real.**
 
-- **Manubrio con Arduino:** más adelante se va a armar un controlador físico
-  (manubrio + botones) con Arduino para reemplazar el teclado y hacerlo más
-  inmersivo. Por eso el input crudo del jugador está aislado en `LeerLateral()` y
-  `LeerWheelie()` dentro de `PlayerController`: cuando llegue el Arduino se
-  cambian esos dos métodos (leer del puerto serie) y nada más. No dispersar
-  llamadas a `Input.*` por otros scripts.
+- **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
+  reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No
+  está descartado del todo, pero solo se retoma si el de cámara no convence. La
+  arquitectura sigue lista para los dos: el input crudo está aislado en
+  `LeerLateral()` y `LeerWheelie()` dentro de `PlayerController`, y agregar un
+  mando nuevo es tocar solo esos dos métodos. No dispersar llamadas a `Input.*`
+  por otros scripts.
 - **UI a arte real:** toda la UI armada por código (`Hud.cs` en
   `PanelJuego`/`PanelGameOver`; `MenuRanking.cs` con la tabla de ranking;
   `MenuOpciones.cs` con el panel de Opciones entero y el botón "Opciones" del
@@ -573,6 +633,6 @@ es decisión del alumno (no de código):
   (1 jugador) y ranking (comparación de puntajes de mayor a menor) ya están
   definidos, pero conviene volcarlos al punto 1.6 de
   `docs/PROYECTO FERIA DE CIENCIAS.docx`, que hoy los tiene vacíos.
-- `musicaFondo` y `sonidoClick` en `AudioManager` siguen vacíos (solo
-  `sonidoChoque` tiene clip asignado). Hace falta para la entrega de sonido del
-  10 de septiembre.
+- La entrega del **10 de septiembre** quedó cumplida: datos persistentes +
+  sonido (los 3 clips de `AudioManager` asignados el 2026-09-09). Lo que sigue es
+  la del **17 de septiembre**: partículas, efectos e iluminación.

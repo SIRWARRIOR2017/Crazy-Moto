@@ -86,3 +86,9 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Control por cámara (vision/): basura que genera Python al correr el script.
+# El modelo .task SÍ se versiona (5,5 MB), igual que los .glb: el que clona el
+# repo tiene que poder correrlo sin bajar nada aparte.
+__pycache__/
+*.pyc
