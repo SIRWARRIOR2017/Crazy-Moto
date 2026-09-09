@@ -77,8 +77,15 @@ crashlytics-build.properties
 # Packed Addressables
 /[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
 
-# Config local de Unity MCP / AI Assistant (rutas propias de cada máquina,
-# paquete embebido pesado). No se versiona: cada quien lo configura local.
+# Config local de Unity MCP / AI Assistant (rutas propias de cada máquina).
+# No se versiona: cada quien lo configura local.
+#
+# OJO: la regla de abajo aplica solo si el paquete está EMBEBIDO, o sea si existe
+# la carpeta Packages/com.unity.ai.assistant/. Hoy es una dependencia de registro
+# (una línea en Packages/manifest.json) y por lo tanto esta regla no hace nada:
+# .gitignore excluye archivos, no líneas dentro de un archivo versionado. Si algún
+# día molesta que el paquete esté en el repo, la solución es borrar esa línea del
+# manifest, no tocar acá.
 /.mcp.json
 /Packages/com.unity.ai.assistant/
 /ProjectSettings/Packages/

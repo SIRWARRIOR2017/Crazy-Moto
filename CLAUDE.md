@@ -633,18 +633,25 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   tocó código C#**: el bug era todo del lado de Python.
 - **2026-09-09** — Limpieza de dependencias, a pedido del alumno ("que solo se
   suba lo necesario; lo que no sirve o hace más lenta la instalación, no"). Se
-  sacaron de `Packages/manifest.json` **7 paquetes con 0 usos reales**:
-  `ai.assistant`, `ai.navigation`, `collab-proxy`, `multiplayer.center`,
-  `test-framework`, `timeline` y `visualscripting`. `packages-lock.json` bajó 79
-  líneas (los paquetes arrastraban dependencias propias). Verificado antes de
-  tocar nada: los 18 scripts que referencian la escena y los prefabs siguen
-  resolviendo, la escena tiene 0 componentes rotos sobre 52 objetos, y los 16
-  scripts compilan.
-  **Consecuencia importante: al sacar `com.unity.ai.assistant` se perdió el
-  puente Unity MCP.** Ya no se puede leer ni editar la escena desde la sesión. Si
-  hace falta de nuevo, se vuelve a agregar esa línea al manifest (necesita cuenta
-  de Unity con IA). Se decidió que no vale la pena tenerlo permanentemente en el
-  repo porque a Santiago le complica el clone.
+  sacaron de `Packages/manifest.json` **6 paquetes con 0 usos reales**:
+  `ai.navigation`, `collab-proxy`, `multiplayer.center`, `test-framework`,
+  `timeline` y `visualscripting`. `packages-lock.json` bajó bastante porque varios
+  arrastraban dependencias propias. Verificado antes de tocar nada: los 18 scripts
+  que referencian la escena y los prefabs siguen resolviendo, la escena tiene 0
+  componentes rotos sobre 52 objetos, y los 16 scripts compilan.
+  **`com.unity.ai.assistant` SE QUEDA** (el puente Unity MCP). En el intento
+  original lo saqué junto con los otros y eso desinstaló el paquete, dejando sin
+  MCP al alumno, que lo usa. Él lo restauró y pidió que en vez de eliminar cosas
+  se las excluyera del repo. **Aclaración técnica que hay que tener presente:
+  `.gitignore` funciona sobre archivos, no sobre líneas de un archivo versionado**,
+  así que una dependencia listada en `manifest.json` no se puede "gitignorar"
+  sola; ignorar el `manifest.json` entero dejaría al que clona sin ningún paquete
+  (ni URP, ni glTFast) y el proyecto no abriría. La regla
+  `/Packages/com.unity.ai.assistant/` que está en el `.gitignore` es de cuando el
+  paquete era **embebido** (una carpeta); hoy es dependencia de registro y esa
+  regla no hace nada. Decisión tomada: queda en el repo, y si a Santiago le
+  molesta al clonar borra esa línea (está documentado en la tabla de problemas del
+  `README.md`).
   **`com.unity.inputsystem` SE QUEDA, y es importante entender por qué:** una
   búsqueda por texto en la escena da 0 resultados y parece no usarse, pero el
   `EventSystem` referencia `InputSystemUIInputModule` **por GUID**, no por nombre.
