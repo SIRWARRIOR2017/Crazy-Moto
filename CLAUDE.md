@@ -631,6 +631,26 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   wheelie. La ventana ahora dibuja una **barra de wheelie** con la distancia al
   umbral, y avisa si calibraste con los brazos demasiado cerrados. **Nada de esto
   tocó código C#**: el bug era todo del lado de Python.
+- **2026-09-09** — Limpieza de dependencias, a pedido del alumno ("que solo se
+  suba lo necesario; lo que no sirve o hace más lenta la instalación, no"). Se
+  sacaron de `Packages/manifest.json` **7 paquetes con 0 usos reales**:
+  `ai.assistant`, `ai.navigation`, `collab-proxy`, `multiplayer.center`,
+  `test-framework`, `timeline` y `visualscripting`. `packages-lock.json` bajó 79
+  líneas (los paquetes arrastraban dependencias propias). Verificado antes de
+  tocar nada: los 18 scripts que referencian la escena y los prefabs siguen
+  resolviendo, la escena tiene 0 componentes rotos sobre 52 objetos, y los 16
+  scripts compilan.
+  **Consecuencia importante: al sacar `com.unity.ai.assistant` se perdió el
+  puente Unity MCP.** Ya no se puede leer ni editar la escena desde la sesión. Si
+  hace falta de nuevo, se vuelve a agregar esa línea al manifest (necesita cuenta
+  de Unity con IA). Se decidió que no vale la pena tenerlo permanentemente en el
+  repo porque a Santiago le complica el clone.
+  **`com.unity.inputsystem` SE QUEDA, y es importante entender por qué:** una
+  búsqueda por texto en la escena da 0 resultados y parece no usarse, pero el
+  `EventSystem` referencia `InputSystemUIInputModule` **por GUID**, no por nombre.
+  Sin ese paquete dejan de funcionar todos los botones de los menús. Moraleja:
+  para saber si un paquete se usa hay que resolver los **GUID** de `m_Script` de
+  la escena y los prefabs, no hacer `grep` por el nombre.
 
 - **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
   reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No
