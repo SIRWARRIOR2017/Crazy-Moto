@@ -609,6 +609,28 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   Verificado: los 16 scripts compilan con el Roslyn de Unity, la API de MediaPipe
   corre, la matemática da los signos correctos y el UDP llega con el formato que
   espera `EntradaCamara`. **Falta que el alumno lo pruebe con la cámara real.**
+- **2026-09-09** — El alumno probó el control por cámara: la dirección anda
+  perfecto, pero **el wheelie se activaba al principio y después dejaba de
+  tomar**, y recalibrar con `c` no lo arreglaba. Causa: la `flexion()` va de 0 a 1
+  y **se clava en 1**, así que el margen que te queda para doblar depende de cómo
+  estés sentado. El umbral era **fijo** (`extra > 0.16`): si calibrabas con los
+  brazos ya doblados (reposo ≈ 0.86), te quedaban 0.14 de recorrido y el gesto era
+  **imposible** — y recalibrar en esa misma postura lo dejaba igual de muerto.
+  Arreglo: ahora hay **dos maneras de activarlo y alcanza con cumplir una**,
+  `WHEELIE_DELTA` (cuánto doblaste en absoluto, sirve para el que se sienta
+  estirado) y `WHEELIE_FRACCION` (qué parte del recorrido que te queda usaste,
+  sirve para el que se sienta encogido); se toma la que más favorece. Verificado
+  con una simulación en 9 posturas (codo en reposo de 130° a 65°) × 3 tamaños de
+  tirón: la fórmula vieja fallaba en 70° y 65°, la nueva funciona en las 27
+  combinaciones y no se dispara sola con ruido de ±3°. De paso se arreglaron dos
+  cosas más del mismo script: el **timestamp** de `detect_for_video` ahora es
+  estrictamente creciente (si dos cuadros caían en el mismo milisegundo, MediaPipe
+  tiraba excepción y se cortaba todo), y se agregó **medio segundo de gracia** más
+  visibilidad mínima más baja para muñecas y codos, porque al tirar los brazos se
+  tapan contra el torso y la detección parpadeaba, tirándote al teclado en pleno
+  wheelie. La ventana ahora dibuja una **barra de wheelie** con la distancia al
+  umbral, y avisa si calibraste con los brazos demasiado cerrados. **Nada de esto
+  tocó código C#**: el bug era todo del lado de Python.
 
 - **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
   reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No

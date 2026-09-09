@@ -64,7 +64,9 @@ Teclas dentro de la ventana: **c** recalibra la pose neutra, **q** cierra.
 | `no pude abrir la camara 0` | Otro programa la tiene abierta (Zoom, Meet, Teams), o probá `--camara 1` |
 | La moto dobla sola | Recalibrá con **c** quedándote quieto y simétrico |
 | Dobla muy poco / muy fuerte | Tocá `GANANCIA_DIRECCION` arriba de `deteccion.py` |
-| El wheelie se activa solo | Subí `WHEELIE_ENCIENDE` |
+| **El wheelie no se activa** | Mirá la barra `wheelie` en la ventana: si al tirar a fondo no llega a la línea blanca, bajá `WHEELIE_DELTA` y `WHEELIE_FRACCION` |
+| El wheelie se activa solo | Al revés: subí `WHEELIE_DELTA` y `WHEELIE_FRACCION` |
+| Sale el aviso "calibraste con los brazos muy doblados" | Estirá más los brazos y apretá **c**. Si calibrás encogido te queda muy poco recorrido para el gesto |
 
 **El teclado nunca deja de funcionar.** Si el script se cae, se cierra o te salís
 de cuadro, el juego vuelve solo a A / D / Shift en medio segundo. Eso es a
@@ -90,6 +92,25 @@ promedio y deja la diferencia quieta. Por eso un gesto no pisa al otro.
 
 Todo se normaliza contra la pose neutra de la calibración, así funciona igual
 para cualquier persona sin volver a configurar nada.
+
+### Por qué el wheelie tiene dos umbrales
+
+La flexión va de 0 (brazo estirado) a 1 (brazo doblado) y **se clava en 1**. Eso
+trae un problema: si te sentás con los brazos ya bastante doblados, tu reposo
+queda en 0.86 y sólo te quedan 0.14 de recorrido. Con un umbral fijo de 0.16 el
+wheelie era **literalmente imposible**, y recalibrar en esa misma postura no
+arreglaba nada (fue un bug real, corregido el 2026-09-09).
+
+Por eso ahora hay **dos formas de activarlo, y alcanza con cumplir una**:
+
+| Regla | Qué mide | Para quién sirve |
+|---|---|---|
+| `WHEELIE_DELTA` | Cuánto doblaste, en absoluto | El que se sienta con los brazos estirados y tiene recorrido de sobra |
+| `WHEELIE_FRACCION` | Qué parte del recorrido que **te queda** usaste | El que se sienta encogido y en absoluto no puede doblar mucho más |
+
+La ventana muestra una barra **`wheelie`** con qué tan cerca estás del umbral (la
+línea blanca es el 100%), así se ve de una si el problema es que te falta tirar o
+que hay que bajar los umbrales.
 
 ## Conexión con Unity
 

@@ -197,6 +197,7 @@ Crazy-Moto/
 | El juego dice "SIN SEÑAL" | El detector no está corriendo. Ejecutá `python vision/deteccion.py` |
 | "CONECTADA, PERO NO TE VEO" | Falta luz, o no entran tus hombros y codos en el cuadro. Alejate un poco |
 | La moto dobla sola | Recalibrá: apretá `c` en la ventana del detector, quieto y simétrico |
+| El wheelie no se activa | Mirá la barra `wheelie` de la ventana: si al tirar los brazos a fondo no llega a la línea blanca, bajá `WHEELIE_DELTA` en `vision/deteccion.py`. **Calibrá con los brazos algo estirados**, no encogidos |
 
 ---
 

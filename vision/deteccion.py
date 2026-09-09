@@ -66,13 +66,46 @@ ZONA_MUERTA = 0.10
 # Suavizado exponencial: 0 = no se mueve nunca, 1 = sin suavizado (tiembla).
 SUAVIZADO = 0.40
 
-# Wheelie: cuanto mas doblados que en reposo tienen que estar LOS DOS brazos.
-# Son dos umbrales (histeresis) para que no titile prendido/apagado en el borde.
-WHEELIE_ENCIENDE = 0.16
-WHEELIE_APAGA = 0.10
+# Wheelie: hay DOS formas de activarlo y alcanza con cumplir una sola. Ninguna
+# regla sola sirve para todo el mundo, porque cada uno se sienta distinto:
+#
+#   WHEELIE_DELTA    -> cuanto doblaste los brazos, en terminos absolutos.
+#                       Sirve para el que se sienta con los brazos estirados, que
+#                       tiene recorrido de sobra.
+#   WHEELIE_FRACCION -> que parte del recorrido que TE QUEDA usaste.
+#                       Sirve para el que se sienta encogido: en absoluto no puede
+#                       doblar mucho mas, pero si puede usar casi todo lo que le
+#                       queda.
+#
+# Con un umbral fijo solo (como estaba antes), el que se sentaba con los brazos ya
+# doblados no llegaba NUNCA: la flexion se clava en 1, le quedaba menos recorrido
+# que el umbral y el wheelie era imposible. Peor todavia, recalibrar en esa misma
+# postura lo dejaba igual de muerto.
+WHEELIE_DELTA = 0.16
+WHEELIE_FRACCION = 0.50
 
-# Cuanta confianza pedimos para dar por buenos los puntos del cuerpo.
-VISIBILIDAD_MINIMA = 0.5
+# Con cuanta intensidad se APAGA, donde 1.0 es el umbral de encendido. Histeresis,
+# para que no titile prendido/apagado justo en el borde.
+WHEELIE_SALIDA = 0.62
+
+# Piso del recorrido que se asume disponible, para no dividir por casi cero si
+# alguien calibra con los brazos muy cerrados.
+MARGEN_MINIMO = 0.18
+
+# Si en la calibracion la flexion promedio supera esto, la persona se sento con
+# los brazos demasiado doblados y casi no le queda recorrido: se le avisa.
+BASE_DEMASIADO_CERRADA = 0.80
+
+# Cuanta confianza pedimos para dar por buenos los puntos del cuerpo. Los hombros
+# se ven casi siempre; las munecas se tapan contra el torso justo cuando hacer el
+# wheelie, asi que con los brazos somos mas permisivos.
+VISIBILIDAD_HOMBROS = 0.5
+VISIBILIDAD_BRAZOS = 0.3
+
+# Si perdemos los puntos por menos tiempo que esto, mantenemos la ultima lectura
+# buena en vez de cortar. Sin esto, un parpadeo de la deteccion en pleno wheelie
+# te tiraba de golpe al teclado.
+SEGUNDOS_DE_GRACIA = 0.5
 
 SEGUNDOS_CALIBRACION = 2.0
 
@@ -131,7 +164,8 @@ def puntos_en_pixeles(marcas, ancho, alto):
         if i >= len(marcas):
             return None
         m = marcas[i]
-        if getattr(m, "visibility", 1.0) < VISIBILIDAD_MINIMA:
+        minimo = VISIBILIDAD_HOMBROS if i in (HOMBRO_IZQ, HOMBRO_DER) else VISIBILIDAD_BRAZOS
+        if getattr(m, "visibility", 1.0) < minimo:
             return None
         puntos[i] = (m.x * ancho, m.y * alto)
     return puntos
@@ -142,7 +176,7 @@ def puntos_en_pixeles(marcas, ancho, alto):
 # dibuja acentos ni enies, salen como basura)
 # ---------------------------------------------------------------------------
 
-def dibujar(imagen, puntos, direccion, wheelie, calibrando, detectado):
+def dibujar(imagen, puntos, direccion, wheelie, calibrando, detectado, progreso):
     alto, ancho = imagen.shape[:2]
 
     if puntos is not None:
@@ -184,9 +218,24 @@ def dibujar(imagen, puntos, direccion, wheelie, calibrando, detectado):
     cv2.putText(imagen, f"direccion: {direccion:+.2f}", (16, 60),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.55, (230, 230, 230), 1)
 
+    # Barra de wheelie: que tan cerca estas de activarlo. La linea blanca es el
+    # umbral, o sea el 100%. Si tiras a fondo y la barra no llega a la linea, hay
+    # que bajar WHEELIE_DELTA o WHEELIE_FRACCION.
+    ESCALA = 1.5   # la barra llega hasta el 150% del umbral
+    by, bx0, bx1 = 88, 16, 226
+    cv2.rectangle(imagen, (bx0, by - 12), (bx1, by + 12), (60, 60, 60), -1)
+    lleno = int((bx1 - bx0) * max(0.0, min(1.0, progreso / ESCALA)))
+    if lleno > 0:
+        color = (40, 190, 90) if wheelie else (60, 160, 220)
+        cv2.rectangle(imagen, (bx0, by - 12), (bx0 + lleno, by + 12), color, -1)
+    umbral_x = int(bx0 + (bx1 - bx0) / ESCALA)
+    cv2.line(imagen, (umbral_x, by - 15), (umbral_x, by + 15), (255, 255, 255), 2)
+    cv2.putText(imagen, f"wheelie {progreso * 100:.0f}%", (bx1 + 10, by + 7),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
+
     if wheelie:
-        cv2.rectangle(imagen, (12, 74), (210, 108), (40, 190, 90), -1)
-        cv2.putText(imagen, "WHEELIE", (34, 99), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+        cv2.rectangle(imagen, (12, 112), (210, 146), (40, 190, 90), -1)
+        cv2.putText(imagen, "WHEELIE", (34, 137), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
 
     cv2.putText(imagen, "c = recalibrar    q = salir", (16, alto - 70),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (170, 170, 170), 1)
@@ -228,6 +277,9 @@ def main():
     direccion = 0.0
     media_suave = 0.0
     wheelie = False
+    progreso = 0.0          # cuanto del recorrido de wheelie estas usando (0..1)
+    ultimo_visto = 0.0      # cuando fue la ultima vez que te vimos bien
+    marca_tiempo = 0        # timestamp para MediaPipe, siempre creciente
 
     # Calibracion de la pose neutra. La direccion casi no la necesita (es una
     # resta, ya da cero sola si estas simetrico), pero el wheelie si: hay que
@@ -253,15 +305,20 @@ def main():
             # "derecho" de MediaPipe sean los lados reales de la persona.
             rgb = cv2.cvtColor(cuadro, cv2.COLOR_BGR2RGB)
             imagen_mp = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
-            resultado = detector.detect_for_video(imagen_mp, int(time.perf_counter() * 1000))
+
+            # detect_for_video exige timestamps ESTRICTAMENTE crecientes: si dos
+            # cuadros caen en el mismo milisegundo, tira excepcion y se corta todo.
+            marca_tiempo = max(marca_tiempo + 1, int(time.perf_counter() * 1000))
+            resultado = detector.detect_for_video(imagen_mp, marca_tiempo)
 
             puntos = None
             if resultado.pose_landmarks:
                 puntos = puntos_en_pixeles(resultado.pose_landmarks[0], ancho, alto)
 
-            detectado = puntos is not None
+            ahora = time.time()
 
-            if detectado:
+            if puntos is not None:
+                ultimo_visto = ahora
                 flex_izq = flexion(angulo(puntos[HOMBRO_IZQ], puntos[CODO_IZQ], puntos[MUNECA_IZQ]))
                 flex_der = flexion(angulo(puntos[HOMBRO_DER], puntos[CODO_DER], puntos[MUNECA_DER]))
 
@@ -280,23 +337,53 @@ def main():
                         media_suave = base_media
                         muestras.clear()
                         calibrando = False
-                        print("Calibrado. Ya podes jugar.")
+
+                        # Si calibraste con los brazos ya muy cerrados, casi no te
+                        # queda recorrido para el wheelie. Avisamos en vez de
+                        # dejarte peleando con un gesto que no responde.
+                        if base_media > BASE_DEMASIADO_CERRADA:
+                            print("AVISO: calibraste con los brazos muy doblados y te queda poco")
+                            print("       recorrido para el wheelie. Estira mas los brazos y")
+                            print("       apreta 'c' para recalibrar.")
+                        else:
+                            print("Calibrado. Ya podes jugar.")
                 else:
                     objetivo = aplicar_zona_muerta((diferencia - base_diferencia) * GANANCIA_DIRECCION)
                     objetivo = max(-1.0, min(1.0, objetivo))
                     direccion += (objetivo - direccion) * SUAVIZADO
 
                     media_suave += (media - media_suave) * SUAVIZADO
-                    extra = media_suave - base_media
-                    # Histeresis: sube con un umbral y baja con otro mas bajo.
+
+                    # Cuanto doblaste los brazos respecto de tu postura de reposo,
+                    # medido de las dos formas. Nos quedamos con la que mas te
+                    # favorece, asi el gesto responde igual te sientes con los
+                    # brazos estirados o ya bastante cerrados.
+                    delta = media_suave - base_media
+                    margen = max(MARGEN_MINIMO, 1.0 - base_media)
+                    progreso = max(delta / WHEELIE_DELTA,
+                                   (delta / margen) / WHEELIE_FRACCION)
+
+                    # progreso 1.0 = justo el umbral. Histeresis: enciende en 1.0 y
+                    # apaga mas abajo para que no titile en el borde.
                     if wheelie:
-                        wheelie = extra > WHEELIE_APAGA
+                        wheelie = progreso > WHEELIE_SALIDA
                     else:
-                        wheelie = extra > WHEELIE_ENCIENDE
+                        wheelie = progreso > 1.0
+
+                detectado = True
+
+            elif (ahora - ultimo_visto) < SEGUNDOS_DE_GRACIA and not calibrando:
+                # Parpadeo corto de la deteccion (pasa justo al tirar los brazos,
+                # que se tapan contra el cuerpo): mantenemos la ultima lectura en
+                # vez de cortar y tirarte al teclado en medio del wheelie.
+                detectado = True
+
             else:
-                # Si te perdemos, soltamos todo: el juego vuelve solo al teclado.
+                # Te perdimos de verdad: soltamos todo y el juego vuelve al teclado.
                 direccion += (0.0 - direccion) * SUAVIZADO
                 wheelie = False
+                progreso = 0.0
+                detectado = False
 
             enviable = direccion if (detectado and not calibrando) else 0.0
             mensaje = f"{enviable:.3f};{1 if wheelie else 0};{1 if (detectado and not calibrando) else 0}"
@@ -310,7 +397,7 @@ def main():
                 if puntos is not None:
                     puntos_vista = {i: (ancho - x, y) for i, (x, y) in puntos.items()}
 
-                dibujar(vista, puntos_vista, direccion, wheelie, calibrando, detectado)
+                dibujar(vista, puntos_vista, direccion, wheelie, calibrando, detectado, progreso)
                 cv2.imshow("Crazy Moto - control por camara", vista)
 
                 tecla = cv2.waitKey(1) & 0xFF
@@ -322,7 +409,9 @@ def main():
                     muestras.clear()
                     direccion = 0.0
                     wheelie = False
-                    print("Recalibrando...")
+                    progreso = 0.0
+                    media_suave = 0.0
+                    print("Recalibrando... estira un poco los brazos, no los cierres.")
 
     camara.release()
     cv2.destroyAllWindows()
