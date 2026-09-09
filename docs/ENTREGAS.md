@@ -25,14 +25,14 @@ lo que hay **hoy en el proyecto**.
 | 20 ago | 1 | ✅ Cumplida | Loop completo iniciar → terminar → continuar. |
 | 27 ago | 1 | ✅ Cumplida | Controladores programados y pusheados. |
 | 03 sep | 1 | ✅ Cumplida | Mecánica principal: esquivar autos por 3 carriles + wheelie de riesgo-recompensa + puntaje en pantalla. Probada el 27 ago. |
-| 10 sep | 1 | 🟡 A medias | Datos persistentes ✅ (ranking con ScriptableObject + JSON, probado). Falta la parte de sonido. |
-| 17 sep | 1 | ❌ Pendiente | Sin partículas, sin Cinemachine, iluminación solo la default. (La cámara ya tiene efectos propios por código: 1ª persona con roll y subida al cielo en el wheelie.) |
+| 10 sep | 1 | ✅ Cumplida | Datos persistentes ✅ (ranking con ScriptableObject + JSON) + sonido ✅ (música de menú, choque y click asignados). |
+| 17 sep | 1 | 🟡 A medias | Control por **webcam** programado (falta probarlo) → cubre "hardware externo". Faltan partículas e iluminación. (La cámara del juego ya tiene efectos por código: 1ª persona con roll y subida al cielo en el wheelie.) |
 | 28 sep | 1 | ❌ Pendiente | Sin build, sin carpeta de Drive, sin link en el README. Arte a medias: la moto y los autos ya son modelos 3D con rig (ruedas girando, manubrio); el camino sigue siendo un cubo gris. |
 | 05 nov | 2 | ❌ Pendiente | Sin itch.io, sin video, sin decoración. |
 
-**Estado al 2026-08-27:** 4 entregas cumplidas (13, 20, 27 ago y 3 sep); del
-10 sep ya está la mitad (datos persistentes); la del 6 ago queda a un paso
-(falta solo el boceto).
+**Estado al 2026-09-09:** 5 entregas cumplidas (13, 20, 27 ago, 3 sep y 10 sep);
+la del 6 ago queda a un paso (falta solo el boceto). La próxima con trabajo de
+código es la del **17 de septiembre** (partículas, efectos e iluminación).
 
 ---
 
@@ -131,10 +131,9 @@ errores visuales" del 28 de septiembre.
 
 **Veredicto: ✅ CUMPLIDA** (la fecha límite es hoy, inclusive).
 
-**Nota:** `AudioManager` funciona pero solo tiene asignado el sonido de choque
-(`Crash.mp3`); `musicaFondo` y `sonidoClick` están vacíos. Para "controlador
-programado" alcanza; el contenido de audio se termina de completar para el
-10 de septiembre.
+**Nota:** al momento de esta entrega `AudioManager` solo tenía asignado el sonido
+de choque (`Crash.mp3`). Para "controlador programado" alcanzaba; el contenido de
+audio se completó para la entrega del 10 de septiembre.
 
 ---
 
@@ -171,11 +170,14 @@ de las entregas de estética (28 de septiembre).
 
 ### a) Sonido implementado y programado
 
-- ⚠️ **A medias.** `AudioManager` está programado y el choque suena
-  (`Assets/Sounds/Crash.mp3`).
-- ❌ Falta: música de fondo (`musicaFondo`) y sonido de UI (`sonidoClick`) — no
-  hay archivos de audio para esos campos.
-- ❌ Faltan sonidos de la mecánica (motor, wheelie, autos pasando).
+- ✅ **Hecho.** `AudioManager` está programado y tiene los **3 clips asignados**
+  en la escena: `Breakneck_Boulevard.mp3` (`musicaFondo`, música del menú),
+  `Crash.mp3` (`sonidoChoque`) y `mouse-click-sound.mp3` (`sonidoClick`).
+- ✅ Los 3 volúmenes (general / música / efectos) se ajustan desde Opciones y se
+  guardan en `PlayerPrefs`.
+- 🟡 Faltan sonidos ambientales de la mecánica (motor de la moto, autos
+  pasando). No bloquean esta entrega: la música es solo del menú por decisión de
+  diseño, y el choque y el click ya cubren los efectos. Queda como pulido.
 
 ### b) Datos persistentes (ScriptableObject o base de datos)
 
@@ -188,8 +190,8 @@ de las entregas de estética (28 de septiembre).
 - Una fila por jugador: si repetís nombre, se queda tu mejor puntaje.
 - Se probó cerrando y reabriendo Unity: el ranking persiste.
 
-**Veredicto: la parte de datos persistentes está CUMPLIDA. Falta la parte de
-sonido** (música de fondo + efectos de la mecánica).
+**Veredicto: ✅ CUMPLIDA.** Las dos partes están: datos persistentes (ranking en
+JSON, probado el 2026-08-27) y sonido (los 3 clips asignados y sonando, 2026-09-09).
 
 ---
 
@@ -198,7 +200,7 @@ sonido** (música de fondo + efectos de la mecánica).
 | Ítem | Estado |
 |---|---|
 | Efectos: partículas | ❌ No hay ningún `ParticleSystem` en la escena ni en prefabs. |
-| Efectos: interacción con hardware externo | ❌ No aplica / no hecho (el documento dice que no se conecta con electrónica). |
+| Efectos: interacción con hardware externo | 🟡 **Programado el 2026-09-09, falta probarlo con la cámara real.** El juego se controla con la **webcam**: `vision/deteccion.py` (MediaPipe) detecta los gestos del jugador y se los manda a Unity por UDP (`EntradaCamara.cs`). Reemplaza al manubrio de Arduino, que salía caro. |
 | Efectos de cámara (Cinemachine, etc.) | 🟡 A medias. No hay Cinemachine, pero desde el 2026-09-09 la cámara es de **primera persona** por código (`CamaraJugador.cs` en la `Main Camera`): sigue pegada al `PuntoCamara` de la moto, se tumba (roll) al esquivar y sube la vista al cielo mientras se sostiene el wheelie. Falta shake de choque / post-proceso reactivo. |
 | Iluminación implementada | ⚠️ Hay una `Directional Light` default y un `Global Volume` con post-proceso, pero no iluminación pensada como parte del arte/efectos. |
 
@@ -236,7 +238,8 @@ sonido** (música de fondo + efectos de la mecánica).
 1. **Cerrar la entrega del 6 de agosto:** agregar el **boceto del juego** al
    documento (falta solo eso). Volcar también al punto 1.6 del documento el texto
    de "1 jugador" y del ranking (comparación de puntajes de mayor a menor).
-2. **10 de septiembre** — falta solo la parte de sonido: conseguir y asignar
-   música de fondo (`musicaFondo`) y efectos de la mecánica (motor, wheelie,
-   autos). Los datos persistentes ya están.
-3. **17 de septiembre** — partículas, efectos de cámara e iluminación.
+2. **17 de septiembre** — partículas, efectos de cámara e iluminación. Acá entra
+   también el control por **cámara web** (detección de pose con Python +
+   MediaPipe), que cubre el ítem "interacción con hardware externo" que hoy
+   figura como no aplicable.
+3. **28 de septiembre** — build ejecutable, carpeta de Drive y link en el README.

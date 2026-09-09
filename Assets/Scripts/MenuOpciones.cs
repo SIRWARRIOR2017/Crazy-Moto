@@ -8,7 +8,8 @@ using TMPro;
 //   AUDIO     -> 3 sliders de volumen (general / música / efectos)
 //   PERFIL    -> campo "Tu nombre (para el ranking)" -> PlayerPrefs("NombreJugador")
 //   DATOS     -> botón "Reiniciar tabla de ranking"
-//   CONTROLES -> texto informativo (no editable hasta el manubrio de Arduino)
+//   CÁMARA    -> botón "Probar cámara" -> pantalla de MenuCamara
+//   CONTROLES -> texto informativo (no editable)
 //
 // Provisional: cuando haya arte, esto pasa a ser un panel real en la escena.
 public class MenuOpciones : MonoBehaviour
@@ -101,7 +102,7 @@ public class MenuOpciones : MonoBehaviour
         crt.anchorMax = new Vector2(0.5f, 0.5f);
         crt.pivot = new Vector2(0.5f, 0.5f);
         crt.anchoredPosition = new Vector2(0f, -10f);
-        crt.sizeDelta = new Vector2(760f, 660f);
+        crt.sizeDelta = new Vector2(760f, 780f);   // crece con la sección CÁMARA
         cont.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.35f);
 
         VerticalLayoutGroup vlg = cont.GetComponent<VerticalLayoutGroup>();
@@ -135,13 +136,19 @@ public class MenuOpciones : MonoBehaviour
             if (ranking != null) ranking.Refrescar();
         });
 
+        // --- Sección CÁMARA ---
+        CrearEncabezado(crt, "CÁMARA");
+        CrearBoton(crt, "Probar cámara", new Color(0.15f, 0.42f, 0.68f, 0.95f),
+            () => menu.MostrarPruebaCamara());
+
         // --- Sección CONTROLES (informativa) ---
         CrearEncabezado(crt, "CONTROLES");
         TMP_Text info = CrearTexto(crt, "InfoControles",
-            "Mover:  A  /  D          Wheelie:  mantener  Shift", 22f,
+            "Cámara:  doblar = tirar un brazo y empujar el otro  ·  wheelie = tirar los dos\n" +
+            "Teclado:  mover = A / D  ·  wheelie = mantener Shift", 20f,
             TextAlignmentOptions.Left, FontStyles.Normal);
         info.color = new Color(0.85f, 0.85f, 0.85f);
-        AgregarLayout(info.gameObject, 40f);
+        AgregarLayout(info.gameObject, 56f);
 
         // --- Botón Volver ---
         CrearBoton(crt, "Volver", new Color(0.2f, 0.2f, 0.26f, 0.95f), () => menu.VolverDeOpciones());

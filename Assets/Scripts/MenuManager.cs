@@ -8,10 +8,12 @@ public class MenuManager : MonoBehaviour
     public GameObject panelJuego;
     public GameObject panelGameOver;
 
-    // El panel de Opciones y el de Pausa se arman por código (ver MenuOpciones y
-    // MenuPausa) y se registran acá al crearse, así que no aparecen en el Inspector.
+    // Los paneles de Opciones, Pausa y Probar cámara se arman por código (ver
+    // MenuOpciones, MenuPausa y MenuCamara) y se registran acá al crearse, así que
+    // no aparecen en el Inspector.
     [HideInInspector] public GameObject panelOpciones;
     [HideInInspector] public GameObject panelPausa;
+    [HideInInspector] public GameObject panelCamara;
 
     // Flag en memoria (no en disco, a diferencia de PlayerPrefs): sobrevive a la
     // recarga de escena, pero nunca a un cierre del juego. Así, si la app se
@@ -44,6 +46,9 @@ public class MenuManager : MonoBehaviour
         if (FindAnyObjectByType<MenuPausa>() == null)
             new GameObject("MenuPausa").AddComponent<MenuPausa>();
 
+        if (FindAnyObjectByType<MenuCamara>() == null)
+            new GameObject("MenuCamara").AddComponent<MenuCamara>();
+
         // Si venimos de apretar "Jugar", arrancamos jugando directo.
         // Si no (primera vez que abre, o volvió al menú), mostramos el menú.
         if (irAJugar)
@@ -67,6 +72,7 @@ public class MenuManager : MonoBehaviour
         panelGameOver.SetActive(false);
         if (panelOpciones != null) panelOpciones.SetActive(false);
         if (panelPausa != null) panelPausa.SetActive(false);
+        if (panelCamara != null) panelCamara.SetActive(false);
 
         // La música suena solo acá, en el menú.
         if (AudioManager.Instance != null)
@@ -91,6 +97,7 @@ public class MenuManager : MonoBehaviour
         panelGameOver.SetActive(false);
         if (panelOpciones != null) panelOpciones.SetActive(false);
         if (panelPausa != null) panelPausa.SetActive(false);
+        if (panelCamara != null) panelCamara.SetActive(false);
 
         // Durante la partida no hay música (por las dudas la cortamos).
         if (AudioManager.Instance != null)
@@ -112,6 +119,7 @@ public class MenuManager : MonoBehaviour
         if (panelOpciones == null) return;
         panelMenu.SetActive(false);
         if (panelPausa != null) panelPausa.SetActive(false);
+        if (panelCamara != null) panelCamara.SetActive(false);
         panelOpciones.SetActive(true);
     }
 
@@ -126,6 +134,25 @@ public class MenuManager : MonoBehaviour
             panelPausa.SetActive(true);
         else
             MostrarMenu();
+    }
+
+    // ---- PROBAR CÁMARA ----
+    // Botón "Probar cámara" del panel de Opciones (cableado por código en
+    // MenuOpciones). Sirve para que el jugador se acomode frente a la cámara y vea
+    // en vivo si lo está leyendo bien, antes de empezar la partida.
+    public void MostrarPruebaCamara()
+    {
+        if (panelCamara == null) return;
+        if (panelOpciones != null) panelOpciones.SetActive(false);
+        panelCamara.SetActive(true);
+    }
+
+    // Botón VOLVER dentro de "Probar cámara": siempre vuelve a Opciones, que es
+    // desde donde se abre.
+    public void VolverDePruebaCamara()
+    {
+        if (panelCamara != null) panelCamara.SetActive(false);
+        if (panelOpciones != null) panelOpciones.SetActive(true);
     }
 
     // ---- PAUSA ----
@@ -155,6 +182,7 @@ public class MenuManager : MonoBehaviour
         estaPausado = false;
         if (panelPausa != null) panelPausa.SetActive(false);
         if (panelOpciones != null) panelOpciones.SetActive(false);
+        if (panelCamara != null) panelCamara.SetActive(false);
         Time.timeScale = 1f;
 
         // El botón "Continuar" no recarga la escena, así que este click sí llega
@@ -173,6 +201,7 @@ public class MenuManager : MonoBehaviour
         panelGameOver.SetActive(true);
         if (panelOpciones != null) panelOpciones.SetActive(false);
         if (panelPausa != null) panelPausa.SetActive(false);
+        if (panelCamara != null) panelCamara.SetActive(false);
     }
 
     // Botón VOLVER A JUGAR (recarga y arranca jugando directo)
