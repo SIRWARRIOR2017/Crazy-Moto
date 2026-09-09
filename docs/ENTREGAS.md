@@ -3,7 +3,7 @@
 Calendario de entregas de la feria de ciencias, con el estado de cada una según
 lo que hay **hoy en el proyecto**.
 
-- Fecha de análisis: **2026-08-27** (última actualización: 2026-08-27).
+- Fecha de análisis: **2026-08-27** (última actualización: 2026-09-09).
 - Alumnos: Joaquín Pastorino y Santiago Castiñeira.
 - **Regla del profesor: los trabajos entregados fuera de tiempo valen CERO.**
 - Total en juego: **10 puntos** (8 entregas de 1 punto + 1 entrega de 2 puntos).
@@ -26,8 +26,8 @@ lo que hay **hoy en el proyecto**.
 | 27 ago | 1 | ✅ Cumplida | Controladores programados y pusheados. |
 | 03 sep | 1 | ✅ Cumplida | Mecánica principal: esquivar autos por 3 carriles + wheelie de riesgo-recompensa + puntaje en pantalla. Probada el 27 ago. |
 | 10 sep | 1 | 🟡 A medias | Datos persistentes ✅ (ranking con ScriptableObject + JSON, probado). Falta la parte de sonido. |
-| 17 sep | 1 | ❌ Pendiente | Sin partículas, sin Cinemachine, iluminación solo la default. |
-| 28 sep | 1 | ❌ Pendiente | Sin build, sin carpeta de Drive, sin link en el README. |
+| 17 sep | 1 | ❌ Pendiente | Sin partículas, sin Cinemachine, iluminación solo la default. (La cámara ya tiene efectos propios por código: 1ª persona con roll y subida al cielo en el wheelie.) |
+| 28 sep | 1 | ❌ Pendiente | Sin build, sin carpeta de Drive, sin link en el README. Arte a medias: la moto y los autos ya son modelos 3D con rig (ruedas girando, manubrio); el camino sigue siendo un cubo gris. |
 | 05 nov | 2 | ❌ Pendiente | Sin itch.io, sin video, sin decoración. |
 
 **Estado al 2026-08-27:** 4 entregas cumplidas (13, 20, 27 ago y 3 sep); del
@@ -160,9 +160,10 @@ lateral y es la única forma de sumar puntaje.
 —esquivar autos por carriles + wheelie de riesgo-recompensa— está programada y
 funcionando.
 
-**Nota:** los autos son cubos creados por código y el HUD es texto TMP armado por
-código (sin arte). Funciona; el arte real es trabajo de las entregas de estética
-(28 de septiembre).
+**Nota:** al momento de la entrega los autos eran cubos creados por código y el
+HUD texto TMP armado por código (sin arte). Desde el 2026-09-09 los autos y la
+moto ya son modelos 3D con rig; el HUD sigue en greybox. El arte real es trabajo
+de las entregas de estética (28 de septiembre).
 
 ---
 
@@ -198,7 +199,7 @@ sonido** (música de fondo + efectos de la mecánica).
 |---|---|
 | Efectos: partículas | ❌ No hay ningún `ParticleSystem` en la escena ni en prefabs. |
 | Efectos: interacción con hardware externo | ❌ No aplica / no hecho (el documento dice que no se conecta con electrónica). |
-| Efectos de cámara (Cinemachine, etc.) | ❌ No hay Cinemachine instalado. La cámara sigue al jugador solo por jerarquía (es hija de `PivotCamara`). |
+| Efectos de cámara (Cinemachine, etc.) | 🟡 A medias. No hay Cinemachine, pero desde el 2026-09-09 la cámara es de **primera persona** por código (`CamaraJugador.cs` en la `Main Camera`): sigue pegada al `PuntoCamara` de la moto, se tumba (roll) al esquivar y sube la vista al cielo mientras se sostiene el wheelie. Falta shake de choque / post-proceso reactivo. |
 | Iluminación implementada | ⚠️ Hay una `Directional Light` default y un `Global Volume` con post-proceso, pero no iluminación pensada como parte del arte/efectos. |
 
 **Veredicto: ❌ PENDIENTE.**
@@ -209,7 +210,7 @@ sonido** (música de fondo + efectos de la mecánica).
 
 | Ítem | Estado |
 |---|---|
-| Versión final sin errores, UI linda y coherente con el arte | ❌ Lejos: falta arte, HUD, y arreglar el camino con huecos. |
+| Versión final sin errores, UI linda y coherente con el arte | ❌ Lejos: la moto y los autos ya son modelos 3D con rig (glTFast) y la cámara es 1ª persona, pero falta el HUD con estilo, el arte del camino (sigue siendo un cubo gris) y texturas. El camino ya no tiene huecos. |
 | Audio y efectos funcionando | ❌ Depende de las entregas del 10 y 17 de septiembre. |
 | Proyecto buildeado y ejecutable sin errores | ❌ No hay ningún build. |
 | Carpeta en Drive compartida + link en el `README.md` | ❌ El `README.md` no tiene ningún link a Drive. |

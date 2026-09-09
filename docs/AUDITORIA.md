@@ -19,6 +19,14 @@ Fecha: 2026-08-26. Solo diagnóstico, **no se aplicó ningún cambio**.
 > tiene `estaPausado`, la variable que faltaba para distinguir *por qué* el juego
 > está en `Time.timeScale = 0` (menú / game over / pausa). Ver el nuevo
 > `MenuPausa.cs` y la decisión del 2026-09-03 en `CLAUDE.md`.
+>
+> Nota (2026-09-09): varias cosas de la sección 2 quedaron viejas. La moto y los
+> autos ya son **modelos 3D con rig** (`.glb` vía glTFast), con ruedas que giran y
+> manubrio que dobla. La cámara **ya no es hija de `PivotCamara`**: es de primera
+> persona y la maneja `CamaraJugador.cs` (roll al esquivar, vista al cielo en el
+> wheelie). El `AudioManager` y los datos persistentes (`RankingData`) ya existen
+> hace rato. Para el estado real ver `docs/ENTREGAS.md` y "Decisiones tomadas" en
+> `CLAUDE.md`.
 
 ---
 

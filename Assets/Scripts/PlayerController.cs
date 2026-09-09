@@ -17,6 +17,11 @@ public class PlayerController : MonoBehaviour
     public float factorLateralEnWheelie = 0.3f;   // qué tanto se frena de costado al hacer wheelie (0.3 = 30% de lo normal)
 
     public bool haciendoWheelie { get; private set; }
+    // Entrada lateral cruda (-1..1), para que la anime quien la necesite
+    // (ej. el manubrio de la moto). No dispersar llamadas a Input.* por otros
+    // scripts: leerla de acá.
+    public float EntradaLateral { get; private set; }
+
     private float anguloMoto = 0f;
     private float anguloCamara = 0f;
 
@@ -45,6 +50,7 @@ public class PlayerController : MonoBehaviour
     void MoverLateral()
     {
         float input = LeerLateral();
+        EntradaLateral = input;
 
         // Durante el wheelie la moto responde mucho menos de costado: ese es el
         // riesgo de sostenerlo para sumar puntos.
