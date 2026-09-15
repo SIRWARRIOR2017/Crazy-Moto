@@ -27,7 +27,7 @@ lo que hay **hoy en el proyecto**.
 | 03 sep | 1 | ✅ Cumplida | Mecánica principal: esquivar autos por 3 carriles + wheelie de riesgo-recompensa + puntaje en pantalla. Probada el 27 ago. |
 | 10 sep | 1 | ✅ Cumplida | Datos persistentes ✅ (ranking con ScriptableObject + JSON) + sonido ✅ (música de menú, choque y click asignados). |
 | 17 sep | 1 | 🟡 A medias | Control por **webcam** programado (falta probarlo) → cubre "hardware externo". Faltan partículas e iluminación. (La cámara del juego ya tiene efectos por código: 1ª persona con roll y subida al cielo en el wheelie.) |
-| 28 sep | 1 | ❌ Pendiente | Sin build, sin carpeta de Drive, sin link en el README. Arte a medias: la moto y los autos ya son modelos 3D con rig (ruedas girando, manubrio); el camino sigue siendo un cubo gris. |
+| 28 sep | 1 | ❌ Pendiente | Sin build, sin carpeta de Drive, sin link en el README. Arte a medias: la moto y los autos ya son modelos 3D con rig (ruedas girando, manubrio) y el **menú principal ya tiene arte** ("Ruta de noche", 2026-09-15); faltan las otras pantallas de UI y el camino, que sigue siendo un cubo gris. |
 | 05 nov | 2 | ❌ Pendiente | Sin itch.io, sin video, sin decoración. |
 
 **Estado al 2026-09-09:** 5 entregas cumplidas (13, 20, 27 ago, 3 sep y 10 sep);
@@ -212,7 +212,7 @@ JSON, probado el 2026-08-27) y sonido (los 3 clips asignados y sonando, 2026-09-
 
 | Ítem | Estado |
 |---|---|
-| Versión final sin errores, UI linda y coherente con el arte | ❌ Lejos: la moto y los autos ya son modelos 3D con rig (glTFast) y la cámara es 1ª persona, pero falta el HUD con estilo, el arte del camino (sigue siendo un cubo gris) y texturas. El camino ya no tiene huecos. |
+| Versión final sin errores, UI linda y coherente con el arte | 🟡 En camino: la moto y los autos son modelos 3D con rig (glTFast), la cámara es 1ª persona y el **menú principal ya está con arte** (dirección "Ruta de noche": fondo nocturno, sol retro, grilla de neón, Chakra Petch). Faltan con estilo el HUD, Opciones, la pausa y el Game Over, más el arte del camino (sigue siendo un cubo gris) y las texturas. El camino ya no tiene huecos. |
 | Audio y efectos funcionando | ❌ Depende de las entregas del 10 y 17 de septiembre. |
 | Proyecto buildeado y ejecutable sin errores | ❌ No hay ningún build. |
 | Carpeta en Drive compartida + link en el `README.md` | ❌ El `README.md` no tiene ningún link a Drive. |
