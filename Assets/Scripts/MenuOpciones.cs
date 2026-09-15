@@ -34,46 +34,22 @@ public class MenuOpciones : MonoBehaviour
         panel.SetActive(false);
         menu.panelOpciones = panel;
 
-        AgregarBotonOpcionesAlMenu();
+        VerificarBotonOpciones();
     }
 
-    // El botón "Opciones" del menú principal se agrega por código (como el botón
-    // "Reiniciar" que antes armaba MenuRanking): se clona "BotonJugar" para que
-    // tenga el mismo estilo, se le cambia el texto y el OnClick, y se lo ubica
-    // entre "Jugar" y "Salir".
-    void AgregarBotonOpcionesAlMenu()
+    // El botón "Opciones" del menú principal ES un objeto de la escena
+    // (PanelMenu/BotonOpciones), igual que "Jugar" y "Salir": desde que el menú
+    // tiene arte ("Ruta de noche"), los tres botones viven en la escena con su
+    // estilo puesto y su OnClick cableado en el Inspector. Antes este script lo
+    // clonaba de "BotonJugar" en tiempo de ejecución; ya no hace falta, y clonarlo
+    // daría un botón con el estilo equivocado (el de "Jugar" va relleno).
+    //
+    // Sólo queda el aviso por si alguien lo borra de la escena sin querer.
+    void VerificarBotonOpciones()
     {
-        Transform menuT = menu.panelMenu.transform;
-        Transform jugar = menuT.Find("BotonJugar");
-        Transform salir = menuT.Find("BotonSalir");
-
-        if (jugar == null || salir == null)
-        {
-            Debug.LogWarning("MenuOpciones: no encontré BotonJugar/BotonSalir; no agregué el botón Opciones.");
-            return;
-        }
-
-        if (menuT.Find("BotonOpciones") != null) return;   // ya existe
-
-        GameObject opciones = Instantiate(jugar.gameObject, jugar.parent);
-        opciones.name = "BotonOpciones";
-        opciones.transform.SetSiblingIndex(salir.GetSiblingIndex());
-
-        TMP_Text label = opciones.GetComponentInChildren<TMP_Text>();
-        if (label != null) label.text = "Opciones";
-
-        Button btn = opciones.GetComponent<Button>();
-        if (btn != null)
-        {
-            // Evento nuevo: descarta el listener heredado de "Jugar".
-            btn.onClick = new Button.ButtonClickedEvent();
-            btn.onClick.AddListener(menu.MostrarOpciones);
-        }
-
-        // Reacomodar los 3 botones para que entren parejos.
-        ((RectTransform)jugar).anchoredPosition = new Vector2(0f, 120f);
-        ((RectTransform)opciones.transform).anchoredPosition = new Vector2(0f, 40f);
-        ((RectTransform)salir).anchoredPosition = new Vector2(0f, -40f);
+        if (menu.panelMenu.transform.Find("BotonOpciones") == null)
+            Debug.LogWarning("MenuOpciones: no está 'BotonOpciones' en PanelMenu. " +
+                             "Sin él no se puede abrir Opciones desde el menú.");
     }
 
     GameObject ConstruirPanel(Transform canvas)

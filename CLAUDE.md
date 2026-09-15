@@ -144,7 +144,11 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   dentro de `MenuManager.panelMenu`, la tabla de **Top 10** (más una línea "Estás
   en el puesto N" si el jugador quedó afuera del top 10). El campo "Tu nombre" y
   el botón "Reiniciar tabla" **ya no están acá**: se movieron a `MenuOpciones`,
-  que llama a `MenuRanking.Refrescar()` cuando cambian.
+  que llama a `MenuRanking.Refrescar()` cuando cambian. Desde el 2026-09-15 usa
+  `EstiloUI` (colores + tipografías) y está armada con Layout Groups en vez de
+  posiciones absolutas: panel de 500×664 pegado al borde derecho, con marco de
+  neón, encabezado "RANKING / TOP 10" y 10 filas de puesto / nombre / puntaje. El
+  primer puesto va resaltado en magenta.
 - **`MenuOpciones.cs`** — Se crea en runtime desde `MenuManager`. Arma por código
   el `PanelOpciones` (hermano de los otros paneles, hijo del `Canvas`) y lo
   registra en `MenuManager.panelOpciones`. Contenido en secciones apiladas con
@@ -155,10 +159,11 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   tabla de ranking" → `RankingData.Instance.BorrarTodo()`), **CÁMARA** (botón
   "Probar cámara" → `MenuManager.MostrarPruebaCamara()`), **CONTROLES** (texto
   informativo con los gestos de cámara y las teclas, no editable), y un
-  botón "Volver". Además, en `Start()` agrega el **botón "Opciones"** al menú
-  principal: clona `BotonJugar` (para heredar el estilo), le cambia el texto y el
-  `OnClick` (evento nuevo → `MenuManager.MostrarOpciones()`, descartando el
-  listener heredado de "Jugar"), lo ubica entre Jugar y Salir y reacomoda los 3.
+  botón "Volver". El **botón "Opciones"** del menú principal **ya no lo crea este
+  script**: desde el 2026-09-15 es un objeto de la escena
+  (`PanelMenu/BotonOpciones`), igual que Jugar y Salir, con su estilo puesto y su
+  `OnClick` cableado en el Inspector. Lo único que quedó acá es
+  `VerificarBotonOpciones()`, que avisa por consola si alguien lo borró.
 - **`MenuCamara.cs`** — Se crea en runtime desde `MenuManager`. Arma por código el
   `PanelCamara` (hermano de los otros paneles) y lo registra en
   `MenuManager.panelCamara`. Es la pantalla de **"Probar cámara"**: sirve para que
@@ -168,6 +173,26 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   ayuda de los gestos. No abre la webcam por su cuenta (la tiene el script de
   Python), solo dibuja lo que llega por UDP. Se ve con el juego en
   `timeScale = 0`, por eso `EntradaCamara` usa `Time.unscaledTime`.
+- **`EstiloUI.cs`** — Clase estática con la paleta, las tipografías y los sprites
+  de la dirección visual **"Ruta de noche"**. Existe para que la UI que se arma
+  por código (ranking, Opciones, pausa, HUD) use los mismos colores y fuentes que
+  los objetos puestos a mano en la escena; si cambia el estilo se toca acá y no en
+  cinco scripts. Carga las fuentes de `Resources/Fuentes/` y los sprites de
+  `Resources/Sprites/` (mismo mecanismo que `TrafficManager` con
+  `Resources/Autos/`: es la única forma de que un script llegue a un asset sin
+  arrastrarlo en el Inspector).
+- **`Assets/Editor/GeneradorSpritesMenu.cs`** — Script **de Editor** (no va al
+  build) que dibuja por código los PNG del fondo del menú y los deja en
+  `Assets/Resources/Sprites/`: `FondoNoche`, `SolRetro`, `HaloSol`, `GrillaNeon`,
+  `ResplandorHorizonte`, `LineaHorizonte`, `Vineta` y `MarcoUI`. Se corre a mano
+  desde el menú **Crazy Moto → Generar sprites del menú** y sólo hace falta
+  volver a correrlo si se cambia un color. El juego en runtime carga los PNG como
+  cualquier sprite: no genera nada en la partida. `MarcoUI` va **siempre** en modo
+  Sliced (tiene `spriteBorder` 6) o se deforma.
+  **Ojo:** después de editar este script hay que esperar a que Unity recompile
+  antes de ejecutar el menú, si no corre la versión vieja y parece que no pasó
+  nada (pasó: faltó `Vineta.png` y la capa quedó como un rectángulo blanco
+  tapando todo el fondo).
 - **`RoadManager.cs`** — Pool circular de tramos de camino (prefab
   `Assets/Prefabs/Tramo.prefab`, un cubo en escala `{10, 1, 30}` — mide exactamente
   `largoTramo` de largo, así los tramos encajan sin huecos; sin `MeshCollider`, el
@@ -246,6 +271,12 @@ directo al singleton) o por referencias asignadas a mano en el Inspector
   Materiales propios (cuando haya) van en `Assets/Materials/`. El código Python
   del control por cámara va en `vision/`, en la **raíz del repo y fuera de
   `Assets/`**, para que Unity no lo importe como assets.
+  **Excepción obligada:** los scripts que usan `UnityEditor` van en
+  `Assets/Editor/` (si no, el juego no compila al buildear) — hoy sólo está
+  `GeneradorSpritesMenu.cs`. Y lo que un script tenga que cargar en runtime va
+  bajo `Assets/Resources/`: `Autos/` (prefabs de tráfico), `Sprites/` (fondo del
+  menú) y `Fuentes/` (los TMP Font Assets). Los `.ttf` crudos viven en
+  `Assets/Fonts/`, fuera de Resources.
 - Comentarios mínimos, solo cuando algo no es obvio (ver el comentario sobre el
   obstáculo de prueba en `GameManager.cs`).
 - Reinicio de partida = recargar la escena, nunca resetear campos a mano.
@@ -280,11 +311,14 @@ partida se puede **pausar** con Escape o con el botón "II" del HUD: pantalla co
 Continuar / Opciones / Salir (al menú).
 
 **A medias:** UI escalable configurada (CanvasScaler con "Scale With Screen
-Size"); el HUD de puntaje, la tabla de ranking y todo el panel de Opciones están
-armados por código (`Hud.cs`, `MenuRanking.cs`, `MenuOpciones.cs`), en greybox
-sin estilo. El menú tiene 3 botones (Jugar / Opciones / Salir) y Opciones agrupa
-en secciones los 3 volúmenes, el nombre, el reinicio del ranking y la ayuda de
-controles. Los autos y la moto del jugador ya son **modelos 3D reales con rig**
+Size"). El **menú principal ya tiene arte** (dirección "Ruta de noche": fondo
+nocturno, sol retro a rayas, grilla de neón en perspectiva, título en Chakra
+Petch con degradado, botones de neón y tabla de ranking con marco) — ver la
+decisión del 2026-09-15. El HUD de puntaje, el panel de Opciones, la pausa y el
+Game Over **siguen en greybox** (`Hud.cs`, `MenuOpciones.cs`, `MenuPausa.cs`):
+les toca la próxima pasada y ya tienen de dónde sacar el estilo (`EstiloUI`).
+Opciones agrupa en secciones los 3 volúmenes, el nombre, el reinicio del ranking
+y la ayuda de controles. Los autos y la moto del jugador ya son **modelos 3D reales con rig**
 (`.glb` vía glTFast): `TrafficManager` instancia `Bugatti.prefab` / `McLaren.prefab`
 de `Assets/Resources/Autos/` (fallback a cubo rojo si la carpeta está vacía) y la
 moto es `Cuerpo/MotoModelo` (`DirtBike.glb`) en la escena. Las 4 ruedas de cada
@@ -659,6 +693,53 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   para saber si un paquete se usa hay que resolver los **GUID** de `m_Script` de
   la escena y los prefabs, no hacer `grep` por el nombre.
 
+- **2026-09-15** — **Arte del menú principal: dirección "Ruta de noche"**. Antes
+  se le pasaron al alumno cuatro bocetos (la UI de ese momento + tres
+  direcciones) y eligió la **C, "Ruta de noche"** (arcade nocturno). Sus
+  decisiones: fondo **opaco** (el degradado tapa la vista del juego, no se ve la
+  ruta atrás), **sólo el menú principal** en esta pasada, y bajó él mismo
+  **Chakra Petch** de Google Fonts. Sobre cómo hacer el fondo preguntó qué usan
+  los juegos de verdad: la respuesta es **PNG** (casi sin excepción; generar
+  texturas por código es cosa de prototipos), así que se hizo el punto medio —
+  los PNG los **dibuja un script de Editor** (`GeneradorSpritesMenu`) y quedan
+  como archivos de verdad en `Assets/Resources/Sprites/`, que el juego carga como
+  cualquier sprite y que el alumno puede retocar a mano si quiere.
+  Trabajo hecho en la rama **`integracion-ui`**, todo por MCP:
+  (1) 8 PNG generados (~119 KB en total);
+  (2) 3 TMP Font Assets de Chakra Petch (Bold, BoldItalic, SemiBold) creados con
+      `TMP_FontAsset.CreateFontAsset` en modo **Dynamic**, guardados en
+      `Assets/Resources/Fuentes/` (los `.ttf`, ~220 KB, en `Assets/Fonts/`);
+  (3) **escena tocada** — `PanelMenu` pasó de 3 hijos a 12: seis capas de fondo
+      (`Fondo`, `HaloSol`, `SolRetro`, `ResplandorHorizonte`, `GrillaNeon`,
+      `LineaHorizonte`), la `Vineta` encima, y después `Titulo`, `Subtitulo` y los
+      tres botones. El `Image` del propio `PanelMenu` dejó de ser blanco al 39 % y
+      ahora es `#08061A` opaco, de respaldo por si un sprite no cargara;
+  (4) los botones son de **480×88** con `localScale` 1 (antes eran 160×30 con
+      escala 2,5 — un lío para calcular posiciones); Jugar va relleno magenta y
+      los otros dos con marco de neón (`MarcoUI` en Sliced);
+  (5) `EstiloUI.cs` nuevo, y `MenuRanking.cs` reescrito con Layout Groups.
+  Verificado por captura: el menú renderiza como el boceto. **Falta que el alumno
+  lo pruebe en Play** (la tabla de ranking sólo se arma en runtime, así que en el
+  Editor sin Play no se ve, igual que antes).
+  Dos cosas que se ajustaron sobre la marcha después de mirar la captura: se
+  agregó la **viñeta** (sin ella el sol y el resplandor competían con el texto) y
+  el **sol se bajó** de y=109 a y=55 y se achicó a 440, porque su borde superior
+  caía justo sobre el subtítulo y el texto cyan se perdía contra el amarillo.
+
+- **Nota de trabajo (2026-09-15)** — La rama activa es **`integracion-ui`**
+  (sale de `crazymoto-rama`, va 6 commits adelante de `main`). No estaba
+  documentada hasta hoy.
+  Dos trampas del puente MCP que costaron tiempo y conviene recordar:
+  **(a)** cada vez que se edita un `.cs` Unity recompila y recarga el dominio, y
+  durante esos segundos **todas** las tools contestan "Unity not detected"; hay
+  que reintentar, no es que se cayó. **(b)** Por eso mismo, después de editar un
+  script de Editor hay que **esperar a que termine de compilar antes de ejecutar
+  su `MenuItem`** — si no, corre el binario viejo y el cambio no se aplica sin
+  ningún error visible.
+  Tercera: los `instanceID` que devuelven las tools (`GetHierarchy`, etc.) vienen
+  **truncados** por precisión de JSON (son mayores que 2^53), así que no sirven
+  para pasarlos a otra tool; hay que buscar los objetos por nombre.
+
 - **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
   reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No
   está descartado del todo, pero solo se retoma si el de cámara no convence. La
@@ -666,11 +747,13 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   `LeerLateral()` y `LeerWheelie()` dentro de `PlayerController`, y agregar un
   mando nuevo es tocar solo esos dos métodos. No dispersar llamadas a `Input.*`
   por otros scripts.
-- **UI a arte real:** toda la UI armada por código (`Hud.cs` en
-  `PanelJuego`/`PanelGameOver`; `MenuRanking.cs` con la tabla de ranking;
-  `MenuOpciones.cs` con el panel de Opciones entero y el botón "Opciones" del
-  menú; `MenuPausa.cs` con el panel de pausa y el botón "II" del HUD) debería
-  pasar a ser objetos de UI en la escena. (Los autos ya usan modelos reales vía
+- **UI a arte real:** el **menú principal ya está hecho** (objetos de la escena
+  bajo `PanelMenu`, con el estilo "Ruta de noche"). Falta llevar el mismo estilo
+  a las otras pantallas, que se siguen armando por código y en greybox: `Hud.cs`
+  (puntaje en `PanelJuego`/`PanelGameOver`), `MenuOpciones.cs` (panel de
+  Opciones), `MenuPausa.cs` (panel de pausa y el botón "II" del HUD) y
+  `MenuCamara.cs` (probar cámara). `MenuRanking.cs` ya usa `EstiloUI`; las demás
+  deberían hacer lo mismo. (Los autos ya usan modelos reales vía
   `TrafficManager` + `Assets/Resources/Autos/`.)
 
 ## Pendiente de fecha (checklist de la feria)
