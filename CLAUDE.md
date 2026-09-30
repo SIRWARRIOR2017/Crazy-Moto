@@ -40,7 +40,7 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   (acelera con el tiempo hasta `velocidadMaxima`), `juegoTerminado` y `puntaje`
   (int). El puntaje **solo sube mientras el jugador sostiene el wheelie**
   (`puntosPorSegundoEnWheelie`). En `Start()` crea por código, si no existen, un
-  `TrafficManager` y un `Hud` (misma idea que el resto: la escena se recarga
+  `TrafficManager`, un `EntornoManager` y un `Hud` (misma idea que el resto: la escena se recarga
   entera, así que no hace falta que estén en la jerarquía a mano). `GameOver()`
   pone `Time.timeScale = 0`, dispara `AudioManager.ReproducirChoque()` y busca un
   `MenuManager` en la escena (`FindAnyObjectByType`) para mostrar el panel de Game
@@ -223,15 +223,37 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   antes de ejecutar el menú, si no corre la versión vieja y parece que no pasó
   nada (pasó: faltó `Vineta.png` y la capa quedó como un rectángulo blanco
   tapando todo el fondo).
+- **`EntornoManager.cs`** — (2026-09-30) El decorado a los costados de la ruta:
+  **tramos de ciudad y de campo que se alternan** cada `tramosPorBioma` (8) tramos
+  de 30 m. Se crea en runtime desde `GameManager` y funciona como `RoadManager`:
+  pone tramos de decorado adelante del jugador (`tramosAdelante` = 10, ~300 m) y
+  recicla los de atrás, con `while`. **Arma TODOS los tramos al arrancar** (13 de
+  ciudad y 13 de campo, contenido al azar con semilla fija) y después sólo los
+  mueve: instanciar modelos en plena partida trabaría el juego. Ciudad = suelo de
+  hormigón, vereda con cordón, fila de edificios mirando a la calle, rascacielos
+  atrás, postes de luz y algún detalle. Campo = pasto, banquina de tierra, árboles
+  que no se enciman, arbustos, rocas chicas, cercas, postes eléctricos y alguna
+  casa. Carga los modelos con `Resources.LoadAll` de `Resources/Entorno/Ciudad`,
+  `Casas`, `Ruta` y `Naturaleza`, y los materiales de suelo de
+  `Resources/Entorno/Materiales/` (`Pasto`, `Tierra`, `Vereda`, `Hormigon`). Los
+  modelos de Kenney vienen en "unidades de Kenney", no en metros: cada categoría
+  tiene su escala en el Inspector (`escalaEdificios` 11, `escalaArboles` 5,5...).
+  `giroFrente` por si algún modelo mira al revés. Se descartan a propósito las
+  rocas altas (quedaban paredes de 7 m al costado) y el poste eléctrico ancho
+  (cruzaba cables sobre la calle). Todo el decorado va sin colliders. Medido en
+  Play: ~280 objetos dibujándose y ~91 mil triángulos, muy liviano.
 - **`RoadManager.cs`** — Pool circular de tramos de camino (prefab
-  `Assets/Prefabs/Tramo.prefab`, un cubo en escala `{10, 1, 30}` — mide exactamente
+  `Assets/Prefabs/Tramo.prefab`, material `Assets/Materials/Asfalto.mat` desde el
+  2026-09-30, un cubo en escala `{10, 1, 30}` — mide exactamente
   `largoTramo` de largo, así los tramos encajan sin huecos; sin `MeshCollider`, el
   jugador nunca colisiona con el camino). El prefab tiene 12 hijos `LineaCarril`
   (cubos finos con `Assets/Materials/LineaCarril.mat`, URP Unlit blanco): las
   líneas discontinuas que separan los 3 carriles, en X = ±1.5, período 5 en Z
   (segmento de 2 + hueco de 3) que divide justo los 30 del tramo para que tilen
   sin cortes en las uniones:
-  crea `cantidadTramos` al `Start()`, y en `Update()` cuando el tramo más viejo
+  crea `cantidadTramos` al `Start()` (**12** en la escena desde el 2026-09-30: la
+  calle tiene que llegar más allá de donde termina la niebla; con 5 se veía el
+  final del mundo), y en `Update()` cuando el tramo más viejo
   queda a más de `largoTramo` detrás del jugador, lo reubica adelante de todo
   (`Queue` implementada a mano con `List<Transform>`).
 - **`MenuManager.cs`** — Controla 6 paneles (menú / juego / game over con
@@ -313,7 +335,10 @@ directo al singleton) o por referencias asignadas a mano en el Inspector
   `Assets/Editor/` (si no, el juego no compila al buildear) — hoy sólo está
   `GeneradorSpritesMenu.cs`. Y lo que un script tenga que cargar en runtime va
   bajo `Assets/Resources/`: `Autos/` (prefabs de tráfico), `Sprites/` (fondo del
-  menú) y `Fuentes/` (los TMP Font Assets). Los `.ttf` crudos viven en
+  menú), `Fuentes/` (los TMP Font Assets) y `Entorno/` (modelos de Kenney y
+  materiales del suelo). Los `.glb` de los kits de ciudad llevan al lado una
+  carpeta `Textures/colormap.png` que **no hay que mover ni renombrar**: el GLB la
+  busca por ruta relativa, y cada kit tiene la suya (con otra paleta). Los `.ttf` crudos viven en
   `Assets/Fonts/`, fuera de Resources.
 - Comentarios mínimos, solo cuando algo no es obvio (ver el comentario sobre el
   obstáculo de prueba en `GameManager.cs`).
@@ -353,9 +378,10 @@ Size"). **Toda la UI tiene arte** con la dirección "Ruta de noche": el menú
 principal y el Game Over son objetos de la escena; Opciones, Probar cámara, la
 pausa, el HUD y el ranking se arman por código con el kit de `EstiloUI` (ver las
 decisiones del 2026-09-15 y 2026-09-30). Opciones agrupa los 3 volúmenes, el
-nombre, el reinicio del ranking y la ayuda de controles. **El entorno de la
-partida sigue en greybox**: cielo por defecto de Unity y piso gris — es lo
-próximo (atardecer, ciudad y campo alternados, low-poly). Los autos y la moto del jugador ya son **modelos 3D reales con rig**
+nombre, el reinicio del ranking y la ayuda de controles. **El entorno ya tiene
+arte** (2026-09-30): atardecer con el sol a la vista, niebla del color del
+horizonte, calle de asfalto, y a los costados tramos de ciudad y de campo que se
+alternan (modelos low-poly de Kenney) — ver `EntornoManager`. Los autos y la moto del jugador ya son **modelos 3D reales con rig**
 (`.glb` vía glTFast): `TrafficManager` instancia `Bugatti.prefab` / `McLaren.prefab`
 de `Assets/Resources/Autos/` (fallback a cubo rojo si la carpeta está vacía) y la
 moto es `Cuerpo/MotoModelo` (`DirtBike.glb`) en la escena. Las 4 ruedas de cada
@@ -367,8 +393,8 @@ huecos (el prefab `Tramo` se reescaló a `{10, 1, 30}`) y tiene líneas de carri
 discontinuas, pero sigue siendo un cubo gris sin textura ni arte.
 
 **No existe todavía:** ruidos ambientales de la partida (motor de la moto, autos
-pasando) — la música de menú, el click y el choque ya suenan; partículas, luces de
-efecto. (La cámara ya tiene efectos propios —roll, subida al cielo en el
+pasando) — la música de menú, el click y el choque ya suenan; partículas y luces de
+efecto (la iluminación general del atardecer sí está). (La cámara ya tiene efectos propios —roll, subida al cielo en el
 wheelie— pero no hay Cinemachine ni shake de choque.) **Decidido que NO habrá
 salto** (la mecánica vertical
 es el wheelie) y que la **música va solo en el menú**, no durante la partida
@@ -821,6 +847,32 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   "DefaultCompany". Pendiente, no es de código: en la feria el nombre queda puesto
   del visitante anterior si el siguiente no lo cambia.
 
+- **2026-09-30** — **Entorno de la partida** (pedido del alumno). Sus decisiones:
+  **atardecer/día** (se eligió atardecer, que conecta con el sol retro del menú),
+  **ciudad y campo alternándose**, y **low-poly**. Un subagente investigó assets
+  CC0 sin cuenta y se bajaron (con el OK del alumno, archivo por archivo) 4 packs
+  de **Kenney**: City Kit Commercial 2.1, City Kit Suburban 2.0, City Kit Roads
+  2.1 y Nature Kit (~20 MB en zips). Al repo entraron sólo **86 modelos GLB
+  (6,2 MB)**, en `Assets/Resources/Entorno/{Ciudad,Casas,Ruta,Naturaleza}/`, con
+  la licencia de cada kit al lado (`Licencia Kenney.txt`). Por qué GLB y no FBX:
+  el proyecto ya usa glTFast y el GLB trae la malla y el material juntos.
+  **Escena tocada** (cielo, luz, niebla, largo de la calle) y **prefab tocado**
+  (`Tramo`, material de asfalto). Valores que quedaron, por si hay que
+  retocarlos:
+  - Cielo: `Assets/Materials/CieloAtardecer.mat`, skybox **procedural** de Unity
+    (no se bajó ningún HDRI: con modelos de color plano una foto de cielo
+    desentona). Grosor de atmósfera 1,35, exposición 1,3.
+  - Sol (`Directional Light`): rotación (8, 205, 0) — ~25° a la derecha de hacia
+    donde mira la moto y 8° sobre el horizonte, así **se ve**. Color cálido
+    (1, 0,74, 0,52), intensidad 1,4, sombras suaves.
+  - Luz ambiente en modo **Trilight** (cielo lila, horizonte anaranjado, suelo
+    marrón).
+  - **Niebla** lineal de 70 a 260 m, color durazno (0,93, 0,68, 0,54): tapa
+    donde termina el mundo y hace aparecer los autos y los edificios de a poco.
+  - Calle: `RoadManager.cantidadTramos` 5 → 12; `Assets/Materials/Asfalto.mat`.
+  Verificado en Play con capturas de la ciudad y del campo, y teletransportando
+  la moto 300 m adelante (camino, tráfico y decorado se ponen al día solos).
+
 - **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
   reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No
   está descartado del todo, pero solo se retoma si el de cámara no convence. La
@@ -828,8 +880,8 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   `LeerLateral()` y `LeerWheelie()` dentro de `PlayerController`, y agregar un
   mando nuevo es tocar solo esos dos métodos. No dispersar llamadas a `Input.*`
   por otros scripts.
-- **UI a arte real:** hecho el 2026-09-30 (todas las pantallas). Lo que queda de
-  arte es el **entorno**: cielo, calle, edificios y árboles.
+- **UI a arte real:** hecho el 2026-09-30 (todas las pantallas). El entorno
+  también (ver la decisión del 2026-09-30 sobre el entorno).
 
 ## Pendiente de fecha (checklist de la feria)
 

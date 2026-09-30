@@ -39,6 +39,9 @@ public class GameManager : MonoBehaviour
         if (FindAnyObjectByType<TrafficManager>() == null)
             new GameObject("TrafficManager").AddComponent<TrafficManager>();
 
+        if (FindAnyObjectByType<EntornoManager>() == null)
+            new GameObject("EntornoManager").AddComponent<EntornoManager>();
+
         if (FindAnyObjectByType<Hud>() == null)
             new GameObject("Hud").AddComponent<Hud>();
 
