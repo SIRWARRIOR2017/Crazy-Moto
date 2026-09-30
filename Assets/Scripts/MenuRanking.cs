@@ -13,7 +13,6 @@ using TMPro;
 // resto del menú, que está armado a mano en la escena.
 public class MenuRanking : MonoBehaviour
 {
-    private const string ClaveNombre = "NombreJugador";
     private const int PuestosVisibles = 10;
 
     private TMP_Text[] puestos;
@@ -150,7 +149,7 @@ public class MenuRanking : MonoBehaviour
         fondosFila[i] = fondo;
 
         HorizontalLayoutGroup hlg = fila.GetComponent<HorizontalLayoutGroup>();
-        hlg.padding = new RectOffset(12, 12, 8, 8);
+        hlg.padding = new RectOffset(12, 12, 3, 3);
         hlg.spacing = 16f;
         hlg.childControlWidth = true;
         hlg.childControlHeight = true;
@@ -167,13 +166,25 @@ public class MenuRanking : MonoBehaviour
         EstiloUI.Aplicar(nombres[i], EstiloUI.Media, EstiloUI.TamTexto, EstiloUI.Tinta);
         nombres[i].alignment = TextAlignmentOptions.Left;
         // Un nombre largo se recorta con puntos suspensivos en vez de romper la fila.
+        // OJO: con Ellipsis (o Truncate) TMP descarta todo lo que no entra A LO ALTO,
+        // y una línea de Chakra Petch a 26 px mide ~34 px. Con menos alto que eso el
+        // nombre no se dibuja NADA (pasó: el ranking mostraba sólo los números).
         nombres[i].textWrappingMode = TextWrappingModes.NoWrap;
         nombres[i].overflowMode = TextOverflowModes.Ellipsis;
         Flexible(nombres[i].gameObject);
+        AltoFijo(nombres[i].gameObject, 40f);
+        // El nombre sólo usa el espacio que sobra: si pidiera el ancho de su texto,
+        // un nombre largo le robaba lugar al puntaje y lo partía en dos líneas.
+        LayoutElement leNombre = nombres[i].GetComponent<LayoutElement>();
+        leNombre.minWidth = 0f;
+        leNombre.preferredWidth = 0f;
 
         puntajes[i] = CrearTexto(rt, "Puntaje", "");
         EstiloUI.Aplicar(puntajes[i], EstiloUI.Negrita, EstiloUI.TamTexto, EstiloUI.TintaClara);
         puntajes[i].alignment = TextAlignmentOptions.Right;
+        puntajes[i].textWrappingMode = TextWrappingModes.NoWrap;
+        LayoutElement lePuntaje = puntajes[i].gameObject.AddComponent<LayoutElement>();
+        lePuntaje.minWidth = 120f;
 
         AltoFijo(fila, 46f);
     }
@@ -203,8 +214,7 @@ public class MenuRanking : MonoBehaviour
             puntajes[i].color = primero ? EstiloUI.Magenta : EstiloUI.TintaClara;
         }
 
-        string nombre = PlayerPrefs.GetString(ClaveNombre, "");
-        int puesto = data.PuestoDe(nombre);
+        int puesto = data.PuestoDe(RankingData.NombreActual());
         lineaTuPuesto.text = (puesto > PuestosVisibles) ? "Estás en el puesto " + puesto : "";
     }
 

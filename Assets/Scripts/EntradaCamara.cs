@@ -106,6 +106,12 @@ public class EntradaCamara : MonoBehaviour
     // Corre en el hilo secundario: nada de API de Unity acá adentro.
     void Escuchar()
     {
+        // Copia local: Detener() pone el campo 'socket' en null desde el hilo
+        // principal, y leerlo acá en el medio daba una NullReference en un hilo de
+        // fondo (que puede tirar abajo todo el juego).
+        Socket s = socket;
+        if (s == null) return;
+
         byte[] buffer = new byte[128];
         EndPoint desde = new IPEndPoint(IPAddress.Any, 0);
 
@@ -113,7 +119,7 @@ public class EntradaCamara : MonoBehaviour
         {
             try
             {
-                int largo = socket.ReceiveFrom(buffer, ref desde);
+                int largo = s.ReceiveFrom(buffer, ref desde);
                 string linea = System.Text.Encoding.ASCII.GetString(buffer, 0, largo);
                 string[] partes = linea.Split(';');
                 if (partes.Length < 3) continue;
@@ -136,6 +142,10 @@ public class EntradaCamara : MonoBehaviour
             catch (System.ObjectDisposedException)
             {
                 break;   // cerramos el socket desde el hilo principal
+            }
+            catch (System.Exception)
+            {
+                break;   // cualquier otra cosa: se corta la cámara, el juego sigue con teclado
             }
         }
     }
