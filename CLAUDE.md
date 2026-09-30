@@ -813,9 +813,13 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   llegó a ejecutar el método privado (no se averiguó por qué); se probó el
   tráfico con el juego andando de verdad. Las partidas de prueba **escriben en el
   ranking real** del alumno: se restauró a como estaba (vacío).
-  Pendiente de decidir, no es de código: el `productName` del proyecto sigue en
-  "My project" (título de la ventana del juego y carpeta del ranking); y en la
-  feria el nombre queda puesto del visitante anterior si el siguiente no lo cambia.
+  **`productName` cambiado de "My project" a "Crazy Moto"** (con el OK del alumno):
+  es el título de la ventana del juego. Cambia la carpeta de `persistentDataPath`
+  (ahora `AppData/LocalLow/DefaultCompany/Crazy Moto/`) y la clave de los
+  `PlayerPrefs`, así que el volumen y el nombre guardados se resetean una vez; se
+  hizo con el ranking vacío para no perder puntajes. `companyName` quedó
+  "DefaultCompany". Pendiente, no es de código: en la feria el nombre queda puesto
+  del visitante anterior si el siguiente no lo cambia.
 
 - **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
   reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No
