@@ -18,6 +18,19 @@ public class RankingData : ScriptableObject
     [Tooltip("Cuántos puntajes se conservan como máximo (los mejores).")]
     public int maxEntradas = 200;
 
+    // El nombre del jugador vive en PlayerPrefs (se pone en Opciones). Si está
+    // vacío o nunca se puso, se juega como "Jugador". Todo el que necesite el
+    // nombre lo pide acá: antes cada script tenía su propio valor por defecto
+    // ("" en un lado, "Jugador" en otro) y el puesto no aparecía.
+    public const string ClaveNombre = "NombreJugador";
+    public const string NombrePorDefecto = "Jugador";
+
+    public static string NombreActual()
+    {
+        string n = PlayerPrefs.GetString(ClaveNombre, "").Trim();
+        return string.IsNullOrEmpty(n) ? NombrePorDefecto : n;
+    }
+
     // Los datos reales viven en el JSON, no en la instancia del ScriptableObject.
     [System.NonSerialized] private List<Entrada> entradas = new List<Entrada>();
     [System.NonSerialized] private bool cargado = false;
@@ -52,7 +65,7 @@ public class RankingData : ScriptableObject
     {
         CargarSiHaceFalta();
 
-        if (string.IsNullOrWhiteSpace(nombre)) nombre = "Jugador";
+        if (string.IsNullOrWhiteSpace(nombre)) nombre = NombrePorDefecto;
         nombre = nombre.Trim();
 
         Entrada existente = entradas.Find(e => MismoNombre(e.nombre, nombre));
@@ -131,7 +144,7 @@ public class RankingData : ScriptableObject
 
         foreach (Entrada e in entradas)
         {
-            if (string.IsNullOrWhiteSpace(e.nombre)) e.nombre = "Jugador";
+            if (string.IsNullOrWhiteSpace(e.nombre)) e.nombre = NombrePorDefecto;
             e.nombre = e.nombre.Trim();
 
             if (!mejores.TryGetValue(e.nombre, out Entrada actual) || e.puntaje > actual.puntaje)

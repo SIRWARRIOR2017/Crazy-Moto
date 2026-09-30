@@ -40,7 +40,7 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   (acelera con el tiempo hasta `velocidadMaxima`), `juegoTerminado` y `puntaje`
   (int). El puntaje **solo sube mientras el jugador sostiene el wheelie**
   (`puntosPorSegundoEnWheelie`). En `Start()` crea por código, si no existen, un
-  `TrafficManager` y un `Hud` (misma idea que el resto: la escena se recarga
+  `TrafficManager`, un `EntornoManager` y un `Hud` (misma idea que el resto: la escena se recarga
   entera, así que no hace falta que estén en la jerarquía a mano). `GameOver()`
   pone `Time.timeScale = 0`, dispara `AudioManager.ReproducirChoque()` y busca un
   `MenuManager` en la escena (`FindAnyObjectByType`) para mostrar el panel de Game
@@ -63,7 +63,9 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   cambiarlo por el manubrio de Arduino a futuro sin tocar la lógica). Expone
   `EntradaLateral` (la entrada lateral cruda −1..1) para que la lea quien la
   necesite (ej. `MotoAnimada` para el manubrio) sin dispersar `Input.*`. Detecta
-  derrota con `OnTriggerEnter` chequeando `tag == "Obstaculo"`. La cámara **ya no
+  derrota con `OnTriggerEnter` chequeando `tag == "Obstaculo"` (el `BoxCollider`
+  trigger del `Jugador` mide **1 × 1 × 2,1**, el largo real de la moto: con 1 de
+  largo, a FPS bajos un auto podía atravesarla sin que se detecte el choque). La cámara **ya no
   es hija de `pivotCamara`**: desde el 2026-09-09 es primera persona y la maneja
   `CamaraJugador.cs` (ver abajo). `pivotCamara` quedó sin hijos y sin uso real
   (el código que lo inclina en `AnimarWheelie` sigue ahí pero no hace nada
@@ -80,7 +82,10 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   propósito: es dueño de un recurso del sistema operativo (el puerto UDP) y
   reabrirlo en cada recarga de escena —que acá pasa en cada partida— puede fallar
   con "address already in use". Lo crea `GameManager.Start()` con
-  `EntradaCamara.CrearSiNoExiste()`, que no hace nada si ya existe.
+  `EntradaCamara.CrearSiNoExiste()`, que no hace nada si ya existe. El hilo
+  trabaja con una **copia local** del socket y corta ante cualquier excepción:
+  `Detener()` pone el campo en `null` desde el hilo principal y antes eso podía
+  dar una NullReference en el hilo de fondo al cerrar el juego.
 - **`TrafficManager.cs`** — Se crea en runtime desde `GameManager`. Autos con
   tag `Obstaculo` que vienen de frente ("autopista en contramano") por los 3
   carriles. Pool circular igual que `RoadManager`. Genera "filas" de **1 o 2
@@ -103,6 +108,11 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   raíz del `.glb` directamente: se pierde esa conversión y el modelo queda de
   costado. Los `.glb` crudos están en `Assets/Models/`, no en `Resources`.
   Cada prefab de auto lleva además `RuedasAuto` (hace girar las 4 ruedas).
+  **Regla de filas (2026-09-30):** el carril libre de cada fila tiene que quedar
+  igual o AL LADO de un carril libre de la fila anterior (`EsAlcanzable`). Sin
+  esto, a partir de ~3 min de juego podían salir dos filas seguidas con el hueco
+  en extremos opuestos, y cruzar 3,2 m en ~0,22 s es imposible. Verificado en
+  Play a velocidad máxima: 0 pares imposibles, y siguen saliendo filas de 2 autos.
 - **`RuedasAuto.cs`** — Va en la raíz de los prefabs de auto (`Bugatti.prefab`,
   `McLaren.prefab`). Hace girar las 4 ruedas según cuánto se desplaza el auto
   (lo mide solo, entre frames — el `TrafficManager` lo mueve desde afuera).
@@ -127,10 +137,12 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   (b) **wheelie** — mientras `PlayerController.haciendoWheelie` la vista sube
   `gradosPitchWheelie` (18°) hacia el cielo. `pitchBase` (3°) = cuánto mira a la
   calle en reposo. Todo ajustable en el Inspector. La `Main Camera` tiene FOV 72.
-- **`Hud.cs`** — Se crea en runtime desde `GameManager`. Arma por código dos
-  textos TMP: "Puntaje: N" como hijo de `MenuManager.panelJuego` y
-  "Puntaje final: N" como hijo de `MenuManager.panelGameOver`, así aparecen y
-  desaparecen con esos paneles.
+- **`Hud.cs`** — Se crea en runtime desde `GameManager`. Arma por código, con el
+  kit de `EstiloUI`: (a) el **marcador** arriba al centro, hijo de
+  `MenuManager.panelJuego` (tarjeta oscura para que se lea contra el cielo de día;
+  el número se pone **magenta mientras estás haciendo wheelie**, o sea sumando), y
+  (b) la **tarjeta de resultado** del Game Over, hija de `panelGameOver`: "PUNTAJE
+  FINAL" + el número grande con degradado + "Estás en el puesto N del ranking".
 - **`RankingData.cs`** — Datos persistentes (entrega del 10 de septiembre). Es un
   `ScriptableObject` pero **no hay un `.asset`**: se usa vía `RankingData.Instance`
   (un `static` con `CreateInstance`, sobrevive a la recarga de escena). La lista
@@ -140,6 +152,10 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   (sin distinguir mayúsculas) se queda con su mejor puntaje. `PuestoDe(nombre)`
   da el puesto (1 = primero) o −1. Ordena de mayor a menor. `Deduplicar()` limpia
   nombres repetidos de datos viejos al cargar. `BorrarTodo()` vacía todo.
+  **`RankingData.NombreActual()`** es el único lugar que resuelve el nombre del
+  jugador (`PlayerPrefs("NombreJugador")`, o `"Jugador"` si está vacío): lo usan
+  `GameManager`, `Hud` y `MenuRanking`. Antes cada uno tenía su propio valor por
+  defecto y el "Estás en el puesto N" no aparecía.
 - **`MenuRanking.cs`** — Se crea en runtime desde `MenuManager`. Arma por código,
   dentro de `MenuManager.panelMenu`, la tabla de **Top 10** (más una línea "Estás
   en el puesto N" si el jugador quedó afuera del top 10). El campo "Tu nombre" y
@@ -163,7 +179,11 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   script**: desde el 2026-09-15 es un objeto de la escena
   (`PanelMenu/BotonOpciones`), igual que Jugar y Salir, con su estilo puesto y su
   `OnClick` cableado en el Inspector. Lo único que quedó acá es
-  `VerificarBotonOpciones()`, que avisa por consola si alguien lo borró.
+  `VerificarBotonOpciones()`, que avisa por consola si alguien lo borró. Desde el
+  2026-09-30 está armado con el kit de `EstiloUI`: dos tarjetas lado a lado
+  (AUDIO + PERFIL / CÁMARA + DATOS + CONTROLES) sobre el cielo nocturno del menú.
+  **"Reiniciar tabla" pide un segundo clic** dentro de 3 s antes de borrar: en la
+  feria el ranking tiene los puntajes de todos.
 - **`MenuCamara.cs`** — Se crea en runtime desde `MenuManager`. Arma por código el
   `PanelCamara` (hermano de los otros paneles) y lo registra en
   `MenuManager.panelCamara`. Es la pantalla de **"Probar cámara"**: sirve para que
@@ -172,7 +192,9 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   / listo), una barra con la dirección, una luz que se prende con el wheelie y la
   ayuda de los gestos. No abre la webcam por su cuenta (la tiene el script de
   Python), solo dibuja lo que llega por UDP. Se ve con el juego en
-  `timeScale = 0`, por eso `EntradaCamara` usa `Time.unscaledTime`.
+  `timeScale = 0`, por eso `EntradaCamara` usa `Time.unscaledTime`. Con estilo
+  "Ruta de noche" desde el 2026-09-30 (estado en rojo / ámbar / verde, cursor y luz
+  de wheelie en magenta).
 - **`EstiloUI.cs`** — Clase estática con la paleta, las tipografías y los sprites
   de la dirección visual **"Ruta de noche"**. Existe para que la UI que se arma
   por código (ranking, Opciones, pausa, HUD) use los mismos colores y fuentes que
@@ -180,7 +202,15 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   cinco scripts. Carga las fuentes de `Resources/Fuentes/` y los sprites de
   `Resources/Sprites/` (mismo mecanismo que `TrafficManager` con
   `Resources/Autos/`: es la única forma de que un script llegue a un asset sin
-  arrastrarlo en el Inspector).
+  arrastrarlo en el Inspector). Desde el 2026-09-30 es además el **kit de piezas**
+  de toda la UI armada por código: `CrearPantalla` (con el cielo nocturno o con un
+  velo oscuro sobre el juego), `CrearTitulo`, `CrearTarjeta`, `CrearRotulo`,
+  `CrearTexto`, `CrearBoton` (tipos `Principal` / `Secundario` / `Apagado` /
+  `Peligro`), `CrearSlider`, `CrearCampoTexto` y `AgregarMarco`. Todas las
+  pantallas salen de ahí, así son iguales por construcción. Ojo con TMP: con
+  `overflowMode` en `Ellipsis` o `Truncate`, si el rect es más bajo que una línea
+  (Chakra Petch a 26 px mide ~34 px) **no se dibuja ningún carácter** — pasó con
+  los nombres del ranking.
 - **`Assets/Editor/GeneradorSpritesMenu.cs`** — Script **de Editor** (no va al
   build) que dibuja por código los PNG del fondo del menú y los deja en
   `Assets/Resources/Sprites/`: `FondoNoche`, `SolRetro`, `HaloSol`, `GrillaNeon`,
@@ -193,15 +223,37 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   antes de ejecutar el menú, si no corre la versión vieja y parece que no pasó
   nada (pasó: faltó `Vineta.png` y la capa quedó como un rectángulo blanco
   tapando todo el fondo).
+- **`EntornoManager.cs`** — (2026-09-30) El decorado a los costados de la ruta:
+  **tramos de ciudad y de campo que se alternan** cada `tramosPorBioma` (8) tramos
+  de 30 m. Se crea en runtime desde `GameManager` y funciona como `RoadManager`:
+  pone tramos de decorado adelante del jugador (`tramosAdelante` = 10, ~300 m) y
+  recicla los de atrás, con `while`. **Arma TODOS los tramos al arrancar** (13 de
+  ciudad y 13 de campo, contenido al azar con semilla fija) y después sólo los
+  mueve: instanciar modelos en plena partida trabaría el juego. Ciudad = suelo de
+  hormigón, vereda con cordón, fila de edificios mirando a la calle, rascacielos
+  atrás, postes de luz y algún detalle. Campo = pasto, banquina de tierra, árboles
+  que no se enciman, arbustos, rocas chicas, cercas, postes eléctricos y alguna
+  casa. Carga los modelos con `Resources.LoadAll` de `Resources/Entorno/Ciudad`,
+  `Casas`, `Ruta` y `Naturaleza`, y los materiales de suelo de
+  `Resources/Entorno/Materiales/` (`Pasto`, `Tierra`, `Vereda`, `Hormigon`). Los
+  modelos de Kenney vienen en "unidades de Kenney", no en metros: cada categoría
+  tiene su escala en el Inspector (`escalaEdificios` 11, `escalaArboles` 5,5...).
+  `giroFrente` por si algún modelo mira al revés. Se descartan a propósito las
+  rocas altas (quedaban paredes de 7 m al costado) y el poste eléctrico ancho
+  (cruzaba cables sobre la calle). Todo el decorado va sin colliders. Medido en
+  Play: ~280 objetos dibujándose y ~91 mil triángulos, muy liviano.
 - **`RoadManager.cs`** — Pool circular de tramos de camino (prefab
-  `Assets/Prefabs/Tramo.prefab`, un cubo en escala `{10, 1, 30}` — mide exactamente
+  `Assets/Prefabs/Tramo.prefab`, material `Assets/Materials/Asfalto.mat` desde el
+  2026-09-30, un cubo en escala `{10, 1, 30}` — mide exactamente
   `largoTramo` de largo, así los tramos encajan sin huecos; sin `MeshCollider`, el
   jugador nunca colisiona con el camino). El prefab tiene 12 hijos `LineaCarril`
   (cubos finos con `Assets/Materials/LineaCarril.mat`, URP Unlit blanco): las
   líneas discontinuas que separan los 3 carriles, en X = ±1.5, período 5 en Z
   (segmento de 2 + hueco de 3) que divide justo los 30 del tramo para que tilen
   sin cortes en las uniones:
-  crea `cantidadTramos` al `Start()`, y en `Update()` cuando el tramo más viejo
+  crea `cantidadTramos` al `Start()` (**12** en la escena desde el 2026-09-30: la
+  calle tiene que llegar más allá de donde termina la niebla; con 5 se veía el
+  final del mundo), y en `Update()` cuando el tramo más viejo
   queda a más de `largoTramo` detrás del jugador, lo reubica adelante de todo
   (`Queue` implementada a mano con `List<Transform>`).
 - **`MenuManager.cs`** — Controla 6 paneles (menú / juego / game over con
@@ -222,6 +274,9 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   el punto 1.7 de `docs/AUDITORIA.md`. `Pausar()` / `Reanudar()` /
   `AlternarPausa()` solo actúan si `panelJuego` está activo y el juego no
   terminó; `VolverDeOpciones()` vuelve a la pausa si Opciones se abrió desde ahí.
+  **`OnApplicationFocus(false)` pausa solo** (Alt+Tab, el aviso de "Teclas
+  especiales" de Windows por apretar Shift 5 veces, un clic en la ventana de
+  OpenCV para recalibrar): al volver no te encontrás chocado.
 - **`MenuPausa.cs`** — Se crea en runtime desde `MenuManager` (patrón de
   `MenuOpciones`). Arma por código el `PanelPausa` (hermano de los otros paneles,
   hijo del `Canvas`) y lo registra en `MenuManager.panelPausa`: título "PAUSA" +
@@ -230,9 +285,14 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   menú; su "Volver" regresa a la pausa) / **Salir** (`MenuManager.VolverAlMenu()`,
   vuelve al menú principal). Además agrega el botón **"II"** en la esquina
   superior derecha de `MenuManager.panelJuego` (aparece/desaparece con él, como
-  el texto de puntaje del HUD). En `Update()` lee **Escape**: si Opciones está
-  abierto hace de "Volver", si no llama a `AlternarPausa()`. Es el único lugar
-  del proyecto que lee `Input` de Escape.
+  el texto de puntaje del HUD; desde el 2026-09-30 es un ícono de dos barras
+  dibujadas, con el marco de neón). La pausa es un **velo oscuro** sobre el juego
+  congelado, con los botones iguales a los del menú. En `Update()` lee
+  **Escape**, que es siempre "volver un paso": desde Probar cámara vuelve a
+  Opciones, desde Opciones a donde se abrió (menú o pausa), y en la partida
+  alterna la pausa (antes, en Probar cámara no hacía nada si venías del menú, y si
+  venías de la pausa te tiraba directo a la partida). Es el único lugar del
+  proyecto que lee `Input` de Escape.
 - **`AudioManager.cs`** — Singleton (`AudioManager.Instance`, mismo patrón que
   `GameManager`, se recrea con cada recarga de escena). Tiene un `AudioSource`
   para música (loop) y otro para efectos (`PlayOneShot`); si no se asignan a
@@ -275,7 +335,10 @@ directo al singleton) o por referencias asignadas a mano en el Inspector
   `Assets/Editor/` (si no, el juego no compila al buildear) — hoy sólo está
   `GeneradorSpritesMenu.cs`. Y lo que un script tenga que cargar en runtime va
   bajo `Assets/Resources/`: `Autos/` (prefabs de tráfico), `Sprites/` (fondo del
-  menú) y `Fuentes/` (los TMP Font Assets). Los `.ttf` crudos viven en
+  menú), `Fuentes/` (los TMP Font Assets) y `Entorno/` (modelos de Kenney y
+  materiales del suelo). Los `.glb` de los kits de ciudad llevan al lado una
+  carpeta `Textures/colormap.png` que **no hay que mover ni renombrar**: el GLB la
+  busca por ruta relativa, y cada kit tiene la suya (con otra paleta). Los `.ttf` crudos viven en
   `Assets/Fonts/`, fuera de Resources.
 - Comentarios mínimos, solo cuando algo no es obvio (ver el comentario sobre el
   obstáculo de prueba en `GameManager.cs`).
@@ -311,14 +374,14 @@ partida se puede **pausar** con Escape o con el botón "II" del HUD: pantalla co
 Continuar / Opciones / Salir (al menú).
 
 **A medias:** UI escalable configurada (CanvasScaler con "Scale With Screen
-Size"). El **menú principal ya tiene arte** (dirección "Ruta de noche": fondo
-nocturno, sol retro a rayas, grilla de neón en perspectiva, título en Chakra
-Petch con degradado, botones de neón y tabla de ranking con marco) — ver la
-decisión del 2026-09-15. El HUD de puntaje, el panel de Opciones, la pausa y el
-Game Over **siguen en greybox** (`Hud.cs`, `MenuOpciones.cs`, `MenuPausa.cs`):
-les toca la próxima pasada y ya tienen de dónde sacar el estilo (`EstiloUI`).
-Opciones agrupa en secciones los 3 volúmenes, el nombre, el reinicio del ranking
-y la ayuda de controles. Los autos y la moto del jugador ya son **modelos 3D reales con rig**
+Size"). **Toda la UI tiene arte** con la dirección "Ruta de noche": el menú
+principal y el Game Over son objetos de la escena; Opciones, Probar cámara, la
+pausa, el HUD y el ranking se arman por código con el kit de `EstiloUI` (ver las
+decisiones del 2026-09-15 y 2026-09-30). Opciones agrupa los 3 volúmenes, el
+nombre, el reinicio del ranking y la ayuda de controles. **El entorno ya tiene
+arte** (2026-09-30): atardecer con el sol a la vista, niebla del color del
+horizonte, calle de asfalto, y a los costados tramos de ciudad y de campo que se
+alternan (modelos low-poly de Kenney) — ver `EntornoManager`. Los autos y la moto del jugador ya son **modelos 3D reales con rig**
 (`.glb` vía glTFast): `TrafficManager` instancia `Bugatti.prefab` / `McLaren.prefab`
 de `Assets/Resources/Autos/` (fallback a cubo rojo si la carpeta está vacía) y la
 moto es `Cuerpo/MotoModelo` (`DirtBike.glb`) en la escena. Las 4 ruedas de cada
@@ -330,8 +393,8 @@ huecos (el prefab `Tramo` se reescaló a `{10, 1, 30}`) y tiene líneas de carri
 discontinuas, pero sigue siendo un cubo gris sin textura ni arte.
 
 **No existe todavía:** ruidos ambientales de la partida (motor de la moto, autos
-pasando) — la música de menú, el click y el choque ya suenan; partículas, luces de
-efecto. (La cámara ya tiene efectos propios —roll, subida al cielo en el
+pasando) — la música de menú, el click y el choque ya suenan; partículas y luces de
+efecto (la iluminación general del atardecer sí está). (La cámara ya tiene efectos propios —roll, subida al cielo en el
 wheelie— pero no hay Cinemachine ni shake de choque.) **Decidido que NO habrá
 salto** (la mecánica vertical
 es el wheelie) y que la **música va solo en el menú**, no durante la partida
@@ -740,6 +803,76 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   **truncados** por precisión de JSON (son mayores que 2^53), así que no sirven
   para pasarlos a otra tool; hay que buscar los objetos por nombre.
 
+- **2026-09-30** — **UI "Ruta de noche" en todas las pantallas + pase de bugs.**
+  Pedido del alumno: llevar el estilo a todo lo que faltaba, arreglar bugs
+  (probando el juego) y después hacer el entorno. Se usaron **subagentes** (a
+  pedido): uno auditó los scripts buscando bugs (sólo lectura) y otro investigó
+  assets CC0 para el entorno; lo que se toca en Unity lo hace una sola sesión,
+  porque dos a la vez se pisan las recompilaciones.
+  (1) **UI:** `EstiloUI` pasó a ser el kit de piezas; se reescribieron
+  `MenuOpciones`, `MenuCamara`, `MenuPausa` y `Hud` con él. El Game Over de la
+  escena se restiló por MCP (velo oscuro, "GAME OVER" en Chakra Petch con
+  degradado, CONTINUAR magenta y MENÚ con marco). **Escena tocada.**
+  (2) **Bugs arreglados**, todos verificados en Play:
+  - Ranking: **los nombres nunca se veían** (se mostraba sólo el número de
+    puesto). Era el alto del texto con `Ellipsis` (ver `EstiloUI`). Lo metí yo en
+    la reescritura del 2026-09-15. Además un nombre largo partía el puntaje.
+  - Tráfico: filas imposibles de esquivar a alta velocidad (ver `TrafficManager`).
+  - Collider del jugador de 1 m → 2,1 m (autos que la atravesaban a FPS bajos).
+    **Escena tocada.**
+  - Nombre por defecto inconsistente → `RankingData.NombreActual()`.
+  - Escape en Probar cámara (ver `MenuPausa`).
+  - Hilo UDP al cerrar (ver `EntradaCamara`).
+  - "Reiniciar tabla" sin confirmación (ver `MenuOpciones`).
+  - Pausa automática al perder el foco (ver `MenuManager`).
+  Descartado por la auditoría: las ruedas en el build (se temía que las mallas no
+  fueran legibles fuera del Editor; se chequearon las 153 y lo son).
+  (3) **Cómo se prueba en Play por MCP** (para la próxima): el Canvas es Screen
+  Space Overlay y ninguna captura de cámara lo muestra. Lo que funciona es, en
+  Play, pasar el Canvas a Screen Space Camera sólo durante la captura, renderizar
+  la `Main Camera` a una `RenderTexture` de 1920×1080, guardarla en PNG y dejar
+  todo como estaba (en Play los cambios igual se descartan al salir). Para que la
+  moto no choque mientras se captura: `VolverAJugar()` +
+  `EditorApplication.isPaused = true`, un `Step()`, apagar los colliders del
+  jugador y despausar. Con el Editor sin foco, la **pausa automática** nueva
+  frena el juego: hay que `Reanudar()`. `SendMessage` con un argumento `float` no
+  llegó a ejecutar el método privado (no se averiguó por qué); se probó el
+  tráfico con el juego andando de verdad. Las partidas de prueba **escriben en el
+  ranking real** del alumno: se restauró a como estaba (vacío).
+  **`productName` cambiado de "My project" a "Crazy Moto"** (con el OK del alumno):
+  es el título de la ventana del juego. Cambia la carpeta de `persistentDataPath`
+  (ahora `AppData/LocalLow/DefaultCompany/Crazy Moto/`) y la clave de los
+  `PlayerPrefs`, así que el volumen y el nombre guardados se resetean una vez; se
+  hizo con el ranking vacío para no perder puntajes. `companyName` quedó
+  "DefaultCompany". Pendiente, no es de código: en la feria el nombre queda puesto
+  del visitante anterior si el siguiente no lo cambia.
+
+- **2026-09-30** — **Entorno de la partida** (pedido del alumno). Sus decisiones:
+  **atardecer/día** (se eligió atardecer, que conecta con el sol retro del menú),
+  **ciudad y campo alternándose**, y **low-poly**. Un subagente investigó assets
+  CC0 sin cuenta y se bajaron (con el OK del alumno, archivo por archivo) 4 packs
+  de **Kenney**: City Kit Commercial 2.1, City Kit Suburban 2.0, City Kit Roads
+  2.1 y Nature Kit (~20 MB en zips). Al repo entraron sólo **86 modelos GLB
+  (6,2 MB)**, en `Assets/Resources/Entorno/{Ciudad,Casas,Ruta,Naturaleza}/`, con
+  la licencia de cada kit al lado (`Licencia Kenney.txt`). Por qué GLB y no FBX:
+  el proyecto ya usa glTFast y el GLB trae la malla y el material juntos.
+  **Escena tocada** (cielo, luz, niebla, largo de la calle) y **prefab tocado**
+  (`Tramo`, material de asfalto). Valores que quedaron, por si hay que
+  retocarlos:
+  - Cielo: `Assets/Materials/CieloAtardecer.mat`, skybox **procedural** de Unity
+    (no se bajó ningún HDRI: con modelos de color plano una foto de cielo
+    desentona). Grosor de atmósfera 1,35, exposición 1,3.
+  - Sol (`Directional Light`): rotación (8, 205, 0) — ~25° a la derecha de hacia
+    donde mira la moto y 8° sobre el horizonte, así **se ve**. Color cálido
+    (1, 0,74, 0,52), intensidad 1,4, sombras suaves.
+  - Luz ambiente en modo **Trilight** (cielo lila, horizonte anaranjado, suelo
+    marrón).
+  - **Niebla** lineal de 70 a 260 m, color durazno (0,93, 0,68, 0,54): tapa
+    donde termina el mundo y hace aparecer los autos y los edificios de a poco.
+  - Calle: `RoadManager.cantidadTramos` 5 → 12; `Assets/Materials/Asfalto.mat`.
+  Verificado en Play con capturas de la ciudad y del campo, y teletransportando
+  la moto 300 m adelante (camino, tráfico y decorado se ponen al día solos).
+
 - **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
   reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No
   está descartado del todo, pero solo se retoma si el de cámara no convence. La
@@ -747,14 +880,8 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   `LeerLateral()` y `LeerWheelie()` dentro de `PlayerController`, y agregar un
   mando nuevo es tocar solo esos dos métodos. No dispersar llamadas a `Input.*`
   por otros scripts.
-- **UI a arte real:** el **menú principal ya está hecho** (objetos de la escena
-  bajo `PanelMenu`, con el estilo "Ruta de noche"). Falta llevar el mismo estilo
-  a las otras pantallas, que se siguen armando por código y en greybox: `Hud.cs`
-  (puntaje en `PanelJuego`/`PanelGameOver`), `MenuOpciones.cs` (panel de
-  Opciones), `MenuPausa.cs` (panel de pausa y el botón "II" del HUD) y
-  `MenuCamara.cs` (probar cámara). `MenuRanking.cs` ya usa `EstiloUI`; las demás
-  deberían hacer lo mismo. (Los autos ya usan modelos reales vía
-  `TrafficManager` + `Assets/Resources/Autos/`.)
+- **UI a arte real:** hecho el 2026-09-30 (todas las pantallas). El entorno
+  también (ver la decisión del 2026-09-30 sobre el entorno).
 
 ## Pendiente de fecha (checklist de la feria)
 

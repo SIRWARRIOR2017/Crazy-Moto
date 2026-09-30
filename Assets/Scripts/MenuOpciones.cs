@@ -2,22 +2,28 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-// Panel de Opciones del menú, armado por código (mismo patrón que MenuRanking).
-// Lo crea MenuManager en Start() y lo registra en MenuManager.panelOpciones.
-// Contenido, por secciones:
-//   AUDIO     -> 3 sliders de volumen (general / música / efectos)
-//   PERFIL    -> campo "Tu nombre (para el ranking)" -> PlayerPrefs("NombreJugador")
-//   DATOS     -> botón "Reiniciar tabla de ranking"
-//   CÁMARA    -> botón "Probar cámara" -> pantalla de MenuCamara
-//   CONTROLES -> texto informativo (no editable)
+// Panel de Opciones, armado por código con las piezas de EstiloUI. Lo crea
+// MenuManager en Start() y lo registra en MenuManager.panelOpciones. Se abre desde
+// el menú principal y desde la pausa (su "Volver" regresa a donde estabas).
 //
-// Provisional: cuando haya arte, esto pasa a ser un panel real en la escena.
+// Dos tarjetas lado a lado:
+//   izquierda -> AUDIO (3 volúmenes) y PERFIL (tu nombre para el ranking)
+//   derecha   -> CÁMARA (Probar cámara), DATOS (reiniciar el ranking) y
+//                CONTROLES (texto informativo, no editable)
 public class MenuOpciones : MonoBehaviour
 {
-    private const string ClaveNombre = "NombreJugador";
+    // "Reiniciar tabla" pide un segundo clic antes de borrar: en la feria el
+    // ranking tiene los puntajes de todos, y un clic sin querer los perdía.
+    private const float SegundosParaConfirmar = 3f;
 
     private MenuManager menu;
     private TMP_InputField inputNombre;
+
+    private const string TextoReiniciar = "REINICIAR TABLA DE RANKING";
+
+    private TMP_Text textoReiniciar;
+    private float confirmarHasta = -1f;   // mientras no venza, el próximo clic borra
+    private float avisoHasta = -1f;       // hasta cuándo se muestra "TABLA REINICIADA"
 
     void Start()
     {
@@ -37,14 +43,28 @@ public class MenuOpciones : MonoBehaviour
         VerificarBotonOpciones();
     }
 
+    void Update()
+    {
+        // unscaledTime: Opciones se usa con el juego en timeScale 0 (menú o pausa).
+        float ahora = Time.unscaledTime;
+
+        if (confirmarHasta > 0f && ahora > confirmarHasta)
+        {
+            confirmarHasta = -1f;
+            textoReiniciar.text = TextoReiniciar;
+        }
+
+        if (avisoHasta > 0f && ahora > avisoHasta)
+        {
+            avisoHasta = -1f;
+            textoReiniciar.text = TextoReiniciar;
+        }
+    }
+
     // El botón "Opciones" del menú principal ES un objeto de la escena
-    // (PanelMenu/BotonOpciones), igual que "Jugar" y "Salir": desde que el menú
-    // tiene arte ("Ruta de noche"), los tres botones viven en la escena con su
-    // estilo puesto y su OnClick cableado en el Inspector. Antes este script lo
-    // clonaba de "BotonJugar" en tiempo de ejecución; ya no hace falta, y clonarlo
-    // daría un botón con el estilo equivocado (el de "Jugar" va relleno).
-    //
-    // Sólo queda el aviso por si alguien lo borra de la escena sin querer.
+    // (PanelMenu/BotonOpciones), igual que "Jugar" y "Salir", con su estilo puesto
+    // y su OnClick cableado en el Inspector. Sólo queda el aviso por si alguien lo
+    // borra de la escena sin querer.
     void VerificarBotonOpciones()
     {
         if (menu.panelMenu.transform.Find("BotonOpciones") == null)
@@ -54,292 +74,135 @@ public class MenuOpciones : MonoBehaviour
 
     GameObject ConstruirPanel(Transform canvas)
     {
-        // --- Fondo, pantalla completa ---
-        GameObject panel = new GameObject("PanelOpciones", typeof(RectTransform), typeof(Image));
-        RectTransform prt = (RectTransform)panel.transform;
-        prt.SetParent(canvas, false);
-        Estirar(prt);
-        panel.GetComponent<Image>().color = new Color(0.05f, 0.05f, 0.08f, 0.92f);
+        RectTransform pantalla = EstiloUI.CrearPantalla(canvas, "PanelOpciones", true);
+        EstiloUI.CrearTitulo(pantalla, "OPCIONES");
 
-        // --- Título ---
-        TMP_Text titulo = CrearTexto(prt, "Titulo", "OPCIONES", 48f, TextAlignmentOptions.Center, FontStyles.Bold);
-        RectTransform trt = titulo.rectTransform;
-        trt.anchorMin = new Vector2(0.5f, 1f);
-        trt.anchorMax = new Vector2(0.5f, 1f);
-        trt.pivot = new Vector2(0.5f, 1f);
-        trt.anchoredPosition = new Vector2(0f, -36f);
-        trt.sizeDelta = new Vector2(600f, 70f);
+        // --- Izquierda: lo que se ajusta ---
+        RectTransform izq = EstiloUI.CrearTarjeta(pantalla, "TarjetaAjustes", new Vector2(700f, 450f), new Vector2(-370f, 40f));
 
-        // --- Contenedor central con layout vertical ---
-        GameObject cont = new GameObject("Contenido", typeof(RectTransform), typeof(Image), typeof(VerticalLayoutGroup));
-        RectTransform crt = (RectTransform)cont.transform;
-        crt.SetParent(prt, false);
-        crt.anchorMin = new Vector2(0.5f, 0.5f);
-        crt.anchorMax = new Vector2(0.5f, 0.5f);
-        crt.pivot = new Vector2(0.5f, 0.5f);
-        crt.anchoredPosition = new Vector2(0f, -10f);
-        crt.sizeDelta = new Vector2(760f, 780f);   // crece con la sección CÁMARA
-        cont.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.35f);
-
-        VerticalLayoutGroup vlg = cont.GetComponent<VerticalLayoutGroup>();
-        vlg.spacing = 10f;
-        vlg.padding = new RectOffset(28, 28, 22, 22);
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = true;
-        vlg.childForceExpandWidth = true;
-        vlg.childForceExpandHeight = false;
-        vlg.childAlignment = TextAnchor.UpperCenter;
-
-        // --- Sección AUDIO ---
-        CrearEncabezado(crt, "AUDIO");
-        CrearFilaSlider(crt, "Volumen general", PlayerPrefs.GetFloat(AudioManager.ClaveVolumenGeneral, 1f),
+        EstiloUI.CrearRotulo(izq, "AUDIO");
+        FilaSlider(izq, "Volumen general", PlayerPrefs.GetFloat(AudioManager.ClaveVolumenGeneral, 1f),
             v => { if (AudioManager.Instance != null) AudioManager.Instance.SetVolumenGeneral(v); });
-        CrearFilaSlider(crt, "Volumen música", PlayerPrefs.GetFloat(AudioManager.ClaveVolumenMusica, 1f),
+        FilaSlider(izq, "Música", PlayerPrefs.GetFloat(AudioManager.ClaveVolumenMusica, 1f),
             v => { if (AudioManager.Instance != null) AudioManager.Instance.SetVolumenMusica(v); });
-        CrearFilaSlider(crt, "Volumen efectos", PlayerPrefs.GetFloat(AudioManager.ClaveVolumenEfectos, 1f),
+        FilaSlider(izq, "Efectos", PlayerPrefs.GetFloat(AudioManager.ClaveVolumenEfectos, 1f),
             v => { if (AudioManager.Instance != null) AudioManager.Instance.SetVolumenEfectos(v); });
 
-        // --- Sección PERFIL ---
-        CrearEncabezado(crt, "PERFIL");
-        CrearFilaNombre(crt);
+        EstiloUI.CrearRotulo(izq, "PERFIL");
+        FilaNombre(izq);
 
-        // --- Sección DATOS ---
-        CrearEncabezado(crt, "DATOS");
-        CrearBoton(crt, "Reiniciar tabla de ranking", new Color(0.72f, 0.15f, 0.15f, 0.95f), () =>
-        {
-            RankingData.Instance.BorrarTodo();
-            MenuRanking ranking = FindAnyObjectByType<MenuRanking>();
-            if (ranking != null) ranking.Refrescar();
-        });
+        // --- Derecha: acciones e información ---
+        RectTransform der = EstiloUI.CrearTarjeta(pantalla, "TarjetaMas", new Vector2(700f, 450f), new Vector2(370f, 40f));
 
-        // --- Sección CÁMARA ---
-        CrearEncabezado(crt, "CÁMARA");
-        CrearBoton(crt, "Probar cámara", new Color(0.15f, 0.42f, 0.68f, 0.95f),
-            () => menu.MostrarPruebaCamara());
+        EstiloUI.CrearRotulo(der, "CÁMARA");
+        EstiloUI.CrearBoton(der, "Probar cámara", EstiloUI.TipoBoton.Secundario,
+            () => menu.MostrarPruebaCamara(), 60f, 22f);
 
-        // --- Sección CONTROLES (informativa) ---
-        CrearEncabezado(crt, "CONTROLES");
-        TMP_Text info = CrearTexto(crt, "InfoControles",
-            "Cámara:  doblar = tirar un brazo y empujar el otro  ·  wheelie = tirar los dos\n" +
-            "Teclado:  mover = A / D  ·  wheelie = mantener Shift", 20f,
-            TextAlignmentOptions.Left, FontStyles.Normal);
-        info.color = new Color(0.85f, 0.85f, 0.85f);
-        AgregarLayout(info.gameObject, 56f);
+        EstiloUI.CrearRotulo(der, "DATOS");
+        Button reiniciar = EstiloUI.CrearBoton(der, "Reiniciar tabla de ranking", EstiloUI.TipoBoton.Peligro,
+            PedirReinicio, 60f, 22f);
+        textoReiniciar = reiniciar.GetComponentInChildren<TMP_Text>();
 
-        // --- Botón Volver ---
-        CrearBoton(crt, "Volver", new Color(0.2f, 0.2f, 0.26f, 0.95f), () => menu.VolverDeOpciones());
+        EstiloUI.CrearRotulo(der, "CONTROLES");
+        TMP_Text info = EstiloUI.CrearTexto(der, "InfoControles",
+            "<color=#BDEFFF>Teclado:</color> A / D para moverte, Shift para el wheelie, Esc para pausar.\n" +
+            "<color=#BDEFFF>Cámara:</color> tirá un brazo y empujá el otro para doblar; tirá los dos hacia el cuerpo para el wheelie.",
+            EstiloUI.Media, 20f, EstiloUI.TintaSuave, TextAlignmentOptions.TopLeft);
+        info.lineSpacing = 12f;
+        EstiloUI.Alto(info.gameObject, 100f);
 
-        return panel;
+        // --- Volver, abajo al centro ---
+        Button volver = EstiloUI.CrearBoton(pantalla, "Volver", EstiloUI.TipoBoton.Secundario,
+            () => menu.VolverDeOpciones(), 72f, 26f);
+        RectTransform vrt = (RectTransform)volver.transform;
+        vrt.anchorMin = new Vector2(0.5f, 0f);
+        vrt.anchorMax = new Vector2(0.5f, 0f);
+        vrt.pivot = new Vector2(0.5f, 0f);
+        vrt.anchoredPosition = new Vector2(0f, 90f);
+        vrt.sizeDelta = new Vector2(420f, 72f);
+
+        return pantalla.gameObject;
     }
 
     // ---- Filas ----
 
-    void CrearEncabezado(Transform padre, string texto)
+    void FilaSlider(Transform padre, string etiqueta, float valor, UnityEngine.Events.UnityAction<float> alCambiar)
     {
-        TMP_Text t = CrearTexto(padre, "Encabezado " + texto, texto, 26f, TextAlignmentOptions.Left, FontStyles.Bold);
-        t.color = new Color(0.62f, 0.80f, 1f);
-        AgregarLayout(t.gameObject, 34f);
-    }
+        RectTransform fila = Fila(padre, "Fila " + etiqueta, 52f);
 
-    void CrearFilaSlider(Transform padre, string etiqueta, float valor, UnityEngine.Events.UnityAction<float> alCambiar)
-    {
-        GameObject fila = new GameObject("Fila " + etiqueta, typeof(RectTransform));
-        RectTransform frt = (RectTransform)fila.transform;
-        frt.SetParent(padre, false);
-        AgregarLayout(fila, 40f);
+        TMP_Text lbl = EstiloUI.CrearTexto(fila, "Etiqueta", etiqueta, EstiloUI.Media, 22f, EstiloUI.Tinta,
+            TextAlignmentOptions.Left);
+        Ocupar(lbl.rectTransform, 0f, 0.4f);
 
-        TMP_Text lbl = CrearTexto(frt, "Etiqueta", etiqueta, 24f, TextAlignmentOptions.Left, FontStyles.Normal);
-        RectTransform lrt = lbl.rectTransform;
-        lrt.anchorMin = new Vector2(0f, 0f);
-        lrt.anchorMax = new Vector2(0.42f, 1f);
-        lrt.offsetMin = Vector2.zero;
-        lrt.offsetMax = Vector2.zero;
-
-        Slider slider = CrearSlider(frt, Mathf.Clamp01(valor));
-        RectTransform srt = (RectTransform)slider.transform;
-        srt.anchorMin = new Vector2(0.45f, 0.2f);
-        srt.anchorMax = new Vector2(1f, 0.8f);
-        srt.offsetMin = Vector2.zero;
-        srt.offsetMax = Vector2.zero;
+        Slider slider = EstiloUI.CrearSlider(fila, valor);
+        Ocupar((RectTransform)slider.transform, 0.43f, 1f);
 
         // El listener se agrega DESPUÉS de fijar el valor, así no se dispara al armar.
         slider.onValueChanged.AddListener(alCambiar);
     }
 
-    void CrearFilaNombre(Transform padre)
+    void FilaNombre(Transform padre)
     {
-        GameObject fila = new GameObject("Fila Nombre", typeof(RectTransform));
-        RectTransform frt = (RectTransform)fila.transform;
-        frt.SetParent(padre, false);
-        AgregarLayout(fila, 46f);
+        RectTransform fila = Fila(padre, "Fila Nombre", 58f);
 
-        TMP_Text lbl = CrearTexto(frt, "Etiqueta", "Tu nombre (para el ranking)", 24f,
-            TextAlignmentOptions.Left, FontStyles.Normal);
-        RectTransform lrt = lbl.rectTransform;
-        lrt.anchorMin = new Vector2(0f, 0f);
-        lrt.anchorMax = new Vector2(0.55f, 1f);
-        lrt.offsetMin = Vector2.zero;
-        lrt.offsetMax = Vector2.zero;
+        TMP_Text lbl = EstiloUI.CrearTexto(fila, "Etiqueta", "Tu nombre", EstiloUI.Media, 22f, EstiloUI.Tinta,
+            TextAlignmentOptions.Left);
+        Ocupar(lbl.rectTransform, 0f, 0.4f);
 
-        GameObject campo = new GameObject("CampoNombre", typeof(RectTransform), typeof(Image));
-        RectTransform crt = (RectTransform)campo.transform;
-        crt.SetParent(frt, false);
-        crt.anchorMin = new Vector2(0.58f, 0.1f);
-        crt.anchorMax = new Vector2(1f, 0.9f);
-        crt.offsetMin = Vector2.zero;
-        crt.offsetMax = Vector2.zero;
-        campo.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.92f);
+        inputNombre = EstiloUI.CrearCampoTexto(fila, "Escribí tu nombre...", 12);
+        Ocupar((RectTransform)inputNombre.transform, 0.43f, 1f);
 
-        inputNombre = campo.AddComponent<TMP_InputField>();
-
-        GameObject area = new GameObject("Text Area", typeof(RectTransform), typeof(RectMask2D));
-        RectTransform art = (RectTransform)area.transform;
-        art.SetParent(crt, false);
-        art.anchorMin = Vector2.zero;
-        art.anchorMax = Vector2.one;
-        art.offsetMin = new Vector2(10f, 4f);
-        art.offsetMax = new Vector2(-10f, -4f);
-
-        TMP_Text placeholder = CrearTexto(art, "Placeholder", "Escribí tu nombre...", 22f,
-            TextAlignmentOptions.Left, FontStyles.Italic);
-        placeholder.color = new Color(0.3f, 0.3f, 0.3f, 0.7f);
-        Estirar(placeholder.rectTransform);
-
-        TMP_Text texto = CrearTexto(art, "Text", "", 22f, TextAlignmentOptions.Left, FontStyles.Normal);
-        texto.color = Color.black;
-        Estirar(texto.rectTransform);
-
-        inputNombre.textViewport = art;
-        inputNombre.textComponent = texto;
-        inputNombre.placeholder = placeholder;
-        inputNombre.characterLimit = 12;
-        inputNombre.text = PlayerPrefs.GetString(ClaveNombre, "");
+        inputNombre.text = PlayerPrefs.GetString(RankingData.ClaveNombre, "");
         inputNombre.onEndEdit.AddListener(GuardarNombre);
     }
 
     void GuardarNombre(string valor)
     {
-        PlayerPrefs.SetString(ClaveNombre, valor.Trim());
+        PlayerPrefs.SetString(RankingData.ClaveNombre, valor.Trim());
+        RefrescarRanking();
+    }
+
+    // Primer clic: pide confirmación. Segundo clic dentro de 3 s: borra.
+    void PedirReinicio()
+    {
+        if (confirmarHasta < 0f)
+        {
+            confirmarHasta = Time.unscaledTime + SegundosParaConfirmar;
+            avisoHasta = -1f;
+            textoReiniciar.text = "¿SEGURO? TOCÁ DE NUEVO";
+            return;
+        }
+
+        confirmarHasta = -1f;
+        RankingData.Instance.BorrarTodo();
+        RefrescarRanking();
+
+        avisoHasta = Time.unscaledTime + 1.5f;   // el aviso se ve un rato y vuelve solo
+        textoReiniciar.text = "TABLA REINICIADA";
+    }
+
+    void RefrescarRanking()
+    {
         MenuRanking ranking = FindAnyObjectByType<MenuRanking>();
         if (ranking != null) ranking.Refrescar();
     }
 
-    void CrearBoton(Transform padre, string texto, Color color, UnityEngine.Events.UnityAction alClickear)
-    {
-        GameObject go = new GameObject("Boton " + texto, typeof(RectTransform), typeof(Image), typeof(Button));
-        RectTransform rt = (RectTransform)go.transform;
-        rt.SetParent(padre, false);
-        AgregarLayout(go, 48f);
+    // ---- Ayudas de maquetado ----
 
-        Image img = go.GetComponent<Image>();
-        img.color = color;
-
-        Button btn = go.GetComponent<Button>();
-        btn.targetGraphic = img;
-        btn.onClick.AddListener(alClickear);
-
-        TMP_Text lbl = CrearTexto(rt, "Texto", texto, 24f, TextAlignmentOptions.Center, FontStyles.Bold);
-        lbl.color = Color.white;
-        Estirar(lbl.rectTransform);
-    }
-
-    // ---- Slider armado a mano (jerarquía estándar de UnityEngine.UI.Slider) ----
-
-    Slider CrearSlider(Transform padre, float valor)
-    {
-        GameObject go = new GameObject("Slider", typeof(RectTransform));
-        ((RectTransform)go.transform).SetParent(padre, false);
-
-        GameObject bg = NuevoHijo(go.transform, "Background", typeof(Image));
-        RectTransform bgrt = (RectTransform)bg.transform;
-        bgrt.anchorMin = new Vector2(0f, 0.25f);
-        bgrt.anchorMax = new Vector2(1f, 0.75f);
-        bgrt.offsetMin = Vector2.zero;
-        bgrt.offsetMax = Vector2.zero;
-        bg.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.5f);
-
-        GameObject fillArea = NuevoHijo(go.transform, "Fill Area");
-        RectTransform fart = (RectTransform)fillArea.transform;
-        fart.anchorMin = new Vector2(0f, 0.25f);
-        fart.anchorMax = new Vector2(1f, 0.75f);
-        fart.offsetMin = new Vector2(10f, 0f);
-        fart.offsetMax = new Vector2(-10f, 0f);
-
-        GameObject fill = NuevoHijo(fillArea.transform, "Fill", typeof(Image));
-        RectTransform fillrt = (RectTransform)fill.transform;
-        fillrt.anchorMin = new Vector2(0f, 0f);
-        fillrt.anchorMax = new Vector2(1f, 1f);
-        fillrt.offsetMin = Vector2.zero;
-        fillrt.offsetMax = Vector2.zero;
-        fill.GetComponent<Image>().color = new Color(0.85f, 0.85f, 0.95f, 1f);
-
-        GameObject hsa = NuevoHijo(go.transform, "Handle Slide Area");
-        RectTransform hsart = (RectTransform)hsa.transform;
-        hsart.anchorMin = new Vector2(0f, 0f);
-        hsart.anchorMax = new Vector2(1f, 1f);
-        hsart.offsetMin = new Vector2(10f, 0f);
-        hsart.offsetMax = new Vector2(-10f, 0f);
-
-        GameObject handle = NuevoHijo(hsa.transform, "Handle", typeof(Image));
-        RectTransform hrt = (RectTransform)handle.transform;
-        hrt.anchorMin = new Vector2(0f, 0f);
-        hrt.anchorMax = new Vector2(0f, 1f);
-        hrt.sizeDelta = new Vector2(24f, 0f);
-        handle.GetComponent<Image>().color = Color.white;
-
-        Slider slider = go.AddComponent<Slider>();
-        slider.fillRect = fillrt;
-        slider.handleRect = hrt;
-        slider.targetGraphic = handle.GetComponent<Image>();
-        slider.direction = Slider.Direction.LeftToRight;
-        slider.minValue = 0f;
-        slider.maxValue = 1f;
-        slider.SetValueWithoutNotify(valor);
-        return slider;
-    }
-
-    // ---- Helpers ----
-
-    GameObject NuevoHijo(Transform padre, string nombre, params System.Type[] extra)
-    {
-        System.Type[] tipos = new System.Type[extra.Length + 1];
-        tipos[0] = typeof(RectTransform);
-        for (int i = 0; i < extra.Length; i++) tipos[i + 1] = extra[i];
-
-        GameObject go = new GameObject(nombre, tipos);
-        go.transform.SetParent(padre, false);
-        return go;
-    }
-
-    void AgregarLayout(GameObject go, float altura)
-    {
-        LayoutElement le = go.GetComponent<LayoutElement>();
-        if (le == null) le = go.AddComponent<LayoutElement>();
-        le.preferredHeight = altura;
-        le.minHeight = altura;
-    }
-
-    TMP_Text CrearTexto(Transform padre, string nombre, string contenido, float tamano,
-        TextAlignmentOptions alineacion, FontStyles estilo)
+    RectTransform Fila(Transform padre, string nombre, float alto)
     {
         GameObject go = new GameObject(nombre, typeof(RectTransform));
         RectTransform rt = (RectTransform)go.transform;
         rt.SetParent(padre, false);
-
-        TextMeshProUGUI txt = go.AddComponent<TextMeshProUGUI>();
-        txt.text = contenido;
-        txt.fontSize = tamano;
-        txt.alignment = alineacion;
-        txt.fontStyle = estilo;
-        txt.color = Color.white;
-        txt.raycastTarget = false;
-        return txt;
+        EstiloUI.Alto(go, alto);
+        return rt;
     }
 
-    void Estirar(RectTransform rt)
+    // Ocupa la franja horizontal [desde, hasta] (0..1) de su fila, a lo alto.
+    void Ocupar(RectTransform rt, float desde, float hasta)
     {
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
+        rt.anchorMin = new Vector2(desde, 0f);
+        rt.anchorMax = new Vector2(hasta, 1f);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
     }

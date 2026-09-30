@@ -26,8 +26,8 @@ lo que hay **hoy en el proyecto**.
 | 27 ago | 1 | ✅ Cumplida | Controladores programados y pusheados. |
 | 03 sep | 1 | ✅ Cumplida | Mecánica principal: esquivar autos por 3 carriles + wheelie de riesgo-recompensa + puntaje en pantalla. Probada el 27 ago. |
 | 10 sep | 1 | ✅ Cumplida | Datos persistentes ✅ (ranking con ScriptableObject + JSON) + sonido ✅ (música de menú, choque y click asignados). |
-| 17 sep | 1 | 🟡 A medias | Control por **webcam** programado (falta probarlo) → cubre "hardware externo". Faltan partículas e iluminación. (La cámara del juego ya tiene efectos por código: 1ª persona con roll y subida al cielo en el wheelie.) |
-| 28 sep | 1 | ❌ Pendiente | Sin build, sin carpeta de Drive, sin link en el README. Arte a medias: la moto y los autos ya son modelos 3D con rig (ruedas girando, manubrio) y el **menú principal ya tiene arte** ("Ruta de noche", 2026-09-15); faltan las otras pantallas de UI y el camino, que sigue siendo un cubo gris. |
+| 17 sep | 1 | 🟡 A medias | Control por **webcam** programado (falta probarlo) → cubre "hardware externo". Iluminación hecha (atardecer + niebla, 2026-09-30). **Faltan las partículas.** (La cámara del juego ya tiene efectos por código: 1ª persona con roll y subida al cielo en el wheelie.) |
+| 28 sep | 1 | ❌ Pendiente | Sin build, sin carpeta de Drive, sin link en el README. Arte a medias: la moto y los autos ya son modelos 3D con rig (ruedas girando, manubrio) y **toda la UI tiene arte** ("Ruta de noche", 2026-09-15 y 2026-09-30), y el **entorno** también: atardecer, ciudad y campo alternados con modelos de Kenney (2026-09-30). |
 | 05 nov | 2 | ❌ Pendiente | Sin itch.io, sin video, sin decoración. |
 
 **Estado al 2026-09-09:** 5 entregas cumplidas (13, 20, 27 ago, 3 sep y 10 sep);
@@ -202,7 +202,7 @@ JSON, probado el 2026-08-27) y sonido (los 3 clips asignados y sonando, 2026-09-
 | Efectos: partículas | ❌ No hay ningún `ParticleSystem` en la escena ni en prefabs. |
 | Efectos: interacción con hardware externo | 🟡 **Programado el 2026-09-09, falta probarlo con la cámara real.** El juego se controla con la **webcam**: `vision/deteccion.py` (MediaPipe) detecta los gestos del jugador y se los manda a Unity por UDP (`EntradaCamara.cs`). Reemplaza al manubrio de Arduino, que salía caro. |
 | Efectos de cámara (Cinemachine, etc.) | 🟡 A medias. No hay Cinemachine, pero desde el 2026-09-09 la cámara es de **primera persona** por código (`CamaraJugador.cs` en la `Main Camera`): sigue pegada al `PuntoCamara` de la moto, se tumba (roll) al esquivar y sube la vista al cielo mientras se sostiene el wheelie. Falta shake de choque / post-proceso reactivo. |
-| Iluminación implementada | ⚠️ Hay una `Directional Light` default y un `Global Volume` con post-proceso, pero no iluminación pensada como parte del arte/efectos. |
+| Iluminación implementada | ✅ Desde el 2026-09-30: atardecer (sol bajo y cálido a la vista, skybox procedural, luz ambiente Trilight) y niebla del color del horizonte. Faltan luces de *efecto* (choque, wheelie). |
 
 **Veredicto: ❌ PENDIENTE.**
 
@@ -212,7 +212,7 @@ JSON, probado el 2026-08-27) y sonido (los 3 clips asignados y sonando, 2026-09-
 
 | Ítem | Estado |
 |---|---|
-| Versión final sin errores, UI linda y coherente con el arte | 🟡 En camino: la moto y los autos son modelos 3D con rig (glTFast), la cámara es 1ª persona y el **menú principal ya está con arte** (dirección "Ruta de noche": fondo nocturno, sol retro, grilla de neón, Chakra Petch). Faltan con estilo el HUD, Opciones, la pausa y el Game Over, más el arte del camino (sigue siendo un cubo gris) y las texturas. El camino ya no tiene huecos. |
+| Versión final sin errores, UI linda y coherente con el arte | 🟡 En camino: la moto y los autos son modelos 3D con rig (glTFast), la cámara es 1ª persona y el **menú principal ya está con arte** (dirección "Ruta de noche": fondo nocturno, sol retro, grilla de neón, Chakra Petch). Desde el 2026-09-30 también el HUD, Opciones, la pausa y el Game Over, y el entorno de la partida (atardecer con niebla, calle de asfalto, ciudad y campo alternados con modelos low-poly de Kenney). El camino ya no tiene huecos. |
 | Audio y efectos funcionando | ❌ Depende de las entregas del 10 y 17 de septiembre. |
 | Proyecto buildeado y ejecutable sin errores | ❌ No hay ningún build. |
 | Carpeta en Drive compartida + link en el `README.md` | ❌ El `README.md` no tiene ningún link a Drive. |

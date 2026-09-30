@@ -39,6 +39,9 @@ public class GameManager : MonoBehaviour
         if (FindAnyObjectByType<TrafficManager>() == null)
             new GameObject("TrafficManager").AddComponent<TrafficManager>();
 
+        if (FindAnyObjectByType<EntornoManager>() == null)
+            new GameObject("EntornoManager").AddComponent<EntornoManager>();
+
         if (FindAnyObjectByType<Hud>() == null)
             new GameObject("Hud").AddComponent<Hud>();
 
@@ -71,8 +74,7 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
 
         // Guardar el puntaje en el ranking persistente (JSON en disco).
-        string nombre = PlayerPrefs.GetString("NombreJugador", "Jugador");
-        RankingData.Instance.Agregar(nombre, puntaje);
+        RankingData.Instance.Agregar(RankingData.NombreActual(), puntaje);
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.ReproducirChoque();

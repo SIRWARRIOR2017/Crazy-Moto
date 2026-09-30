@@ -33,6 +33,10 @@ public class TrafficManager : MonoBehaviour
     private readonly List<Transform> pool = new List<Transform>();
     private float proximaZFila;
 
+    // Qué carriles quedaron libres en la última fila (null = todavía no hubo).
+    private bool[] libresAnterior;
+    private const int IntentosPorFila = 12;
+
     void Start()
     {
         GameObject go = GameObject.FindGameObjectWithTag("Player");
@@ -90,26 +94,78 @@ public class TrafficManager : MonoBehaviour
 
     // Cada fila ocupa 1 o 2 carriles (nunca los 3): siempre queda al menos uno
     // libre para poder esquivar.
+    //
+    // Además, el carril libre tiene que quedar AL LADO (o en el mismo lugar) de un
+    // carril que estaba libre en la fila anterior. Sin esto, a alta velocidad
+    // podían salir dos filas seguidas con el hueco en los extremos opuestos
+    // (izquierda y después derecha): hay que cruzar ~3 m de costado en ~0,2 s y
+    // no se puede, hagas lo que hagas. Con la regla, entre una fila y la siguiente
+    // alcanza con correrse unos centímetros.
     void GenerarFila(float z)
     {
-        List<int> indices = new List<int>();
-        for (int i = 0; i < carriles.Length; i++)
-            indices.Add(i);
+        int n = carriles.Length;
+        bool[] ocupados = ElegirOcupados(n);
 
-        int cuantos = Random.Range(1, carriles.Length);   // 1 .. (carriles-1)
-
-        for (int i = 0; i < cuantos; i++)
+        bool[] libres = new bool[n];
+        for (int carril = 0; carril < n; carril++)
         {
-            int k = Random.Range(0, indices.Count);
-            int carril = indices[k];
-            indices.RemoveAt(k);
+            libres[carril] = true;
+            if (!ocupados[carril]) continue;
 
             Transform auto = TomarAutoLibre();
-            if (auto == null) return;   // pool agotado: se saltea esta fila
+            if (auto == null) continue;   // pool agotado: ese carril queda libre
 
             auto.position = new Vector3(carriles[carril], alturaAuto, z);
             auto.gameObject.SetActive(true);
+            libres[carril] = false;
         }
+
+        libresAnterior = libres;
+    }
+
+    // Sortea qué carriles ocupar (entre 1 y n-1) hasta que la fila sea alcanzable
+    // desde la anterior. Si no sale en unos intentos, pone un solo auto, que
+    // siempre es alcanzable.
+    bool[] ElegirOcupados(int n)
+    {
+        for (int intento = 0; intento < IntentosPorFila; intento++)
+        {
+            bool[] ocupados = Sortear(n, Random.Range(1, n));   // 1 .. (n-1)
+            if (EsAlcanzable(ocupados)) return ocupados;
+        }
+
+        return Sortear(n, 1);
+    }
+
+    bool[] Sortear(int n, int cuantos)
+    {
+        List<int> indices = new List<int>();
+        for (int i = 0; i < n; i++) indices.Add(i);
+
+        bool[] ocupados = new bool[n];
+        for (int i = 0; i < cuantos; i++)
+        {
+            int k = Random.Range(0, indices.Count);
+            ocupados[indices[k]] = true;
+            indices.RemoveAt(k);
+        }
+        return ocupados;
+    }
+
+    // ¿Algún carril libre de esta fila está en el mismo lugar o al lado de un
+    // carril que estaba libre en la anterior?
+    bool EsAlcanzable(bool[] ocupados)
+    {
+        if (libresAnterior == null) return true;
+
+        for (int i = 0; i < ocupados.Length; i++)
+        {
+            if (ocupados[i]) continue;
+
+            for (int j = Mathf.Max(0, i - 1); j <= Mathf.Min(ocupados.Length - 1, i + 1); j++)
+                if (libresAnterior[j]) return true;
+        }
+        return false;
     }
 
     Transform TomarAutoLibre()

@@ -163,6 +163,16 @@ public class MenuManager : MonoBehaviour
         else Pausar();
     }
 
+    // Si el juego pierde el foco en plena partida (Alt+Tab, el aviso de "Teclas
+    // especiales" de Windows al apretar Shift 5 veces seguidas, un clic en la
+    // ventana de la cámara para recalibrar), se pausa solo: al volver no te
+    // encontrás con que chocaste mientras no mirabas.
+    void OnApplicationFocus(bool tieneFoco)
+    {
+        if (!tieneFoco && panelPausa != null)
+            Pausar();
+    }
+
     public void Pausar()
     {
         // Solo se puede pausar durante una partida en curso.
