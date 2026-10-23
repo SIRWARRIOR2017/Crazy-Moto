@@ -46,6 +46,9 @@ public class GameManager : MonoBehaviour
         if (FindAnyObjectByType<Hud>() == null)
             new GameObject("Hud").AddComponent<Hud>();
 
+        if (FindAnyObjectByType<SonidosPartida>() == null)
+            new GameObject("SonidosPartida").AddComponent<SonidosPartida>();
+
         // El receptor de la cámara web también se crea acá, pero se crea una sola
         // vez para todo el juego (sobrevive a la recarga de escena) porque es
         // dueño del puerto UDP. Ver EntradaCamara.

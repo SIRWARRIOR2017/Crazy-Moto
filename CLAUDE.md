@@ -312,6 +312,23 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   `Sounds/Breakneck_Boulevard.mp3`, `sonidoChoque` = `Sounds/Crash.mp3`,
   `sonidoClick` = `Sounds/mouse-click-sound.mp3`. (El viejo `VolumenSlider.cs` se
   eliminó: su función pasó a `MenuOpciones` + `AudioManager`.)
+- **`SonidosPartida.cs`** — Se crea en runtime desde `GameManager.Start()`. Los
+  sonidos de la partida **se generan por código** (síntesis con
+  `AudioClip.Create` + `SetData`, sin archivos de audio). (a) **Motor de la
+  moto**: clip de 1 s con 55 ciclos exactos de la frecuencia base (diente de
+  sierra con armónicos + ruido + pulso por "explosión"), en loop sin clic. El
+  `pitch` sigue a `velocidadActual` (0,8 → 1,9) con un extra en el wheelie
+  (`haciendoWheelie`) y suavizado; el volumen es `volumenMotor` × el slider
+  "Efectos" (`AudioManager.efectos.volume`). Se calla con un fade corto (tiempo
+  sin escalar) cuando `Time.timeScale == 0` o `juegoTerminado`: en el menú, la
+  pausa y el Game Over **no suena**, así el choque se escucha solo. (b) **Autos
+  pasando**: dos clips de whoosh (ruido con pasa-bajos y envolvente). Mira los
+  hijos del `TrafficManager` y guarda la Z relativa al jugador de cada auto
+  activo; cuando pasa de adelante a atrás reproduce el whoosh con pan según la
+  diferencia en X y más volumen cuanto más cerca pasó. Un salto grande
+  (`saltoMaximoCruce`) o un auto apagado en el pool no cuentan como cruce. Usa
+  4 `AudioSource` que se turnan, porque pan y pitch son de la fuente y no del
+  clip. Todos los valores son campos públicos.
 
 Comunicación entre scripts: casi todo pasa por `GameManager.Instance` (acceso
 directo al singleton) o por referencias asignadas a mano en el Inspector
@@ -393,8 +410,7 @@ la vista sube al cielo mientras se sostiene el wheelie. El camino ya no tiene
 huecos (el prefab `Tramo` se reescaló a `{10, 1, 30}`) y tiene líneas de carril
 discontinuas, pero sigue siendo un cubo gris sin textura ni arte.
 
-**No existe todavía:** ruidos ambientales de la partida (motor de la moto, autos
-pasando) — la música de menú, el click y el choque ya suenan; partículas y luces de
+**No existe todavía:** partículas y luces de
 efecto (la iluminación general del atardecer sí está). (La cámara ya tiene efectos propios —roll, subida al cielo en el
 wheelie— pero no hay Cinemachine ni shake de choque.) **Decidido que NO habrá
 salto** (la mecánica vertical
@@ -536,6 +552,7 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   a `ReproducirMusicaMenu()` y `EmpezarJuego()` llama a `DetenerMusica()` por las
   dudas. Compila sin errores. Falta el archivo de música (campo `musicaFondo`
   sigue vacío) y los sonidos de moto/autos (ni archivos ni código todavía).
+  Implementado el 2026-10-23 con sonidos generados por código (#12).
 - **2026-08-31** — Menú de Opciones (pedido del alumno). Botón **"Opciones"** en
   el menú, entre Jugar y Salir, que abre un `PanelOpciones` con la config repartida
   en secciones, cada control con nombre descriptivo. Decisiones del alumno:
