@@ -46,7 +46,8 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   `MenuManager` en la escena (`FindAnyObjectByType`) para mostrar el panel de Game
   Over. Además, en `GameOver()` guarda el puntaje en el ranking:
   `RankingData.Instance.Agregar(nombre, puntaje)` con el nombre de
-  `PlayerPrefs("NombreJugador")`.
+  `PlayerPrefs("NombreJugador")`, **solo si el puntaje es mayor que 0** (una
+  partida en la que nunca hiciste wheelie no entra al ranking, #22).
 - **`PlayerController.cs`** — Vive en el GameObject "Jugador" (tag `Player`). Cada
   `Update()` avanza el transform en Z según `GameManager.Instance.velocidadActual`,
   mueve lateralmente con `Input.GetAxisRaw("Horizontal")` (A-D) clampeado a

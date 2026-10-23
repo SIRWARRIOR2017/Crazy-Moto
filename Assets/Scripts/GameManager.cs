@@ -73,8 +73,10 @@ public class GameManager : MonoBehaviour
         juegoTerminado = true;
         Time.timeScale = 0f;
 
-        // Guardar el puntaje en el ranking persistente (JSON en disco).
-        RankingData.Instance.Agregar(RankingData.NombreActual(), puntaje);
+        // Guardar el puntaje en el ranking persistente (JSON en disco). Una
+        // partida sin ningún punto (chocaste sin hacer wheelie) no entra.
+        if (puntaje > 0)
+            RankingData.Instance.Agregar(RankingData.NombreActual(), puntaje);
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.ReproducirChoque();
