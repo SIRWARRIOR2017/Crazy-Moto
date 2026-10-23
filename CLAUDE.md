@@ -948,8 +948,8 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   retraso) y fps en la ventana. Verificado con una simulación (posiciones,
   distancias, ruido de ±4 px, histéresis, parpadeos, dos personas): 0 fallas.
   Del lado de Unity sólo cambiaron los textos de ayuda (`MenuCamara`,
-  `MenuOpciones`): el protocolo UDP es el mismo. **Falta que el alumno lo pruebe
-  con la cámara real.**
+  `MenuOpciones`): el protocolo UDP es el mismo. El alumno lo probó con la
+  cámara real contra el build y **anda bien**.
 - **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
   reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No
   está descartado del todo, pero solo se retoma si el de cámara no convence. La
