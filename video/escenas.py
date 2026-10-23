@@ -269,14 +269,15 @@ def escena_gancho(t):
 # ---------------------------------------------------------------------------
 
 FILAS = [(0,), (1, 2), (0, 1), (2,), (0, 2), (1,), (1, 2), (0,), (0, 1), (2,), (1, 2), (0, 2),
-         (1,), (0, 1), (2,), (0, 2)]
+         (1,), (0, 1), (2,), (0, 2), (1, 2), (0,), (0, 1), (2,), (1,), (0, 2), (1, 2), (0, 1)]
+DURACION_AUTOPISTA = 10.5
 CARRIL_X = (760, 960, 1160)
 Y_MOTO = 900
 
 
 def recorrido(t):
     """Cuanto avanzo el mundo (en px de pantalla): la velocidad crece con el tiempo."""
-    return 320 * t + 75 * t * t
+    return 320 * t + 45 * t * t
 
 
 def libre(fila, desde):
@@ -290,7 +291,7 @@ def escena_autopista(t):
     a = aparece(t, 0.0, 0.5)
     lz.texto((960, 78), "AUTOPISTA EN CONTRAMANO", 50, TINTA, a, espaciado=7, brillo=True)
     leyendas = [(0.6, 4.2, "Los autos vienen de frente por tres carriles"),
-                (4.2, 8.0, "Siempre queda uno libre… pero el juego se acelera solo")]
+                (4.2, DURACION_AUTOPISTA, "Siempre queda uno libre… pero el juego se acelera solo")]
     for desde, hasta, texto in leyendas:
         lz.texto((960, 140), texto, 30, TINTA_CLARA, aparece(t, desde, 0.4) * (1 - entre(t, hasta - 0.3, hasta)),
                  nombre=MEDIA)
@@ -309,34 +310,46 @@ def escena_autopista(t):
             y += 80
 
     # Filas de autos: la fila k aparece arriba cuando el recorrido llega a su marca.
-    carril = 1.0
-    previo = 1
+    # El carril libre de cada fila es el mas cercano al que eligio la moto antes.
+    objetivos, previo = [], 1
+    for fila in FILAS:
+        previo = libre(fila, previo)
+        objetivos.append(previo)
+
+    carril, resaltado = 1.0, None
     for k, fila in enumerate(FILAS):
         y = y0 - 80 + s - k * 430
-        objetivo = libre(fila, previo)
         if y > Y_MOTO + 120:          # ya paso: la moto quedo en su carril libre
-            carril, previo = objetivo, objetivo
+            carril = objetivos[k]
             continue
-        if -100 < y < y1:
-            for c in fila:
-                x = CARRIL_X[c]
-                lz.rect((x - 48, y - 80), (x + 48, y + 80), CYAN, 0.9, relleno=False, ancho=3, radio=14,
-                        brillo=True)
-                lz.circulo((x - 28, y + 66), 7, AMBAR, 1, brillo=True)
-                lz.circulo((x + 28, y + 66), 7, AMBAR, 1, brillo=True)
         # La moto se acomoda mientras la fila se acerca (entre y=380 y y=760)
         u = suave(entre(y, 380, 760))
-        carril = mezcla(previo, objetivo, u)
+        carril = mezcla(objetivos[k - 1] if k else 1, objetivos[k], u)
         if y > 380:
-            lz.rect((CARRIL_X[objetivo] - 90, y - 90), (CARRIL_X[objetivo] + 90, y + 90), OK, 0.10 * (1 - u))
+            resaltado = (objetivos[k], y, 0.10 * (1 - u))
         break
+
+    if resaltado:
+        c, y, al = resaltado
+        lz.rect((CARRIL_X[c] - 90, y - 90), (CARRIL_X[c] + 90, y + 90), OK, al)
+    for k, fila in enumerate(FILAS):
+        y = y0 - 80 + s - k * 430
+        al = entre(y, y0 + 80, y0 + 170) * (1 - entre(y, y1 - 170, y1 - 85))   # entra y sale con fundido
+        if al <= 0:
+            continue
+        for c in fila:
+            x = CARRIL_X[c]
+            lz.rect((x - 48, y - 80), (x + 48, y + 80), CYAN, 0.9 * al, relleno=False, ancho=3, radio=14,
+                    brillo=True)
+            lz.circulo((x - 28, y + 66), 7, AMBAR, al, brillo=True)
+            lz.circulo((x + 28, y + 66), 7, AMBAR, al, brillo=True)
 
     mx = mezcla(CARRIL_X[0], CARRIL_X[2], carril / 2)
     lz.rect((mx - 20, Y_MOTO - 46), (mx + 20, Y_MOTO + 46), MAGENTA, 1, radio=12, brillo=True)
     lz.poligono([(mx, Y_MOTO - 70), (mx - 18, Y_MOTO - 46), (mx + 18, Y_MOTO - 46)], MAGENTA)
 
     # Velocimetro: la velocidad real del juego va de 10 a 60 m/s
-    v = mezcla(10, 60, entre(t, 0.5, 8.0)) * 3.6
+    v = mezcla(10, 60, entre(t, 0.5, DURACION_AUTOPISTA - 0.5)) * 3.6
     av = aparece(t, 0.8, 0.5)
     lz.texto((1560, 470), "VELOCIDAD", 24, TINTA_SUAVE, av, espaciado=6)
     lz.texto((1560, 545), f"{v:.0f}", 96, AMBAR if v > 150 else TINTA, av, brillo=True)
@@ -575,7 +588,7 @@ def escena_cierre(t):
 
 ESCENAS = {
     "gancho": (escena_gancho, 6.0, "1-gancho"),
-    "autopista": (escena_autopista, 8.0, "2-autopista"),
+    "autopista": (escena_autopista, DURACION_AUTOPISTA, "2-autopista"),
     "wheelie": (escena_wheelie, 16.0, "3-wheelie"),
     "camara": (escena_camara, 27.0, "4-camara"),
     "problema": (escena_problema, 15.0, "5-problema"),

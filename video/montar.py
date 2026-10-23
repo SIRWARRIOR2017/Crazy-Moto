@@ -33,9 +33,9 @@ FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
 # (tramo del guion, tipo, origen, duracion, desde_segundo)
 PARTES = [
     (1, "escena", "1-gancho", 6.0, 0),
-    (2, "foto", "fotos/menu.png", 4.0, 0),
+    (1, "foto", "fotos/menu.png", 4.0, 0),
+    (2, "escena", "2-autopista", 10.5, 0),
     (2, "clip", "clips/ciudad.mp4", 4.5, 2),
-    (2, "escena", "2-autopista", 8.0, 0),
     (3, "escena", "3-wheelie", 16.0, 0),
     (4, "escena", "4-camara", 27.0, 0),
     (5, "escena", "5-problema", 15.0, 0),
