@@ -10,8 +10,8 @@ using UnityEngine;
 // El paquete es una línea de texto con 3 campos separados por ';':
 //     lateral;wheelie;detectado      ej: "-0.35;1;1"
 //   lateral   = float -1..1  (negativo = izquierda, positivo = derecha)
-//   wheelie   = 0 o 1        (los dos brazos tirados hacia el cuerpo)
-//   detectado = 0 o 1        (hay una persona en cuadro)
+//   wheelie   = 0 o 1        (las dos manos levantadas sobre los hombros)
+//   detectado = 0 o 1        (se ven los hombros y las dos manos del jugador)
 //
 // El socket se lee en un hilo aparte porque Receive() bloquea; el hilo NO toca
 // la API de Unity (no se puede desde otro hilo), solo escribe campos volatile

@@ -418,7 +418,7 @@ directo al singleton) o por referencias asignadas a mano en el Inspector
 
 **Funciona:** loop completo — en el menú ponés tu nombre → jugar → esquivar autos
 que vienen de frente por 3 carriles (A-D o **cámara web**, movimiento libre) →
-sostener wheelie (Shift o los dos brazos tirados hacia el cuerpo) para sumar
+sostener wheelie (Shift o las dos manos levantadas sobre los hombros) para sumar
 puntaje a costa de casi no poder esquivar → chocar un auto →
 Game Over con puntaje final → Continuar/Menú, todo recargando la escena. El
 puntaje se guarda en un ranking persistente (`ranking.json`) que se ve en el
@@ -927,6 +927,29 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   Verificado en Play con capturas de la ciudad y del campo, y teletransportando
   la moto 300 m adelante (camino, tráfico y decorado se ponen al día solos).
 
+- **2026-10-23** — **Control por cámara: "manubrio en el aire"** (#35). Probando
+  el build, el alumno reportó que el control por cámara andaba muy mal: se
+  trababa y, si se movía un poco de la posición inicial, dejaba de responder. Es
+  lo que se muestra en la feria. Causa: el ángulo del codo en 2D (ver las
+  decisiones del 2026-09-09) no sirve en la posición de manubrio, porque el
+  antebrazo apunta a la cámara y en la imagen el codo y la muñeca quedan casi
+  superpuestos; además la dirección era una diferencia ×2,2 (amplificaba el
+  ruido) y el wheelie dependía de una calibración que se corría si te
+  acomodabas distinto. El alumno eligió el gesto nuevo: **agarrar un manubrio
+  imaginario** — doblar = inclinación de la línea entre las dos muñecas (30° =
+  a fondo, zona muerta ~4°), wheelie = las **dos** manos por encima de los
+  hombros (la más baja, medida en anchos de hombro; entra en 0 y sale en −0,3).
+  Las dos medidas son invariantes a correrse y a la distancia, así que **se sacó
+  la calibración** (la tecla `c` ahora sólo centra el manubrio si la cámara está
+  torcida). Las manos se ordenan por X en la imagen, sin depender de qué mano
+  cree MediaPipe que es cada una. Se detectan hasta 3 personas y se juega con la
+  de hombros más anchos (la más cercana), para que en la feria no robe el
+  control alguien que pasa por atrás. Buffer de cámara de 1 cuadro (menos
+  retraso) y fps en la ventana. Verificado con una simulación (posiciones,
+  distancias, ruido de ±4 px, histéresis, parpadeos, dos personas): 0 fallas.
+  Del lado de Unity sólo cambiaron los textos de ayuda (`MenuCamara`,
+  `MenuOpciones`): el protocolo UDP es el mismo. El alumno lo probó con la
+  cámara real contra el build y **anda bien**.
 - **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
   reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No
   está descartado del todo, pero solo se retoma si el de cámara no convence. La
