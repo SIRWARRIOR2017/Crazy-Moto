@@ -160,6 +160,25 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   el número se pone **magenta mientras estás haciendo wheelie**, o sea sumando), y
   (b) la **tarjeta de resultado** del Game Over, hija de `panelGameOver`: "PUNTAJE
   FINAL" + el número grande con degradado + "Estás en el puesto N del ranking".
+- **`EfectosParticulas.cs`** — Se crea en runtime desde `GameManager` (como `Hud`).
+  Arma por código, en `Start()`, todos los `ParticleSystem` (en simulación World):
+  (a) **choque**: chispas amarillo/naranja con gravedad + pedazos oscuros, en la
+  posición del jugador (+1 m en Z, 0,6 en Y), disparados cuando detecta que
+  `GameManager.juegoTerminado` pasó a true entre frames (no se editó `GameOver()`);
+  usan `useUnscaledTime` porque en el Game Over `timeScale = 0`. (b) **wheelie**:
+  humo gris que sale de la rueda trasera (`wheel_r`, o un offset fijo si no está)
+  mientras `PlayerController.haciendoWheelie`. (c) **velocidad**: líneas de viento
+  (`Stretch`) en tres cajas a los costados y arriba de la `Main Camera`, dejando
+  libre el centro; su cantidad sube con
+  `InverseLerp(velocidadInicial, velocidadMaxima, velocidadActual)`. El humo y el
+  viento se apagan en menú, pausa y Game Over (`timeScale == 0` / `juegoTerminado`).
+  Materiales en `Assets/Resources/Efectos/` (creados el 2026-10-23, URP
+  Particles/Unlit con la textura `CirculoSuave.png`): `Particula.mat` (aditivo)
+  para chispas y viento, y `ParticulaAlpha.mat` (mezcla Alpha) para el humo y los
+  pedazos oscuros, que con aditivo casi no se ven. Si faltan, arma uno por código
+  y avisa por consola; **no conviene depender de eso**: el de reserva usa
+  `Shader.Find`, y en el build el shader puede no estar incluido. Tamaños,
+  cantidades y colores son campos públicos del Inspector.
 - **`RankingData.cs`** — Datos persistentes (entrega del 10 de septiembre). Es un
   `ScriptableObject` pero **no hay un `.asset`**: se usa vía `RankingData.Instance`
   (un `static` con `CreateInstance`, sobrevive a la recarga de escena). La lista
@@ -368,7 +387,7 @@ directo al singleton) o por referencias asignadas a mano en el Inspector
   **Excepción obligada:** los scripts que usan `UnityEditor` van en
   `Assets/Editor/` (si no, el juego no compila al buildear) — hoy sólo está
   `GeneradorSpritesMenu.cs`. Y lo que un script tenga que cargar en runtime va
-  bajo `Assets/Resources/`: `Autos/` (prefabs de tráfico), `Sprites/` (fondo del
+  bajo `Assets/Resources/`: `Autos/` (prefabs de tráfico), `Efectos/` (material de las partículas), `Sprites/` (fondo del
   menú), `Fuentes/` (los TMP Font Assets) y `Entorno/` (modelos de Kenney y
   materiales del suelo). Los `.glb` de los kits de ciudad llevan al lado una
   carpeta `Textures/colormap.png` que **no hay que mover ni renombrar**: el GLB la
@@ -426,10 +445,10 @@ la vista sube al cielo mientras se sostiene el wheelie. El camino ya no tiene
 huecos (el prefab `Tramo` se reescaló a `{10, 1, 30}`) y tiene líneas de carril
 discontinuas, pero sigue siendo un cubo gris sin textura ni arte.
 
-**No existe todavía:** partículas (la iluminación general del atardecer sí está,
-y el flash y el post-proceso según velocidad/wheelie están en `EfectosVisuales`).
-(La cámara ya tiene efectos propios —roll, subida al cielo en el wheelie, shake
-de choque— pero no hay Cinemachine.) **Decidido que NO habrá
+**Efectos:** partículas de choque, wheelie y velocidad (`EfectosParticulas`),
+flash y post-proceso según velocidad/wheelie (`EfectosVisuales`), y la cámara
+tiene roll, subida al cielo en el wheelie y shake de choque. No hay Cinemachine.
+**Decidido que NO habrá
 salto** (la mecánica vertical
 es el wheelie) y que la **música va solo en el menú**, no durante la partida
 (ver "Decisiones tomadas").
