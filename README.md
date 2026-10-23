@@ -7,7 +7,7 @@
 [![Plataforma](https://img.shields.io/badge/Plataforma-Windows-0078D6?logo=windows&logoColor=white)](#)
 
 > Endless-runner de moto en 3D. Proyecto integrador para la **Feria de Ciencias**.
-> Se juega con el teclado… **o moviendo los brazos frente a la webcam**, como si
+> Se juega con el teclado… **o moviendo las manos frente a la webcam**, como si
 > agarraras un manubrio de verdad.
 
 ---
@@ -31,14 +31,15 @@ por cámara está andando manda la cámara; si no, manda el teclado.
 
 | Acción | ⌨️ Teclado | 📷 Cámara web |
 |---|---|---|
-| Mover a la izquierda | `A` o `←` | Tirás el brazo **izquierdo** hacia el cuerpo y empujás el derecho |
-| Mover a la derecha | `D` o `→` | Tirás el brazo **derecho** hacia el cuerpo y empujás el izquierdo |
-| Wheelie (sumar puntos) | Mantener `Shift` | Tirás **los dos brazos** hacia el cuerpo a la vez |
+| Mover a la izquierda | `A` o `←` | Girás el manubrio imaginario: bajás la mano **izquierda** |
+| Mover a la derecha | `D` o `→` | Girás el manubrio imaginario: bajás la mano **derecha** |
+| Wheelie (sumar puntos) | Mantener `Shift` | Levantás **las dos manos** por encima de los hombros |
 | Pausa | `Esc` | — (usá el botón `II` del HUD) |
 
-El gesto de la cámara es el de un manubrio real: para doblar a la derecha tirás
-del puño derecho y empujás el izquierdo. Para el wheelie, el tirón de los dos
-puños que hacés en una moto para levantar la rueda.
+Con la cámara agarrás un manubrio imaginario con las dos manos, delante del pecho,
+y lo girás como uno de verdad. Para el wheelie, levantás las dos manos como si
+tiraras del manubrio para arriba. No hace falta calibrar: te podés correr,
+acercar o alejar de la cámara y el gesto se lee igual.
 
 ---
 
@@ -123,13 +124,12 @@ Son unos cuantos MB, tarda un rato la primera vez.
 python vision/deteccion.py
 ```
 
-Se abre una ventana con tu silueta marcada. **Quedate quieto 2 segundos** con los
-brazos en posición de manubrio: eso es la calibración, y aprende cómo tenés los
-brazos en reposo. Cuando dice `OK - te estoy viendo`, ya está.
+Se abre una ventana con tus hombros y tus manos marcados, y la línea del
+manubrio entre las dos manos. Cuando dice `OK - te estoy viendo`, ya está.
 
 | Tecla | Qué hace |
 |---|---|
-| `c` | Recalibrar la pose neutra |
+| `c` | Centrar el manubrio (si la moto dobla sola) |
 | `q` | Cerrar el detector |
 
 Opciones útiles:
@@ -179,8 +179,8 @@ Crazy-Moto/
 └── README.md                     ← este archivo
 ```
 
-> 🔍 ¿Querés saber **cómo funciona** la detección por dentro (por qué no se usa la
-> profundidad de la cámara, cómo se separan los dos gestos)? Está explicado en
+> 🔍 ¿Querés saber **cómo funciona** la detección por dentro (qué puntos del
+> cuerpo se miden y por qué no importa dónde estés parado)? Está explicado en
 > **[`vision/README.md`](vision/README.md)**.
 
 ---
@@ -195,9 +195,9 @@ Crazy-Moto/
 | `python` no se reconoce como comando | Reinstalá Python marcando **"Add python.exe to PATH"** |
 | `no pude abrir la camara 0` | Otro programa la está usando (Zoom, Meet, Teams). Cerralo, o probá `--camara 1` |
 | El juego dice "SIN SEÑAL" | El detector no está corriendo. Ejecutá `python vision/deteccion.py` |
-| "CONECTADA, PERO NO TE VEO" | Falta luz, o no entran tus hombros y codos en el cuadro. Alejate un poco |
-| La moto dobla sola | Recalibrá: apretá `c` en la ventana del detector, quieto y simétrico |
-| El wheelie no se activa | Mirá la barra `wheelie` de la ventana: si al tirar los brazos a fondo no llega a la línea blanca, bajá `WHEELIE_DELTA` en `vision/deteccion.py`. **Calibrá con los brazos algo estirados**, no encogidos |
+| "CONECTADA, PERO NO TE VEO" | Falta luz, o no entran tus hombros y tus manos en el cuadro. Alejate un poco |
+| La moto dobla sola | La cámara está torcida: poné las manos derechas y apretá `c` en la ventana del detector |
+| El wheelie no se activa | Las **dos** manos tienen que pasar la línea blanca de la ventana (la altura de los hombros). Si cuesta, bajá `WHEELIE_ENTRA` en `vision/deteccion.py` |
 
 ---
 

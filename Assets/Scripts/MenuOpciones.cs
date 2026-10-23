@@ -106,7 +106,7 @@ public class MenuOpciones : MonoBehaviour
         EstiloUI.CrearRotulo(der, "CONTROLES");
         TMP_Text info = EstiloUI.CrearTexto(der, "InfoControles",
             "<color=#BDEFFF>Teclado:</color> A / D para moverte, Shift para el wheelie, Esc para pausar.\n" +
-            "<color=#BDEFFF>Cámara:</color> tirá un brazo y empujá el otro para doblar; tirá los dos hacia el cuerpo para el wheelie.",
+            "<color=#BDEFFF>Cámara:</color> girá un manubrio imaginario para doblar; levantá las dos manos sobre los hombros para el wheelie.",
             EstiloUI.Media, 20f, EstiloUI.TintaSuave, TextAlignmentOptions.TopLeft);
         info.lineSpacing = 12f;
         EstiloUI.Alto(info.gameObject, 100f);

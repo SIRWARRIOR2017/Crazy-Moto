@@ -114,9 +114,9 @@ public class MenuCamara : MonoBehaviour
         // --- Cómo se juega ---
         EstiloUI.CrearRotulo(cont, "CÓMO SE JUEGA");
         TMP_Text ayuda = EstiloUI.CrearTexto(cont, "Ayuda",
-            "Sentate frente a la cámara y subí los brazos como si agarraras un manubrio.\n" +
-            "<color=#BDEFFF>Doblar:</color> tirá un brazo hacia el cuerpo y empujá el otro hacia adelante.\n" +
-            "<color=#BDEFFF>Wheelie:</color> tirá los DOS brazos hacia el cuerpo al mismo tiempo.\n" +
+            "Agarrá un manubrio imaginario con las dos manos, delante del pecho.\n" +
+            "<color=#BDEFFF>Doblar:</color> giralo como uno de verdad: bajá la mano del lado al que querés ir.\n" +
+            "<color=#BDEFFF>Wheelie:</color> levantá las DOS manos por encima de los hombros.\n" +
             "Si la cámara falla, el teclado (A / D / Shift) sigue funcionando.",
             EstiloUI.Media, 19f, EstiloUI.TintaSuave, TextAlignmentOptions.TopLeft);
         ayuda.lineSpacing = 8f;
