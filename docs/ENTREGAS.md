@@ -1,12 +1,18 @@
 # Cronograma de entregas — Crazy Moto
 
-Calendario de entregas de la feria de ciencias, con el estado de cada una según
-lo que hay **hoy en el proyecto**.
+Calendario de entregas de la feria de ciencias, con el estado de cada una.
 
-- Fecha de análisis: **2026-08-27** (última actualización: 2026-09-09).
+- Fecha de análisis: **2026-08-27** (última actualización: **2026-10-23**).
+- **El estado de cada entrega es el oficial del cronograma de la materia**, tal
+  como lo confirmó el alumno el 2026-10-23. Las notas de cada sección guardan, como
+  historia, qué se hizo y cuándo.
 - Alumnos: Joaquín Pastorino y Santiago Castiñeira.
 - **Regla del profesor: los trabajos entregados fuera de tiempo valen CERO.**
 - Total en juego: **10 puntos** (8 entregas de 1 punto + 1 entrega de 2 puntos).
+- Los pendientes se siguen como **issues de GitHub**
+  ([SIRWARRIOR2017/Crazy-Moto](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues)),
+  agrupados en dos milestones: "Entrega 28 sep — Versión final" y "Entrega 05 nov
+  — Publicación".
 
 > **Sobre las fechas.** Lo que cuenta es la **fecha del documento de cada
 > entrega**, no la fecha del commit en git (confirmado por el alumno el
@@ -18,21 +24,22 @@ lo que hay **hoy en el proyecto**.
 
 ## Resumen
 
-| Fecha | Pts | Estado | Riesgo |
+| Fecha | Pts | Estado | Riesgo / pendiente |
 |---|---|---|---|
-| 06 ago | 1 | ⚠️ Casi | Multiplayer y ranking ya definidos. **Solo falta el boceto** en el documento. |
-| 13 ago | 1 | ✅ Cumplida | Plan de trabajo (`documento.docx`, fecha 13 ago) + UI base (paneles, botones) funcionando. |
-| 20 ago | 1 | ✅ Cumplida | Loop completo iniciar → terminar → continuar. |
-| 27 ago | 1 | ✅ Cumplida | Controladores programados y pusheados. |
-| 03 sep | 1 | ✅ Cumplida | Mecánica principal: esquivar autos por 3 carriles + wheelie de riesgo-recompensa + puntaje en pantalla. Probada el 27 ago. |
-| 10 sep | 1 | ✅ Cumplida | Datos persistentes ✅ (ranking con ScriptableObject + JSON) + sonido ✅ (música de menú, choque y click asignados). |
-| 17 sep | 1 | 🟡 A medias | Control por **webcam** programado (falta probarlo) → cubre "hardware externo". Iluminación hecha (atardecer + niebla, 2026-09-30). **Faltan las partículas.** (La cámara del juego ya tiene efectos por código: 1ª persona con roll y subida al cielo en el wheelie.) |
-| 28 sep | 1 | ❌ Pendiente | Sin build, sin carpeta de Drive, sin link en el README. Arte a medias: la moto y los autos ya son modelos 3D con rig (ruedas girando, manubrio) y **toda la UI tiene arte** ("Ruta de noche", 2026-09-15 y 2026-09-30), y el **entorno** también: atardecer, ciudad y campo alternados con modelos de Kenney (2026-09-30). |
-| 05 nov | 2 | ❌ Pendiente | Sin itch.io, sin video, sin decoración. |
+| 06 ago | 1 | ✅ Terminada | Definiciones de diseño completas, con el boceto incluido. |
+| 13 ago | 1 | ✅ Terminada | Plan de trabajo (`documento.docx`, fecha 13 ago) + UI base (paneles, botones) funcionando. |
+| 20 ago | 1 | ✅ Terminada | Loop completo iniciar → terminar → continuar. |
+| 27 ago | 1 | ✅ Terminada | Controladores programados y pusheados. |
+| 03 sep | 1 | ✅ Terminada | Mecánica principal: esquivar autos por 3 carriles + wheelie de riesgo-recompensa + puntaje en pantalla. |
+| 10 sep | 1 | ✅ Terminada | Datos persistentes (ranking con ScriptableObject + JSON) + sonido (música de menú, choque y click). |
+| 17 sep | 1 | ✅ Terminada | Efectos/partículas, hardware externo (control por **webcam**), efectos de cámara e iluminación. |
+| 28 sep | 1 | ❌ No marcada como terminada | **Ya venció** (hoy es 2026-10-23) y por la regla del profesor lo entregado fuera de tiempo vale cero: conviene confirmar con él qué pasa con esta. Falta el build, la carpeta de Drive con el link en el README y el pulido final. Issues: [#10](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/10) a [#14](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/14) y [#18](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/18) a [#24](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/24). |
+| 05 nov | 2 | ⏳ Pendiente | **Es la próxima fecha.** itch.io (0,5) + video de YouTube (0,5) + decoración del ambiente (1). Issues: [#15](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/15), [#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16), [#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17). |
 
-**Estado al 2026-09-09:** 5 entregas cumplidas (13, 20, 27 ago, 3 sep y 10 sep);
-la del 6 ago queda a un paso (falta solo el boceto). La próxima con trabajo de
-código es la del **17 de septiembre** (partículas, efectos e iluminación).
+**Estado al 2026-10-23:** 7 entregas terminadas (del 06 ago al 17 sep, 7 puntos).
+La del **28 de septiembre** no está marcada como terminada y ya pasó su fecha; la
+próxima fecha es el **05 de noviembre** (2 puntos), que no hay que dejar que se
+corra.
 
 ---
 
@@ -43,23 +50,20 @@ Se responden en `docs/PROYECTO FERIA DE CIENCIAS.docx`.
 | # | Ítem | Estado |
 |---|---|---|
 | 1 | Idea del juego | ✅ Definida (endless-runner de moto en 3D). |
-| 1 | Boceto del juego | ❌ **No hecho.** No hay ningún boceto/dibujo en el repo ni en el documento. |
+| 1 | Boceto del juego | ✅ Hecho (confirmado en el cronograma oficial; issue #9 cerrado). |
 | 1 | Condiciones de victoria / derrota / finalización | ✅ Definida: "el juego finaliza cuando el jugador se choca contra un objeto". No hay victoria (es endless), la finalización es el choque. |
 | 2 | Loop general | ✅ Definido en el punto 1.2 del documento. |
 | 3 | Upgrade (qué mejora/castiga al finalizar) | ✅ Definido en 1.3: el juego se acelera y se pone más difícil con el tiempo. |
 | 4 | Mecánica principal | ✅ Definida en 1.4: controlar el wheelie y superar obstáculos consecutivos. |
 | 5 | Recursos físicos para la feria | ✅ Definido en 1.5: computadora, enchufe, cargador, 2 mesas, proyector, silla y teclado. |
 | 6 | ¿Multiplayer? | ✅ **Definido: no.** El juego es de **1 jugador** (confirmado por el alumno el 2026-08-27). |
-| 7 | ¿Competitivo? / Ranking | ✅ **Definido.** Sí es competitivo. El ranking es una **comparación de jugadores y sus puntajes**: se ordena de mayor a menor, el puntaje más alto figura primero y el más bajo último (confirmado el 2026-08-27). Falta decidir lo técnico (¿local o en línea?, ¿ingreso de nombre?, ¿cuántos puestos se muestran?). |
+| 7 | ¿Competitivo? / Ranking | ✅ **Definido.** Sí es competitivo. El ranking es una **comparación de jugadores y sus puntajes**: se ordena de mayor a menor, el puntaje más alto figura primero y el más bajo último (confirmado el 2026-08-27). Lo técnico quedó resuelto en la entrega del 10 sep: ranking local, nombre puesto una vez, Top 10. |
 
-**Veredicto: CASI COMPLETA.** Idea, condiciones, loop, upgrade, mecánica,
-recursos, multiplayer (1 jugador) y ranking (comparación de puntajes, de mayor a
-menor) están definidos. **Solo falta el boceto del juego.**
+**Veredicto: ✅ TERMINADA.** Todos los ítems de diseño están definidos, incluido el
+boceto.
 
-**Para cerrarla:** agregar el boceto al documento (una foto de un dibujo a mano
-alcanza). Conviene también volcar al documento (`docs/PROYECTO FERIA DE
-CIENCIAS.docx`, punto 1.6) el texto de multiplayer y ranking que hoy solo está
-acá.
+**Nota:** conviene que el texto de multiplayer (1 jugador) y de ranking también
+esté volcado en el punto 1.6 de `docs/PROYECTO FERIA DE CIENCIAS.docx`.
 
 ---
 
@@ -79,15 +83,12 @@ acá.
 |---|---|
 | Paneles (menú / juego / game over) | ✅ `MenuManager` los controla con `SetActive`. En la escena desde el 13 ago. |
 | Botones (Jugar, Salir, Continuar, Menú) | ✅ Cableados por `OnClick` a métodos de `MenuManager`. |
-| Textos (TMP) | ⚠️ Hay textos en título y botones. **El HUD de juego (`PanelJuego`) está vacío** (no hay velocidad, distancia ni puntaje). |
-| Slider (volumen) | ✅ `SliderVolumen` + `VolumenSlider.cs`. |
-| Fondos | ⚠️ Hay un `Background` en el menú. Sin fondo/arte durante el juego. |
+| Textos (TMP) | ✅ Título y botones desde el 13 ago; el HUD de juego (puntaje) se agregó con la mecánica principal del 3 sep. |
+| Slider (volumen) | ✅ En su momento `SliderVolumen` + `VolumenSlider.cs`; desde el 31 ago son 3 sliders en el menú de Opciones. |
+| Fondos | ✅ Fondo nocturno en el menú (2026-09-15); el resto de las pantallas se restilaron el 2026-09-30. |
 
-**Veredicto: ✅ CUMPLIDA.** El plan de trabajo cuenta por su fecha (13 ago) y la
+**Veredicto: ✅ TERMINADA.** El plan de trabajo cuenta por su fecha (13 ago) y la
 UI base (paneles, botones, slider, textos de menú) está programada y funcionando.
-
-**Pendiente para más adelante (no bloquea esta entrega):** el HUD de juego
-(`PanelJuego`) está vacío; se llena cuando exista el puntaje.
 
 ---
 
@@ -101,17 +102,16 @@ de victoria/derrota/finalización.
 | Iniciar (menú → Jugar) | ✅ `MenuManager.Jugar()` recarga la escena y arranca la partida. |
 | Terminar (chocar → Game Over) | ✅ `PlayerController.OnTriggerEnter` → `GameManager.GameOver()` → panel de Game Over. |
 | Continuar (botón Continuar) | ✅ `MenuManager.VolverAJugar()` recarga y arranca de nuevo. |
-| Obstáculo de derrota | ✅ Cubo rojo hardcodeado en `GameManager` (marcado como temporal). |
+| Obstáculo de derrota | ✅ En su momento un cubo rojo hardcodeado en `GameManager`; hoy son los autos del `TrafficManager`. |
 
 **Evidencia:** commits `b1a5b62`, `faa7963`, `12860ec` del **2026-08-18** (a
 tiempo).
 
-**Veredicto: ✅ CUMPLIDA y a tiempo.** Es el alcance de la "primera entrega"
-descripto en `docs/documento.docx`, y está funcionalmente completo.
+**Veredicto: ✅ TERMINADA y a tiempo.** Es el alcance de la "primera entrega"
+descripto en `docs/documento.docx`.
 
-**Salvedad:** el camino se ve con huecos (el prefab `Tramo` mide 3 de largo y se
-spawnea cada 30). No afecta esta entrega, pero sí cuenta para "ejecutable sin
-errores visuales" del 28 de septiembre.
+**Nota histórica:** el camino se veía con huecos (el prefab `Tramo` medía 3 de
+largo y se spawneaba cada 30); se arregló el 2026-08-31.
 
 ---
 
@@ -122,14 +122,14 @@ errores visuales" del 28 de septiembre.
 | Controlador de juego (`GameManager.cs`) | ✅ Lleva velocidad, aceleración y estado de fin de juego. Desde el 13 ago. |
 | Controlador de sonido (`AudioManager.cs`) | ✅ Singleton con `AudioSource` de música y de efectos. Enganchado a `GameOver()`. Desde el 26 ago. |
 | Controlador de camino (`RoadManager.cs`) | ✅ Pooling circular de tramos. |
-| Controlador de menú (`MenuManager.cs`) | ✅ Maneja los 3 paneles y el flujo de escena. |
+| Controlador de menú (`MenuManager.cs`) | ✅ Maneja los paneles y el flujo de escena. |
 | Controlador del jugador (`PlayerController.cs`) | ✅ Movimiento, wheelie y detección de choque. |
-| Slider de volumen (`VolumenSlider.cs`) | ✅ Lee/guarda `PlayerPrefs("Volumen")` y aplica `AudioListener.volume`. |
+| Slider de volumen | ✅ Lee/guarda `PlayerPrefs("Volumen")` y aplica `AudioListener.volume` (hoy dentro de `MenuOpciones` + `AudioManager`). |
 
 **Evidencia:** todo commiteado y pusheado a `main` el **2026-08-27** (commits
 `60bf03a` y `e493ba8`).
 
-**Veredicto: ✅ CUMPLIDA** (la fecha límite es hoy, inclusive).
+**Veredicto: ✅ TERMINADA.**
 
 **Nota:** al momento de esta entrega `AudioManager` solo tenía asignado el sonido
 de choque (`Crash.mp3`). Para "controlador programado" alcanzaba; el contenido de
@@ -149,20 +149,20 @@ lateral y es la única forma de sumar puntaje.
 
 | Parte | Estado |
 |---|---|
-| Movimiento lateral libre (A-D) entre 3 carriles | ✅ `PlayerController.MoverLateral()`, `Input.GetAxisRaw("Horizontal")`, clamp ±3. |
+| Movimiento lateral libre (A-D) entre 3 carriles | ✅ `PlayerController.MoverLateral()`, `Input.GetAxisRaw("Horizontal")`, clamp ±3 (hoy ±4). |
 | Avance automático + aceleración con el tiempo | ✅ `PlayerController.Avanzar()` + `GameManager` sube `velocidadActual`. |
 | Wheelie (Shift) con penalización de control | ✅ Mientras se sostiene, el jugador se mueve al 30% de costado (`factorLateralEnWheelie`). |
 | Generación de obstáculos progresiva | ✅ `TrafficManager`: autos de frente por los 3 carriles, filas de 1-2 autos (nunca las 3), se juntan a más velocidad. Pooling. |
 | Colisión / detección | ✅ `OnTriggerEnter` con tag `Obstaculo` → `GameOver()`. |
 
-**Veredicto: ✅ CUMPLIDA (probada en Unity el 2026-08-27).** La mecánica central
+**Veredicto: ✅ TERMINADA (probada en Unity el 2026-08-27).** La mecánica central
 —esquivar autos por carriles + wheelie de riesgo-recompensa— está programada y
 funcionando.
 
-**Nota:** al momento de la entrega los autos eran cubos creados por código y el
-HUD texto TMP armado por código (sin arte). Desde el 2026-09-09 los autos y la
-moto ya son modelos 3D con rig; el HUD sigue en greybox. El arte real es trabajo
-de las entregas de estética (28 de septiembre).
+**Nota histórica:** al momento de la entrega los autos eran cubos creados por
+código y el HUD texto TMP armado por código (sin arte). Desde el 2026-09-09 los
+autos y la moto son modelos 3D con rig, y desde el 2026-09-30 el HUD tiene el arte
+de "Ruta de noche".
 
 ---
 
@@ -170,28 +170,29 @@ de las entregas de estética (28 de septiembre).
 
 ### a) Sonido implementado y programado
 
-- ✅ **Hecho.** `AudioManager` está programado y tiene los **3 clips asignados**
-  en la escena: `Breakneck_Boulevard.mp3` (`musicaFondo`, música del menú),
+- ✅ `AudioManager` está programado y tiene los **3 clips asignados** en la
+  escena: `Breakneck_Boulevard.mp3` (`musicaFondo`, música del menú),
   `Crash.mp3` (`sonidoChoque`) y `mouse-click-sound.mp3` (`sonidoClick`).
 - ✅ Los 3 volúmenes (general / música / efectos) se ajustan desde Opciones y se
   guardan en `PlayerPrefs`.
-- 🟡 Faltan sonidos ambientales de la mecánica (motor de la moto, autos
-  pasando). No bloquean esta entrega: la música es solo del menú por decisión de
-  diseño, y el choque y el click ya cubren los efectos. Queda como pulido.
+- Los sonidos ambientales de la partida (motor de la moto, autos pasando) no
+  son parte de esta entrega: la música es solo del menú por decisión de
+  diseño. Quedan como pulido del 28 sep
+  ([#12](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/12)).
 
 ### b) Datos persistentes (ScriptableObject o base de datos)
 
-- ✅ **Hecho (probado el 2026-08-27).** `RankingData` es un `ScriptableObject`
-  que guarda el ranking en `ranking.json` (`Application.persistentDataPath`).
-- El jugador pone su nombre una vez en el menú (`PlayerPrefs("NombreJugador")`);
+- ✅ `RankingData` es un `ScriptableObject` que guarda el ranking en
+  `ranking.json` (`Application.persistentDataPath`). Probado el 2026-08-27.
+- El jugador pone su nombre una vez (hoy en Opciones, `PlayerPrefs("NombreJugador")`);
   al chocar, su puntaje entra al ranking (`RankingData.Agregar`).
 - El menú muestra el **Top 10** ordenado de mayor a menor, una línea "Estás en el
-  puesto N" si quedás afuera, y un botón "Reiniciar tabla".
+  puesto N" si quedás afuera, y el botón "Reiniciar tabla" (hoy en Opciones).
 - Una fila por jugador: si repetís nombre, se queda tu mejor puntaje.
 - Se probó cerrando y reabriendo Unity: el ranking persiste.
 
-**Veredicto: ✅ CUMPLIDA.** Las dos partes están: datos persistentes (ranking en
-JSON, probado el 2026-08-27) y sonido (los 3 clips asignados y sonando, 2026-09-09).
+**Veredicto: ✅ TERMINADA.** Las dos partes están: datos persistentes (ranking en
+JSON) y sonido (los 3 clips asignados y sonando, 2026-09-09).
 
 ---
 
@@ -199,47 +200,74 @@ JSON, probado el 2026-08-27) y sonido (los 3 clips asignados y sonando, 2026-09-
 
 | Ítem | Estado |
 |---|---|
-| Efectos: partículas | ❌ No hay ningún `ParticleSystem` en la escena ni en prefabs. |
-| Efectos: interacción con hardware externo | 🟡 **Programado el 2026-09-09, falta probarlo con la cámara real.** El juego se controla con la **webcam**: `vision/deteccion.py` (MediaPipe) detecta los gestos del jugador y se los manda a Unity por UDP (`EntradaCamara.cs`). Reemplaza al manubrio de Arduino, que salía caro. |
-| Efectos de cámara (Cinemachine, etc.) | 🟡 A medias. No hay Cinemachine, pero desde el 2026-09-09 la cámara es de **primera persona** por código (`CamaraJugador.cs` en la `Main Camera`): sigue pegada al `PuntoCamara` de la moto, se tumba (roll) al esquivar y sube la vista al cielo mientras se sostiene el wheelie. Falta shake de choque / post-proceso reactivo. |
-| Iluminación implementada | ✅ Desde el 2026-09-30: atardecer (sol bajo y cálido a la vista, skybox procedural, luz ambiente Trilight) y niebla del color del horizonte. Faltan luces de *efecto* (choque, wheelie). |
+| Efectos: partículas | ✅ Terminada según el cronograma oficial. Las partículas de choque, wheelie y velocidad se siguen puliendo en [#10](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/10). |
+| Efectos: interacción con hardware externo | ✅ El juego se controla con la **webcam**: `vision/deteccion.py` (MediaPipe) detecta los gestos del jugador y se los manda a Unity por UDP (`EntradaCamara.cs`). Programado el 2026-09-09; reemplaza al manubrio de Arduino, que salía caro. |
+| Efectos de cámara | ✅ Cámara de **primera persona** por código (`CamaraJugador.cs`): sigue pegada al `PuntoCamara` de la moto, se tumba (roll) al esquivar y sube la vista al cielo mientras se sostiene el wheelie. Más efectos y luces de efecto: [#11](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/11). |
+| Iluminación implementada | ✅ Desde el 2026-09-30: atardecer (sol bajo y cálido a la vista, skybox procedural, luz ambiente Trilight) y niebla del color del horizonte. |
 
-**Veredicto: ❌ PENDIENTE.**
+**Veredicto: ✅ TERMINADA.**
 
 ---
 
 ## 28 de septiembre (inclusive) — 1 punto — Versión final + build
 
-| Ítem | Estado |
-|---|---|
-| Versión final sin errores, UI linda y coherente con el arte | 🟡 En camino: la moto y los autos son modelos 3D con rig (glTFast), la cámara es 1ª persona y el **menú principal ya está con arte** (dirección "Ruta de noche": fondo nocturno, sol retro, grilla de neón, Chakra Petch). Desde el 2026-09-30 también el HUD, Opciones, la pausa y el Game Over, y el entorno de la partida (atardecer con niebla, calle de asfalto, ciudad y campo alternados con modelos low-poly de Kenney). El camino ya no tiene huecos. |
-| Audio y efectos funcionando | ❌ Depende de las entregas del 10 y 17 de septiembre. |
-| Proyecto buildeado y ejecutable sin errores | ❌ No hay ningún build. |
-| Carpeta en Drive compartida + link en el `README.md` | ❌ El `README.md` no tiene ningún link a Drive. |
+Pedido: "Versión final funcionando sin errores, UI estéticamente linda y coherente
+con el arte, audio y efectos funcionando" + "Proyecto buildeado ejecutable sin
+errores (crear carpeta en Drive, compartir y colocar el link en el Readme del
+repositorio)".
 
-**Veredicto: ❌ PENDIENTE.**
+**Estado oficial: NO marcada como terminada. La fecha ya venció (hoy es
+2026-10-23).**
+
+Lo que ya hay: moto y autos como modelos 3D con rig (glTFast), cámara en 1ª
+persona, toda la UI con el arte "Ruta de noche" (2026-09-15 y 2026-09-30) y el
+entorno de la partida (atardecer, ciudad y campo con modelos de Kenney,
+2026-09-30). El camino ya no tiene huecos.
+
+Lo que falta se sigue en el milestone "Entrega 28 sep — Versión final":
+
+| Tema | Issues |
+|---|---|
+| Efectos y sonido de la partida | [#10](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/10) partículas, [#11](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/11) efectos de cámara y luces, [#12](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/12) sonidos de la partida |
+| Build y entrega | [#13](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/13) build de Windows ejecutable y probado, [#14](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/14) carpeta en Drive + link en el README |
+| Jugabilidad y pulido | [#18](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/18), [#19](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/19), [#20](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/20), [#21](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/21), [#22](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/22), [#23](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/23) |
+| Documentación | [#24](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/24) este documento |
+
+**Veredicto: ❌ NO TERMINADA (vencida).**
 
 ---
 
 ## 05 de noviembre (inclusive) — 2 puntos
 
+Es la **próxima fecha**. Se sigue en el milestone "Entrega 05 nov — Publicación".
+
 | Ítem | Puntos | Estado |
 |---|---|---|
-| Publicación en itch.io | 0.5 | ❌ Pendiente. |
-| Video de promoción en YouTube | 0.5 | ❌ Pendiente. |
-| Decoración del ambiente (folletería, decoración relacionada al juego) | 1 | ❌ Pendiente. |
+| Publicación en itch.io | 0.5 | ⏳ Pendiente — [#15](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/15). Necesita el build ([#13](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/13)). |
+| Video de promoción en YouTube | 0.5 | ⏳ Pendiente — [#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16). |
+| Decoración del ambiente (folletería, decoración relacionada al juego) | 1 | ⏳ Pendiente — [#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17). |
 
-**Veredicto: ❌ PENDIENTE.**
+**Veredicto: ⏳ PENDIENTE.**
 
 ---
 
 ## Qué hacer ahora (prioridad)
 
-1. **Cerrar la entrega del 6 de agosto:** agregar el **boceto del juego** al
-   documento (falta solo eso). Volcar también al punto 1.6 del documento el texto
-   de "1 jugador" y del ranking (comparación de puntajes de mayor a menor).
-2. **17 de septiembre** — partículas, efectos de cámara e iluminación. Acá entra
-   también el control por **cámara web** (detección de pose con Python +
-   MediaPipe), que cubre el ítem "interacción con hardware externo" que hoy
-   figura como no aplicable.
-3. **28 de septiembre** — build ejecutable, carpeta de Drive y link en el README.
+1. **Build de Windows ejecutable y probado
+   ([#13](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/13)).** Va primero
+   porque lo necesitan la carpeta de Drive
+   ([#14](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/14)) y la
+   publicación en itch.io ([#15](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/15)).
+   Después, la carpeta en Drive y el link en el `README.md`.
+2. **Efectos, sonido y pulido de la entrega del 28 sep:** partículas
+   ([#10](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/10)), efectos de
+   cámara y luces ([#11](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/11)),
+   sonidos de la partida
+   ([#12](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/12)) y los ajustes
+   de jugabilidad y UI ([#18](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/18)
+   a [#23](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/23)). Lo que cambie
+   el juego conviene hacerlo **antes** del build final.
+3. **Entrega del 05 nov:** itch.io ([#15](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/15)),
+   video de YouTube ([#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16))
+   y decoración del stand ([#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17)).
+   Recordá que lo entregado fuera de tiempo vale cero.

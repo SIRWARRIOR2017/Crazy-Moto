@@ -885,13 +885,17 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
 
 ## Pendiente de fecha (checklist de la feria)
 
-Detalle completo y actualizado en `docs/ENTREGAS.md`. Resumen de lo que falta y
-es decisión del alumno (no de código):
+Estado **oficial** confirmado por el alumno el 2026-10-23, según el cronograma de
+la materia: **todas las entregas hasta el 17 de septiembre están terminadas**
+(incluido el boceto del 6 de agosto y los efectos/partículas, hardware externo,
+efectos de cámara e iluminación del 17 de septiembre). Quedan dos:
 
-- El **boceto del juego** sigue sin hacerse (entrega del 6 de agosto). Multiplayer
-  (1 jugador) y ranking (comparación de puntajes de mayor a menor) ya están
-  definidos, pero conviene volcarlos al punto 1.6 de
-  `docs/PROYECTO FERIA DE CIENCIAS.docx`, que hoy los tiene vacíos.
-- La entrega del **10 de septiembre** quedó cumplida: datos persistentes +
-  sonido (los 3 clips de `AudioManager` asignados el 2026-09-09). Lo que sigue es
-  la del **17 de septiembre**: partículas, efectos e iluminación.
+- **28 de septiembre** (1 punto) — NO marcada como terminada: versión final sin
+  errores + build ejecutable con carpeta en Drive y link en el README. Ya venció;
+  ojo que **los trabajos entregados fuera de tiempo valen CERO**.
+- **05 de noviembre** (2 puntos) — itch.io, video de YouTube y decoración del
+  ambiente (folletería). Es la próxima fecha.
+
+El detalle de cada entrega está en `docs/ENTREGAS.md`. Los pendientes se siguen
+como **issues de GitHub** (repo `SIRWARRIOR2017/Crazy-Moto`), agrupados en los
+milestones "Entrega 28 sep — Versión final" y "Entrega 05 nov — Publicación".
