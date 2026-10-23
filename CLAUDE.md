@@ -172,11 +172,13 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   libre el centro; su cantidad sube con
   `InverseLerp(velocidadInicial, velocidadMaxima, velocidadActual)`. El humo y el
   viento se apagan en menú, pausa y Game Over (`timeScale == 0` / `juegoTerminado`).
-  Material: `Assets/Resources/Efectos/Particula.mat` (URP Particles/Unlit, aditivo,
-  círculo suave) para chispas y viento; opcional `ParticulaAlpha.mat` (mismo pero
-  mezcla Alpha) para el humo y los pedazos oscuros, que con aditivo casi no se ven.
-  Si falta alguno, arma uno por código y avisa por consola. Tamaños, cantidades y
-  colores son campos públicos del Inspector.
+  Materiales en `Assets/Resources/Efectos/` (creados el 2026-10-23, URP
+  Particles/Unlit con la textura `CirculoSuave.png`): `Particula.mat` (aditivo)
+  para chispas y viento, y `ParticulaAlpha.mat` (mezcla Alpha) para el humo y los
+  pedazos oscuros, que con aditivo casi no se ven. Si faltan, arma uno por código
+  y avisa por consola; **no conviene depender de eso**: el de reserva usa
+  `Shader.Find`, y en el build el shader puede no estar incluido. Tamaños,
+  cantidades y colores son campos públicos del Inspector.
 - **`RankingData.cs`** — Datos persistentes (entrega del 10 de septiembre). Es un
   `ScriptableObject` pero **no hay un `.asset`**: se usa vía `RankingData.Instance`
   (un `static` con `CreateInstance`, sobrevive a la recarga de escena). La lista
