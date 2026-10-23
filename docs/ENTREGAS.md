@@ -33,7 +33,7 @@ Calendario de entregas de la feria de ciencias, con el estado de cada una.
 | 03 sep | 1 | ✅ Terminada | Mecánica principal: esquivar autos por 3 carriles + wheelie de riesgo-recompensa + puntaje en pantalla. |
 | 10 sep | 1 | ✅ Terminada | Datos persistentes (ranking con ScriptableObject + JSON) + sonido (música de menú, choque y click). |
 | 17 sep | 1 | ✅ Terminada | Efectos/partículas, hardware externo (control por **webcam**), efectos de cámara e iluminación. |
-| 28 sep | 1 | 🟡 Hecha, fuera de fecha | **Venció** antes de terminarla, y por la regla del profesor lo entregado fuera de tiempo vale cero: conviene confirmar con él qué pasa con esta. Ya está todo: build de Windows probado, [carpeta en Drive](https://drive.google.com/drive/folders/1uzdDwrgAJaFdZmjhe8o6fqzH9Q4M7_rZ?usp=drive_link) con el link en el README, efectos, sonido y pulido. Queda [#13](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/13): confirmar que el ranking persiste en el build. |
+| 28 sep | 1 | 🟡 Hecha, fuera de fecha | **Venció** antes de terminarla, y por la regla del profesor lo entregado fuera de tiempo vale cero: conviene confirmar con él qué pasa con esta. Ya está todo: build de Windows probado, [carpeta en Drive](https://drive.google.com/drive/folders/1uzdDwrgAJaFdZmjhe8o6fqzH9Q4M7_rZ?usp=drive_link) con el link en el README, efectos, sonido y pulido. El build se probó jugando, con la cámara y con el ranking que persiste al reabrir ([#13](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/13)). |
 | 05 nov | 2 | ⏳ Pendiente | **Es la próxima fecha.** itch.io (0,5) + video de YouTube (0,5) + decoración del ambiente (1). Issues: [#15](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/15), [#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16), [#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17). |
 
 **Estado al 2026-10-23:** 7 entregas terminadas (del 06 ago al 17 sep, 7 puntos).
@@ -226,7 +226,7 @@ Lo que se hizo (cerrado el 2026-10-23, después de la fecha):
 | Juego completo | ✅ Moto y autos 3D con rig, cámara en 1ª persona, UI "Ruta de noche", entorno de ciudad y campo. |
 | Efectos y sonido de la partida | ✅ Partículas [#10](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/10), efectos de cámara y post-proceso [#11](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/11), motor y autos pasando [#12](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/12). |
 | Jugabilidad y pulido | ✅ [#18](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/18) a [#23](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/23), y el control por cámara rehecho como "manubrio en el aire" [#35](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/35). |
-| Build ejecutable | ✅ Build de Windows sin errores. Falta sólo confirmar que el ranking persiste: [#13](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/13). |
+| Build ejecutable | ✅ Build de Windows sin errores, probado por el alumno: el control por cámara anda y el ranking persiste al cerrar y reabrir el juego ([#13](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/13)). |
 | Carpeta en Drive + link en el README | ✅ [Carpeta del juego](https://drive.google.com/drive/folders/1uzdDwrgAJaFdZmjhe8o6fqzH9Q4M7_rZ?usp=drive_link), enlazada al principio del `README.md` ([#14](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/14)). |
 
 **Veredicto: 🟡 HECHA, PERO FUERA DE FECHA.**
@@ -249,9 +249,8 @@ Es la **próxima fecha**. Se sigue en el milestone "Entrega 05 nov — Publicaci
 
 ## Qué hacer ahora (prioridad)
 
-1. **Cerrar la entrega del 28 sep:** confirmar en el build que el ranking
-   persiste al cerrar y volver a abrir el juego ([#13](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/13)), y hablar con el
-   profesor por la fecha vencida.
+1. **Entrega del 28 sep:** está todo hecho. Falta hablar con el profesor por la
+   fecha vencida.
 2. **Entrega del 05 nov:** itch.io ([#15](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/15)),
    video de YouTube ([#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16))
    y decoración del stand ([#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17)).

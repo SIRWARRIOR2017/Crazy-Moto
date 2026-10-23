@@ -967,9 +967,13 @@ la materia: **todas las entregas hasta el 17 de septiembre están terminadas**
 (incluido el boceto del 6 de agosto y los efectos/partículas, hardware externo,
 efectos de cámara e iluminación del 17 de septiembre). Quedan dos:
 
-- **28 de septiembre** (1 punto) — NO marcada como terminada: versión final sin
-  errores + build ejecutable con carpeta en Drive y link en el README. Ya venció;
-  ojo que **los trabajos entregados fuera de tiempo valen CERO**.
+- **28 de septiembre** (1 punto) — **hecha el 2026-10-23, fuera de fecha**: versión
+  final sin errores + build ejecutable probado (cámara y ranking persistente, #13)
+  + carpeta en Drive con el link al principio del `README.md` (#14). Falta que el
+  alumno hable con el profesor, porque **los trabajos entregados fuera de tiempo
+  valen CERO**. La carpeta para Drive se arma copiando `Build/Windows/` sin
+  `Crazy Moto_BurstDebugInformation_DoNotShip` y con un `LEEME.txt`, en
+  `Build/Joaquin Pastorino y Santiago Castiñeira - Crazy Moto/` (gitignorada).
 - **05 de noviembre** (2 puntos) — itch.io, video de YouTube y decoración del
   ambiente (folletería). Es la próxima fecha.
 
