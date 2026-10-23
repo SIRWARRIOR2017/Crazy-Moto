@@ -99,3 +99,8 @@ crashlytics-build.properties
 # repo tiene que poder correrlo sin bajar nada aparte.
 __pycache__/
 *.pyc
+
+# Video de YouTube: los .mp4 renderizados y el material crudo (voz, fotos, clips)
+/video/render/
+/video/material/
+__pycache__/
