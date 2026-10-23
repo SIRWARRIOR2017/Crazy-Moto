@@ -14,10 +14,13 @@
 
 ## ⬇️ Descargar y jugar
 
-**[📁 Carpeta del juego en Google Drive](https://drive.google.com/drive/folders/1uzdDwrgAJaFdZmjhe8o6fqzH9Q4M7_rZ?usp=drive_link)** — build de Windows listo para jugar.
+**[🎮 Crazy Moto en itch.io](https://s1rwa.itch.io/crazy-moto)** — página del juego, se baja gratis.
 
-1. Bajá la **carpeta entera** (en Drive: clic derecho → *Descargar*, baja un `.zip`).
-   No alcanza con el `.exe`: necesita los archivos que tiene al lado.
+**[📁 Carpeta del juego en Google Drive](https://drive.google.com/drive/folders/1uzdDwrgAJaFdZmjhe8o6fqzH9Q4M7_rZ?usp=drive_link)** — el mismo build de Windows, listo para jugar.
+
+1. Bajá el `.zip` de itch.io, o la **carpeta entera** de Drive (clic derecho →
+   *Descargar*, también baja un `.zip`). No alcanza con el `.exe`: necesita los
+   archivos que tiene al lado.
 2. Descomprimí el `.zip` y abrí **`Crazy Moto.exe`**.
 3. Si Windows muestra *"Windows protegió su PC"*, tocá **Más información → Ejecutar
    de todas formas** (pasa con cualquier juego que no está firmado).
