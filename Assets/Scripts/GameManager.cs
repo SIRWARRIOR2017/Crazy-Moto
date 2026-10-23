@@ -9,8 +9,9 @@ public class GameManager : MonoBehaviour
     public float aceleracion = 0.5f;   // m/s por segundo: llega a la máxima en ~100 s
     public float velocidadMaxima = 60f;
 
-    [Header("Puntaje")]
-    public float puntosPorSegundoEnWheelie = 100f;   // solo se suma mientras se sostiene el wheelie
+    [Header("Puntaje (solo se suma mientras se sostiene el wheelie)")]
+    public float puntosPorSegundoEnWheelie = 100f;         // a la velocidad inicial
+    public float puntosPorSegundoEnWheelieMaximo = 300f;   // a la velocidad máxima
 
     public float velocidadActual { get; private set; }
     public bool juegoTerminado { get; private set; }
@@ -58,12 +59,19 @@ public class GameManager : MonoBehaviour
         velocidadActual += aceleracion * Time.deltaTime;
         velocidadActual = Mathf.Min(velocidadActual, velocidadMaxima);
 
-        // Solo se suma puntaje mientras el jugador sostiene el wheelie.
+        // Solo se suma puntaje mientras el jugador sostiene el wheelie, y paga más
+        // cuanto más rápido vas: arriesgarse cuando es difícil vale la pena.
         if (jugador != null && jugador.haciendoWheelie)
         {
-            puntajeExacto += puntosPorSegundoEnWheelie * Time.deltaTime;
+            puntajeExacto += PuntosPorSegundo() * Time.deltaTime;
             puntaje = Mathf.FloorToInt(puntajeExacto);
         }
+    }
+
+    public float PuntosPorSegundo()
+    {
+        float t = Mathf.InverseLerp(velocidadInicial, velocidadMaxima, velocidadActual);
+        return Mathf.Lerp(puntosPorSegundoEnWheelie, puntosPorSegundoEnWheelieMaximo, t);
     }
 
     public void GameOver()
