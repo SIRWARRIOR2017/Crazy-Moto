@@ -49,7 +49,7 @@ public class MenuRanking : MonoBehaviour
 
         Image fondo = panel.GetComponent<Image>();
         fondo.sprite = null;
-        fondo.color = EstiloUI.FondoPanel;
+        fondo.color = EstiloUI.FondoTarjeta;
         fondo.raycastTarget = false;
 
         // Borde de neón: un marco hueco estirado sobre el panel.
