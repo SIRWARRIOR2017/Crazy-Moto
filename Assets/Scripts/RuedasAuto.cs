@@ -9,7 +9,8 @@ using UnityEngine;
 //   - a veces hay un transform "Wheel" adentro de otro "Wheel": se toma solo el
 //     de más afuera (si no, la rueda gira dos veces).
 //   - el pivote NO está en el centro de la rueda: se gira con RotateAround sobre
-//     el centro visual (bounds de sus mallas).
+//     el centroide de sus vértices, que cae sobre el eje (el centro de la
+//     bounding box no: se corre por el disco de freno y la rueda tiembla).
 //   - NO se usa `Rotate` incremental: acumula error y la rueda se va en espiral.
 //     Se guarda la pose inicial, se acumula un ángulo escalar mod 360, y cada
 //     frame se resetea y se aplica el total.

@@ -52,8 +52,8 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   `Update()` avanza el transform en Z según `GameManager.Instance.velocidadActual`,
   mueve lateralmente con `Input.GetAxisRaw("Horizontal")` (A-D) clampeado a
   `limiteLateral` (en la escena está en ±4; los 3 carriles son −3 / 0 / +3 pero
-  el movimiento es libre entre ellos y un poco más allá), e inclina dos transforms (`cuerpo` y `pivotCamara`) al mantener
-  **Shift** = wheelie. `cuerpo` (GameObject "Cuerpo") tiene como hijo
+  el movimiento es libre entre ellos y un poco más allá), e inclina `cuerpo` al
+  mantener **Shift** = wheelie. `cuerpo` (GameObject "Cuerpo") tiene como hijo
   `MotoModelo` — el wrapper con el modelo 3D de la moto (`DirtBike.glb`), que se
   inclina con el wheelie; antes ahí había un cubo llamado `Modelo` que se borró.
   `MotoModelo` también lleva el componente `MotoAnimada` (ruedas + manubrio).
@@ -66,12 +66,10 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   necesite (ej. `MotoAnimada` para el manubrio) sin dispersar `Input.*`. Detecta
   derrota con `OnTriggerEnter` chequeando `tag == "Obstaculo"` (el `BoxCollider`
   trigger del `Jugador` mide **1 × 1 × 2,1**, el largo real de la moto: con 1 de
-  largo, a FPS bajos un auto podía atravesarla sin que se detecte el choque). La cámara **ya no
-  es hija de `pivotCamara`**: desde el 2026-09-09 es primera persona y la maneja
-  `CamaraJugador.cs` (ver abajo). `pivotCamara` quedó sin hijos y sin uso real
-  (el código que lo inclina en `AnimarWheelie` sigue ahí pero no hace nada
-  visible); `PlayerController` todavía lo pide en el Inspector para no tirar el
-  error de referencia nula.
+  largo, a FPS bajos un auto podía atravesarla sin que se detecte el choque). La
+  cámara es primera persona y la maneja `CamaraJugador.cs` (ver abajo). El viejo
+  `PivotCamara` (del que colgaba la cámara antes del 2026-09-09) se borró de la
+  escena junto con los campos `pivotCamara` / `anguloWheelieCamara` (#23).
 - **`EntradaCamara.cs`** — Recibe el control por **cámara web** que manda
   `vision/deteccion.py` por UDP a `127.0.0.1:5005`. El paquete es una línea de
   texto `lateral;wheelie;detectado` (ej. `-0.350;0;1`). Lee el socket en un
@@ -315,7 +313,7 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
 
 Comunicación entre scripts: casi todo pasa por `GameManager.Instance` (acceso
 directo al singleton) o por referencias asignadas a mano en el Inspector
-(`RoadManager.jugador`, `PlayerController.cuerpo/pivotCamara`,
+(`RoadManager.jugador`, `PlayerController.cuerpo`, `CamaraJugador.objetivo`,
 `MenuManager.panelMenu/panelJuego/panelGameOver`). No hay eventos ni interfaces.
 
 ## Convenciones existentes (no inventadas, observadas en el código)
@@ -646,7 +644,7 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   Decisiones probadas por MCP con capturas: vista con el manubrio abajo y la
   calle despejada; al hacer wheelie la vista sube 18° al cielo (queda una franja
   de horizonte, no ciego del todo); se tumba ~6° hacia donde te movés; FOV 72.
-  `PivotCamara` quedó sin uso pero se dejó (ver `PlayerController`). Falta que el
+  `PivotCamara` quedó sin uso (se borró el 2026-10-23, #23). Falta que el
   alumno lo pruebe jugando con teclado (sensación del suavizado y el roll).
 - **2026-09-09** — Ruedas girando + manubrio (pedido del alumno). Los modelos
   nuevos traen las ruedas como transforms separados, pero **con el pivote fuera

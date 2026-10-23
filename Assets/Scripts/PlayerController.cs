@@ -7,10 +7,8 @@ public class PlayerController : MonoBehaviour
     public float limiteLateral = 3f;          // 3 carriles: -3 (izq), 0 (medio), +3 (der)
 
     [Header("Wheelie")]
-    public Transform cuerpo;                   // la moto (se inclina fuerte)
-    public Transform pivotCamara;              // la cámara (se inclina poco)
+    public Transform cuerpo;                   // la moto (se inclina con el wheelie)
     public float anguloWheelieMoto = 30f;
-    public float anguloWheelieCamara = 10f;    // mucho menos que la moto
     public float velocidadInclinacion = 120f;
 
     [Range(0f, 1f)]
@@ -23,12 +21,11 @@ public class PlayerController : MonoBehaviour
     public float EntradaLateral { get; private set; }
 
     private float anguloMoto = 0f;
-    private float anguloCamara = 0f;
 
     void Start()
     {
-        if (cuerpo == null || pivotCamara == null)
-            Debug.LogError("PlayerController: falta asignar 'cuerpo' o 'pivotCamara' en el Inspector.");
+        if (cuerpo == null)
+            Debug.LogError("PlayerController: falta asignar 'cuerpo' en el Inspector.");
     }
 
     void Update()
@@ -61,17 +58,15 @@ public class PlayerController : MonoBehaviour
         transform.position = new Vector3(nuevaX, transform.position.y, transform.position.z);
     }
 
+    // Inclina la moto. La vista del wheelie (mirar al cielo) la maneja
+    // CamaraJugador, que lee haciendoWheelie.
     void AnimarWheelie()
     {
-        // La moto se inclina fuerte
+        if (cuerpo == null) return;
+
         float objetivoMoto = haciendoWheelie ? anguloWheelieMoto : 0f;
         anguloMoto = Mathf.MoveTowards(anguloMoto, objetivoMoto, velocidadInclinacion * Time.deltaTime);
         cuerpo.localRotation = Quaternion.Euler(-anguloMoto, 0f, 0f);
-
-        // La cámara se inclina poco (así no perdés la calle)
-        float objetivoCam = haciendoWheelie ? anguloWheelieCamara : 0f;
-        anguloCamara = Mathf.MoveTowards(anguloCamara, objetivoCam, velocidadInclinacion * Time.deltaTime);
-        pivotCamara.localRotation = Quaternion.Euler(-anguloCamara, 0f, 0f);
     }
 
     // ---- Entrada del jugador ----
