@@ -10,11 +10,11 @@ Video de promoción para YouTube (entrega del 5 de noviembre). Dura alrededor de
   ajusta a lo que dura tu voz.
 - Con el celular alcanza: la app **Grabadora de voz** o un **audio de WhatsApp**
   mandado a vos mismo (después lo bajás desde WhatsApp Web y lo guardás como
-  `voz-1.ogg`, `voz-2.ogg`… en `video/material/voz/`). Grabá en un lugar chico y con cosas blandas (una pieza
-  con cama y cortinas), no en un baño ni en una sala vacía: el eco se nota mucho.
+  `voz-1.ogg`, `voz-2.ogg`… en `video/material/voz/`).
+- Grabá en un lugar chico y con cosas blandas (una pieza con cama y cortinas), no
+  en un baño ni en una sala vacía: el eco se nota mucho.
 - El celular a un palmo de la boca, un poco de costado para que no "sople" en las P.
-- Hablá un poco más lento de lo normal y con ganas, como si se lo contaras a
-  alguien en la feria. Si te trabás, repetí la frase entera: después se corta.
+- Hablá claro y con ganas, como si se lo contaras a alguien en la feria. Si te trabás, repetí la frase entera: después se corta.
 - El texto es una guía: si alguna frase no te sale natural, decila con tus
   palabras.
 - Cada tramo dice cuánto tiene que durar. Está calculado a ritmo de narración
