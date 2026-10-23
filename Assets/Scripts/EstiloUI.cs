@@ -32,6 +32,9 @@ public static class EstiloUI
     public static readonly Color FondoOpaco = Hex("#08061A");
     public static readonly Color VeloOscuro = new Color(8f / 255f, 6f / 255f, 26f / 255f, 0.86f);
     public static readonly Color FondoPanel = new Color(9f / 255f, 11f / 255f, 36f / 255f, 0.76f);
+    // Para las tarjetas sobre el cielo nocturno: casi opaco, para que la línea del
+    // horizonte y la grilla no se vean a través del texto.
+    public static readonly Color FondoTarjeta = new Color(9f / 255f, 11f / 255f, 36f / 255f, 0.94f);
     public static readonly Color FondoBoton = new Color(10f / 255f, 12f / 255f, 38f / 255f, 0.62f);
 
     public static readonly Color BordePanel = new Color(55f / 255f, 224f / 255f, 255f / 255f, 0.34f);
@@ -223,7 +226,7 @@ public static class EstiloUI
 
         Image img = go.GetComponent<Image>();
         img.sprite = null;
-        img.color = FondoPanel;
+        img.color = FondoTarjeta;
         img.raycastTarget = false;
 
         AgregarMarco(rt, BordePanel);
