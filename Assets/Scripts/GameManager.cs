@@ -52,6 +52,9 @@ public class GameManager : MonoBehaviour
         if (FindAnyObjectByType<EfectosVisuales>() == null)
             new GameObject("EfectosVisuales").AddComponent<EfectosVisuales>();
 
+        if (FindAnyObjectByType<EfectosParticulas>() == null)
+            new GameObject("EfectosParticulas").AddComponent<EfectosParticulas>();
+
         // El receptor de la cámara web también se crea acá, pero se crea una sola
         // vez para todo el juego (sobrevive a la recarga de escena) porque es
         // dueño del puerto UDP. Ver EntradaCamara.
