@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Dificultad")]
     public float velocidadInicial = 10f;
-    public float aceleracion = 0.2f;
+    public float aceleracion = 0.5f;   // m/s por segundo: llega a la máxima en ~100 s
     public float velocidadMaxima = 60f;
 
     [Header("Puntaje")]

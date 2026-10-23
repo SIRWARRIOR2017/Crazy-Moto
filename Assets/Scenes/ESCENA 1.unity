@@ -3150,7 +3150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   velocidadInicial: 10
-  aceleracion: 0.2
+  aceleracion: 0.5
   velocidadMaxima: 60
   puntosPorSegundoEnWheelie: 100
 --- !u!4 &1611488139
