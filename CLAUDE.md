@@ -38,8 +38,10 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
 - **`GameManager.cs`** — Singleton (`GameManager.Instance`, sin `DontDestroyOnLoad`,
   se reinicia solo porque la escena entera se recarga). Lleva `velocidadActual`
   (acelera con el tiempo hasta `velocidadMaxima`), `juegoTerminado` y `puntaje`
-  (int). El puntaje **solo sube mientras el jugador sostiene el wheelie**
-  (`puntosPorSegundoEnWheelie`). En `Start()` crea por código, si no existen, un
+  (int). El puntaje **solo sube mientras el jugador sostiene el wheelie**, y
+  paga más cuanto más rápido vas: `PuntosPorSegundo()` va de
+  `puntosPorSegundoEnWheelie` (100, a la velocidad inicial) a
+  `puntosPorSegundoEnWheelieMaximo` (300, a la máxima) (#19). En `Start()` crea por código, si no existen, un
   `TrafficManager`, un `EntornoManager` y un `Hud` (misma idea que el resto: la escena se recarga
   entera, así que no hace falta que estén en la jerarquía a mano). `GameOver()`
   pone `Time.timeScale = 0`, dispara `AudioManager.ReproducirChoque()` y busca un
