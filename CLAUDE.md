@@ -138,6 +138,22 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   (b) **wheelie** — mientras `PlayerController.haciendoWheelie` la vista sube
   `gradosPitchWheelie` (18°) hacia el cielo. `pitchBase` (3°) = cuánto mira a la
   calle en reposo. Todo ajustable en el Inspector. La `Main Camera` tiene FOV 72.
+  (c) **shake al chocar** — cuando `GameManager.juegoTerminado` pasa a true (lo
+  detecta comparando entre frames, sin tocar `GameOver()`) hay un sacudón de
+  `duracionShake` (0,45 s) con ruido Perlin en posición y roll/pitch, que decae.
+  Usa `Time.unscaledDeltaTime` porque en el Game Over `timeScale` es 0. El script
+  guarda aparte la rotación suavizada (`rotSuave`) y el shake se suma encima, así
+  no se acumula en el `Slerp`.
+- **`EfectosVisuales.cs`** — Se crea en runtime desde `GameManager.Start()`. (a)
+  **Flash** de pantalla completa (blanco cálido, alfa 0,6 → 0 en 0,35 s, tiempo sin
+  escala) como hijo del Canvas, `raycastTarget = false`, que se dispara al detectar
+  `juegoTerminado`. (b) **Post-proceso**: crea por código un `Volume` global
+  (prioridad 10, mayor que el de la escena) con un `VolumeProfile` propio y
+  overrides de `Vignette` (sube con la velocidad y más en el wheelie),
+  `ChromaticAberration` (crece con la velocidad, pico al chocar) y `LensDistortion`
+  leve. Los valores se suavizan con tiempo sin escala (en menú/pausa quedan
+  quietos). Si la `Main Camera` no tiene `renderPostProcessing`, lo prende y avisa
+  por consola. Todo ajustable en el Inspector del objeto que se crea en runtime.
 - **`Hud.cs`** — Se crea en runtime desde `GameManager`. Arma por código, con el
   kit de `EstiloUI`: (a) el **marcador** arriba al centro, hijo de
   `MenuManager.panelJuego` (tarjeta oscura para que se lea contra el cielo de día;
@@ -410,9 +426,10 @@ la vista sube al cielo mientras se sostiene el wheelie. El camino ya no tiene
 huecos (el prefab `Tramo` se reescaló a `{10, 1, 30}`) y tiene líneas de carril
 discontinuas, pero sigue siendo un cubo gris sin textura ni arte.
 
-**No existe todavía:** partículas y luces de
-efecto (la iluminación general del atardecer sí está). (La cámara ya tiene efectos propios —roll, subida al cielo en el
-wheelie— pero no hay Cinemachine ni shake de choque.) **Decidido que NO habrá
+**No existe todavía:** partículas (la iluminación general del atardecer sí está,
+y el flash y el post-proceso según velocidad/wheelie están en `EfectosVisuales`).
+(La cámara ya tiene efectos propios —roll, subida al cielo en el wheelie, shake
+de choque— pero no hay Cinemachine.) **Decidido que NO habrá
 salto** (la mecánica vertical
 es el wheelie) y que la **música va solo en el menú**, no durante la partida
 (ver "Decisiones tomadas").
