@@ -16,6 +16,8 @@
 
 **[🎮 Crazy Moto en itch.io](https://s1rwa.itch.io/crazy-moto)** — página del juego, se baja gratis.
 
+**[▶️ Video en YouTube](https://youtu.be/SZbZtkWUglE)** — 1:40 con cómo se juega y cómo funciona el control por cámara.
+
 **[📁 Carpeta del juego en Google Drive](https://drive.google.com/drive/folders/1uzdDwrgAJaFdZmjhe8o6fqzH9Q4M7_rZ?usp=drive_link)** — el mismo build de Windows, listo para jugar.
 
 1. Bajá el `.zip` de itch.io, o la **carpeta entera** de Drive (clic derecho →
@@ -202,6 +204,7 @@ Crazy-Moto/
 │   ├── deteccion.py              ← el detector de gestos
 │   ├── modelo/                   ← modelo de MediaPipe (.task)
 │   └── README.md                 ← detalle técnico de cómo funciona
+├── video/                        ← el video de YouTube: guion, animaciones y montaje (Python)
 ├── docs/                         ← documentos de la feria, auditoría y entregas
 └── README.md                     ← este archivo
 ```
