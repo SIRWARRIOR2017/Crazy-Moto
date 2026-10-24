@@ -131,18 +131,29 @@ def main():
         previo = salida
 
     # Audio: cada tramo de voz arranca un poco despues de que empieza su parte.
+    # Antes se limpia: se recorta el silencio del principio (deja 0,15 s), se
+    # sacan los graves de manipular el celular, se comprime un poco y se lleva a
+    # -16 LUFS (lo que usa YouTube). El fundido final de 50 ms (con areverse)
+    # evita un "clic" si la grabacion se corto justo hablando.
     audio, n = [], len(archivos)
     voces = []
     for tramo in sorted(inicios):
         ruta = buscar(MATERIAL / "voz", f"voz-{tramo}")
         if ruta:
-            entradas += ["-i", ruta]
+            limpia = TEMP / f"voz-{tramo}.wav"
+            ffmpeg("-i", ruta, "-af",
+                   "aresample=48000,"
+                   "silenceremove=start_periods=1:start_silence=0.15:start_threshold=-50dB,"
+                   "highpass=f=80,acompressor=threshold=-20dB:ratio=3:attack=10:release=200,"
+                   "loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000,"
+                   "areverse,afade=t=in:d=0.05,areverse", limpia)
+            entradas += ["-i", limpia]
             ms = int((inicios[tramo] + 0.3) * 1000)
-            audio.append(f"[{n}:a]adelay={ms}|{ms},aresample=48000[voz{tramo}]")
+            audio.append(f"[{n}:a]adelay={ms}|{ms}[voz{tramo}]")
             voces.append(f"[voz{tramo}]")
             n += 1
     if voces:
-        audio.append(f"{''.join(voces)}amix=inputs={len(voces)}:normalize=0,apad[voz]")
+        audio.append(f"{''.join(voces)}amix=inputs={len(voces)}:normalize=0:duration=longest[voz]")
     musica = buscar(MATERIAL, "musica")
     if musica:
         entradas += ["-stream_loop", "-1", "-i", musica]

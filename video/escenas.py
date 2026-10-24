@@ -93,15 +93,15 @@ def zona_muerta(v, zm=0.12):
 def dibujar_silueta(lz, p, t, alfa, resaltar):
     """resaltar 0..1: cuanto se apagan los demas puntos y se encienden los 4."""
     for a, b in CONEXIONES:
-        va = aparece(t, 0.8 + a * 0.08, 0.35) * aparece(t, 0.8 + b * 0.08, 0.35)
+        va = aparece(t, INICIO_PUNTOS + a * 0.08, 0.35) * aparece(t, INICIO_PUNTOS + b * 0.08, 0.35)
         ali = alfa * va * mezcla(0.55, 0.18, resaltar)
         if a in HOMBROS + MUNECAS and b in HOMBROS + MUNECAS:
             ali = alfa * va * 0.55
         lz.linea(p[a], p[b], CYAN, 3, ali)
-    lz.circulo(((p[1][0] + p[4][0]) / 2, 240), 72, TINTA_APAGADA, alfa * 0.35 * aparece(t, 0.8, 0.6),
+    lz.circulo(((p[1][0] + p[4][0]) / 2, 240), 72, TINTA_APAGADA, alfa * 0.35 * aparece(t, INICIO_PUNTOS, 0.6),
                relleno=False, ancho=2)
     for i, q in p.items():
-        v = rebote(entre(t, 0.8 + i * 0.08, 1.15 + i * 0.08))
+        v = rebote(entre(t, INICIO_PUNTOS + i * 0.08, INICIO_PUNTOS + 0.35 + i * 0.08))
         if v <= 0:
             continue
         if i in HOMBROS + MUNECAS:
@@ -165,19 +165,22 @@ def flecha_datos(lz, a, b, t, alfa, arriba, abajo=""):
 # Tramo 4: el control por camara (27 s)
 # ---------------------------------------------------------------------------
 
+# Los tiempos siguen a la voz (voz-4): cada cosa aparece cuando se nombra.
+INICIO_PUNTOS = 2.9
+
 LEYENDAS = [
-    (1.0, 5.0, "MediaPipe detecta 33 puntos de tu cuerpo"),
-    (5.0, 8.6, "Usamos solo 4: los hombros y las muñecas"),
-    (8.6, 16.2, "Girás el manubrio imaginario → la moto dobla"),
-    (16.2, 21.2, "Las dos manos arriba de los hombros → WHEELIE"),
-    (21.6, 27.0, "Y todo le llega al juego en tiempo real"),
+    (2.9, 9.0, "MediaPipe detecta 33 puntos de tu cuerpo"),
+    (9.0, 13.0, "Usamos solo 4: los hombros y las muñecas"),
+    (13.0, 17.2, "Girás el manubrio imaginario → la moto dobla"),
+    (17.2, 21.0, "Las dos manos arriba de los hombros → WHEELIE"),
+    (21.2, 27.0, "Y todo le llega al juego en tiempo real"),
 ]
 
 
 def escena_camara(t):
     lz = Lienzo()
     # La silueta arranca centrada y se corre a la izquierda cuando entra el panel.
-    cx = mezcla(960, 640, suave(entre(t, 8.6, 9.4)))
+    cx = mezcla(960, 640, suave(entre(t, 12.4, 13.2)))
 
     # Titulo
     a = aparece(t, 0.0, 0.6)
@@ -187,30 +190,30 @@ def escena_camara(t):
         lz.texto((960, 142), texto, 30, TINTA_CLARA, al, nombre=MEDIA)
 
     # Movimiento de las manos
-    rampa = suave(entre(t, 9.4, 10.0)) * (1 - suave(entre(t, 15.4, 16.0)))
-    giro = 28 * math.sin(2 * math.pi * (t - 9.4) / 3.2) * rampa
-    subida = suave(entre(t, 16.6, 17.6)) * (1 - suave(entre(t, 19.9, 20.8)))
+    rampa = suave(entre(t, 13.6, 14.2)) * (1 - suave(entre(t, 16.6, 17.2)))
+    giro = 28 * math.sin(2 * math.pi * (t - 13.6) / 3.2) * rampa
+    subida = suave(entre(t, 17.6, 18.6)) * (1 - suave(entre(t, 20.2, 21.0)))
     altura = mezcla(195, -110, subida)
     p = pose(cx, giro, altura)
     lateral = zona_muerta(giro / 30)
     wheelie = max(p[15][1], p[16][1]) < p[11][1]
 
-    sale = 1 - suave(entre(t, 21.2, 22.0))        # la silueta se va antes del diagrama
-    resaltar = suave(entre(t, 5.2, 6.2))
+    sale = 1 - suave(entre(t, 21.0, 21.8))        # la silueta se va antes del diagrama
+    resaltar = suave(entre(t, 9.1, 10.1))
     if sale > 0:
         dibujar_silueta(lz, p, t, sale, resaltar)
 
-        al = sale * aparece(t, 6.0, 0.5) * (1 - entre(t, 8.4, 8.8))
+        al = sale * aparece(t, 9.8, 0.5) * (1 - entre(t, 12.6, 13.0))
         lz.texto((p[11][0] - 30, p[11][1] - 32), "HOMBROS", 22, MAGENTA, al, anchor="rm", espaciado=3)
         lz.texto((p[15][0] - 34, p[15][1] + 4), "MUÑECAS", 22, MAGENTA, al, anchor="rm", espaciado=3)
 
         # El manubrio: la linea entre las dos munecas
-        man = suave(entre(t, 8.0, 8.8)) * sale
+        man = suave(entre(t, 12.8, 13.6)) * sale
         if man > 0:
             a_, b_ = p[15], p[16]
             fin = (mezcla(a_[0], b_[0], man), mezcla(a_[1], b_[1], man))
             lz.linea(a_, fin, AMBAR, 6, 1.0, brillo=True)
-        ang = aparece(t, 9.4, 0.4) * (1 - entre(t, 15.6, 16.0)) * sale
+        ang = aparece(t, 13.6, 0.4) * (1 - entre(t, 16.8, 17.2)) * sale
         if ang > 0:
             centro = ((p[15][0] + p[16][0]) / 2, (p[15][1] + p[16][1]) / 2)
             lz.linea_punteada((centro[0] - 190, centro[1]), (centro[0] + 190, centro[1]), TINTA_SUAVE, 2, ang * 0.7)
@@ -219,29 +222,29 @@ def escena_camara(t):
             lz.texto((centro[0] + 205, centro[1] + 34), f"giro {abs(giro):.0f}°", 26, AMBAR, ang, anchor="lm")
 
         # Linea de los hombros (el umbral del wheelie)
-        lh = aparece(t, 16.2, 0.5) * (1 - entre(t, 20.8, 21.2)) * sale
+        lh = aparece(t, 17.2, 0.5) * (1 - entre(t, 20.6, 21.0)) * sale
         if lh > 0:
             y = p[11][1]
             lz.linea_punteada((cx - 300, y), (cx + 300, y), OK if wheelie else TINTA, 3, lh, brillo=wheelie)
             lz.texto((cx + 310, y), "línea de los hombros", 22, TINTA_SUAVE, lh, nombre=MEDIA, anchor="lm")
 
-        pm = aparece(t, 9.0, 0.6) * sale
+        pm = aparece(t, 12.8, 0.6) * sale
         if pm > 0:
             panel_moto(lz, t, pm, lateral, wheelie)
 
     # El recorrido de los datos
-    d = aparece(t, 22.0, 0.6)
+    d = aparece(t, 21.4, 0.6)
     if d > 0:
         y = 560
         cajas = [(300, 300, "WEBCAM", "la de la notebook"),
                  (960, 500, "PYTHON + MEDIAPIPE", "detecta los gestos"),
                  (1620, 300, "UNITY", "mueve la moto")]
         for k, (x, ancho, titulo, detalle) in enumerate(cajas):
-            ak = aparece(t, 22.0 + k * 0.5, 0.5)
+            ak = aparece(t, 21.4 + k * 0.5, 0.5)
             caja(lz, (x, y + 30 * (1 - ak)), ancho, 170, titulo, detalle, ak,
                  MAGENTA if k == 1 else CYAN)
-        flecha_datos(lz, (475, y), (690, y), t, aparece(t, 22.6, 0.5), "imagen")
-        flecha_datos(lz, (1230, y), (1445, y), t, aparece(t, 23.1, 0.5), "UDP", "30 veces por segundo")
+        flecha_datos(lz, (475, y), (690, y), t, aparece(t, 22.0, 0.5), "imagen")
+        flecha_datos(lz, (1230, y), (1445, y), t, aparece(t, 22.5, 0.5), "UDP", "30 veces por segundo")
 
     return lz.cuadro()   # los fundidos entre escenas los pone montar.py
 
@@ -290,8 +293,8 @@ def escena_autopista(t):
     lz = Lienzo()
     a = aparece(t, 0.0, 0.5)
     lz.texto((960, 78), "AUTOPISTA EN CONTRAMANO", 50, TINTA, a, espaciado=7, brillo=True)
-    leyendas = [(0.6, 4.2, "Los autos vienen de frente por tres carriles"),
-                (4.2, DURACION_AUTOPISTA, "Siempre queda uno libre… pero el juego se acelera solo")]
+    leyendas = [(1.8, 5.4, "Los autos vienen de frente por tres carriles"),
+                (5.4, DURACION_AUTOPISTA, "Siempre queda uno libre… pero el juego se acelera solo")]
     for desde, hasta, texto in leyendas:
         lz.texto((960, 140), texto, 30, TINTA_CLARA, aparece(t, desde, 0.4) * (1 - entre(t, hasta - 0.3, hasta)),
                  nombre=MEDIA)
@@ -354,7 +357,7 @@ def escena_autopista(t):
     lz.texto((1560, 470), "VELOCIDAD", 24, TINTA_SUAVE, av, espaciado=6)
     lz.texto((1560, 545), f"{v:.0f}", 96, AMBAR if v > 150 else TINTA, av, brillo=True)
     lz.texto((1560, 620), "km/h", 26, TINTA_SUAVE, av, nombre=MEDIA)
-    al = aparece(t, 1.2, 0.5)
+    al = aparece(t, 2.2, 0.5)
     lz.texto((360, 520), "3 carriles", 40, TINTA, al, espaciado=2)
     lz.texto((360, 575), "1 o 2 autos por fila", 26, TINTA_SUAVE, al, nombre=MEDIA)
     return lz.cuadro()
@@ -424,38 +427,38 @@ def barra(lz, y, rotulo, valor, maximo, texto_valor, color, alfa, etiqueta=None,
 
 def pps(t):
     """Puntos por segundo del juego: de 100 a 300 a medida que sube la velocidad."""
-    return mezcla(100, 300, suave(entre(t, 5.5, 10.0)))
+    return mezcla(100, 300, suave(entre(t, 4.0, 8.5)))
 
 
 def escena_wheelie(t):
     lz = Lienzo()
     a = aparece(t, 0.0, 0.5)
     lz.texto((960, 78), "EL WHEELIE", 54, TINTA, a, espaciado=8, brillo=True)
-    leyendas = [(0.6, 5.4, "La única forma de sumar puntos"),
-                (5.4, 10.4, "Cuanto más rápido vas, más puntos te da"),
-                (10.4, 16.0, "Pero en una rueda casi no podés esquivar")]
+    leyendas = [(0.6, 3.5, "La única forma de sumar puntos"),
+                (3.5, 9.0, "Cuanto más rápido vas, más puntos te da"),
+                (9.0, 16.0, "Pero en una rueda casi no podés esquivar")]
     for desde, hasta, texto in leyendas:
         lz.texto((960, 142), texto, 30, TINTA_CLARA, aparece(t, desde, 0.4) * (1 - entre(t, hasta - 0.3, hasta)),
                  nombre=MEDIA)
 
-    angulo = 24 * suave(entre(t, 2.6, 3.6))
+    angulo = 24 * suave(entre(t, 1.0, 2.0))
     moto_costado(lz, t, angulo)
 
-    en_wheelie = t >= 3.4
-    puntos = integrar(pps, 3.4, t) if en_wheelie else 0
+    en_wheelie = t >= 1.8
+    puntos = integrar(pps, 1.8, t) if en_wheelie else 0
     ap = aparece(t, 1.0, 0.5)
     lz.texto((1440, 290), "PUNTAJE", 24, TINTA_SUAVE, ap, espaciado=6)
     lz.texto((1440, 360), f"{int(puntos):,}".replace(",", "."), 84, MAGENTA if en_wheelie else TINTA, ap,
              brillo=en_wheelie)
 
-    velocidad = mezcla(10, 60, suave(entre(t, 5.5, 10.0))) * 3.6
-    ab = aparece(t, 4.0, 0.5)
+    velocidad = mezcla(10, 60, suave(entre(t, 4.0, 8.5))) * 3.6
+    ab = aparece(t, 3.4, 0.5)
     barra(lz, 520, "VELOCIDAD", velocidad, 216, f"{velocidad:.0f} km/h", CYAN, ab)
-    barra(lz, 680, "PUNTOS POR SEGUNDO", pps(t), 300, f"{pps(t):.0f} pts/s", OK, aparece(t, 4.6, 0.5),
+    barra(lz, 680, "PUNTOS POR SEGUNDO", pps(t), 300, f"{pps(t):.0f} pts/s", OK, aparece(t, 3.8, 0.5),
           "RECOMPENSA", OK)
-    lateral = mezcla(100, 30, suave(entre(t, 11.0, 12.4)))
+    lateral = mezcla(100, 30, suave(entre(t, 9.6, 11.0)))
     barra(lz, 840, "MOVIMIENTO DE COSTADO", lateral, 100, f"{lateral:.0f} %", ALERTA if lateral < 60 else CYAN,
-          aparece(t, 10.6, 0.5), "RIESGO", ALERTA)
+          aparece(t, 9.2, 0.5), "RIESGO", ALERTA)
     return lz.cuadro()
 
 
@@ -503,15 +506,15 @@ def escena_problema(t):
     lz = Lienzo()
     a = aparece(t, 0.0, 0.5)
     lz.texto((960, 78), "EL PROBLEMA QUE RESOLVIMOS", 50, TINTA, a, espaciado=7, brillo=True)
-    leyendas = [(0.6, 4.0, "La primera versión medía cuánto doblabas el codo"),
-                (4.0, 7.8, "Pero de frente, la cámara casi no ve el antebrazo"),
-                (7.8, 11.6, "La señal saltaba… así que cambiamos el gesto"),
-                (11.6, 15.0, "El manubrio se ve siempre bien, aunque te muevas")]
+    leyendas = [(0.6, 5.6, "La primera versión medía cuánto doblabas el codo"),
+                (5.6, 8.6, "Pero de frente, la cámara casi no ve el antebrazo"),
+                (8.6, 10.8, "La señal saltaba… así que cambiamos el gesto"),
+                (10.8, 15.0, "El manubrio se ve siempre bien, aunque te muevas")]
     for desde, hasta, texto in leyendas:
         lz.texto((960, 142), texto, 30, TINTA_CLARA, aparece(t, desde, 0.4) * (1 - entre(t, hasta - 0.3, hasta)),
                  nombre=MEDIA)
 
-    vistas = 1 - suave(entre(t, 7.6, 8.2))
+    vistas = 1 - suave(entre(t, 8.4, 9.0))
     if vistas > 0:
         # De costado: el brazo doblado apuntando a la camara
         ac = aparece(t, 0.8, 0.5) * vistas
@@ -531,7 +534,7 @@ def escena_problema(t):
             lz.linea_punteada((362, 600 + k * 20), (548, 610 + k * 15), TINTA_APAGADA, 2, ac * 0.6, 8, 8)
 
         # Lo que ve la camara: el antebrazo casi desaparece
-        af = aparece(t, 3.8, 0.5) * vistas
+        af = aparece(t, 5.6, 0.5) * vistas
         lz.rect((1000, 240), (1720, 900), MAGENTA, af * 0.4, relleno=False, ancho=2, radio=8)
         lz.texto((1360, 285), "LO QUE VE LA CÁMARA", 24, MAGENTA, af, espaciado=5)
         temblor = 6 * _RUIDO[int(t * 12) % 400]
@@ -548,11 +551,11 @@ def escena_problema(t):
         lz.texto((1360, 760), f"ángulo del codo: {angulo:.0f}°", 30, ALERTA, af)
         lz.texto((1360, 820), "el antebrazo casi no se ve", 28, TINTA_SUAVE, af, nombre=MEDIA)
 
-    ag = aparece(t, 8.0, 0.6)
+    ag = aparece(t, 8.8, 0.6)
     if ag > 0:
-        grafico(lz, (200, 260, 1720, 540), "ANTES · SEÑAL DEL CODO", ALERTA, t, 8.2, True, ag)
-        grafico(lz, (200, 600, 1720, 880), "AHORA · SEÑAL DEL MANUBRIO", OK, t, 10.8, False, aparece(t, 10.6, 0.6))
-        ok = aparece(t, 13.6, 0.5)
+        grafico(lz, (200, 260, 1720, 540), "ANTES · SEÑAL DEL CODO", ALERTA, t, 9.0, True, ag)
+        grafico(lz, (200, 600, 1720, 880), "AHORA · SEÑAL DEL MANUBRIO", OK, t, 10.6, False, aparece(t, 10.4, 0.6))
+        ok = aparece(t, 13.0, 0.5)
         if ok > 0:
             c = (1620, 660)
             lz.linea((c[0] - 22, c[1]), (c[0] - 6, c[1] + 18), OK, 7, ok, brillo=True)
