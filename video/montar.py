@@ -11,7 +11,9 @@ dice que va ahi, asi el video se puede ver entero aunque este a medio hacer.
 
 Material esperado (carpeta material/, no se sube al repo):
     fotos/menu.png                         la captura del menu
-    clips/ciudad.mp4, campo.mp4, wheelie.mp4, choque.mp4, ranking.mp4
+    clips/partida-editada.mp4, partida-larga.mp4, choque.mp4, ranking.mp4
+                                           (grabados con Win + G; en PARTES dice
+                                           de que segundo se toma cada uno)
     voz/voz-1.* ... voz/voz-7.*            un archivo por tramo del guion
     musica.*                               opcional
 """
@@ -35,14 +37,14 @@ PARTES = [
     (1, "escena", "1-gancho", 6.0, 0),
     (1, "foto", "fotos/menu.png", 4.0, 0),
     (2, "escena", "2-autopista", 10.5, 0),
-    (2, "clip", "clips/ciudad.mp4", 4.5, 2),
+    (2, "clip", "clips/partida-editada.mp4", 4.5, 21.0),   # ciudad, pasa un McLaren al lado
     (3, "escena", "3-wheelie", 16.0, 0),
     (4, "escena", "4-camara", 27.0, 0),
     (5, "escena", "5-problema", 15.0, 0),
-    (6, "clip", "clips/campo.mp4", 2.6, 2),
-    (6, "clip", "clips/wheelie.mp4", 2.6, 2),
-    (6, "clip", "clips/choque.mp4", 2.6, 1),
-    (6, "clip", "clips/ranking.mp4", 2.6, 0),
+    (6, "clip", "clips/partida-larga.mp4", 2.6, 22.0),     # campo con el sol
+    (6, "clip", "clips/partida-editada.mp4", 2.6, 0.5),    # wheelie en la ciudad
+    (6, "clip", "clips/choque.mp4", 2.6, 8.4),             # choque y Game Over (a los 9,9 s)
+    (6, "clip", "clips/ranking.mp4", 2.6, 0.5),            # el ranking del menu
     (7, "escena", "7-cierre", 10.0, 0),
 ]
 
