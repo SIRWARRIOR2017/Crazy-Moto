@@ -34,7 +34,7 @@ Calendario de entregas de la feria de ciencias, con el estado de cada una.
 | 10 sep | 1 | ✅ Terminada | Datos persistentes (ranking con ScriptableObject + JSON) + sonido (música de menú, choque y click). |
 | 17 sep | 1 | ✅ Terminada | Efectos/partículas, hardware externo (control por **webcam**), efectos de cámara e iluminación. |
 | 28 sep | 1 | 🟡 Hecha, fuera de fecha | **Venció** antes de terminarla, y por la regla del profesor lo entregado fuera de tiempo vale cero: conviene confirmar con él qué pasa con esta. Ya está todo: build de Windows probado, [carpeta en Drive](https://drive.google.com/drive/folders/1uzdDwrgAJaFdZmjhe8o6fqzH9Q4M7_rZ?usp=drive_link) con el link en el README, efectos, sonido y pulido. El build se probó jugando, con la cámara y con el ranking que persiste al reabrir ([#13](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/13)). |
-| 05 nov | 2 | ⏳ Pendiente | **Es la próxima fecha.** itch.io (0,5, ✅ publicado) + video de YouTube (0,5) + decoración del ambiente (1). Issues: [#15](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/15), [#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16), [#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17). |
+| 05 nov | 2 | ⏳ Pendiente | **Es la próxima fecha.** itch.io (0,5, ✅ publicado) + video de YouTube (0,5, ✅ publicado) + decoración del ambiente (1). Issues: [#15](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/15), [#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16), [#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17). |
 
 **Estado al 2026-10-23:** 7 entregas terminadas (del 06 ago al 17 sep, 7 puntos).
 La del **28 de septiembre** se terminó después de su fecha (falta confirmar con el profesor); la
@@ -240,7 +240,7 @@ Es la **próxima fecha**. Se sigue en el milestone "Entrega 05 nov — Publicaci
 | Ítem | Puntos | Estado |
 |---|---|---|
 | Publicación en itch.io | 0.5 | ✅ Publicado el 2026-10-23: [s1rwa.itch.io/crazy-moto](https://s1rwa.itch.io/crazy-moto) (gratis, build de Windows de 49 MB) — [#15](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/15). |
-| Video de promoción en YouTube | 0.5 | ⏳ Pendiente — [#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16). |
+| Video de promoción en YouTube | 0.5 | ✅ Publicado el 2026-10-23: [youtu.be/SZbZtkWUglE](https://youtu.be/SZbZtkWUglE) (1:40, motion graphics + voz en off + clips del juego; el código está en `video/`) — [#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16). |
 | Decoración del ambiente (folletería, decoración relacionada al juego) | 1 | ⏳ Pendiente — [#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17). |
 
 **Veredicto: ⏳ PENDIENTE.**
@@ -252,6 +252,5 @@ Es la **próxima fecha**. Se sigue en el milestone "Entrega 05 nov — Publicaci
 1. **Entrega del 28 sep:** está todo hecho. Falta hablar con el profesor por la
    fecha vencida.
 2. **Entrega del 05 nov:** itch.io ya está publicado ([#15](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/15)).
-   Faltan el video de YouTube ([#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16))
-   y la decoración del stand ([#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17)).
+   El video de YouTube también ([#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16)). Falta la decoración del stand ([#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17)).
    Recordá que lo entregado fuera de tiempo vale cero.

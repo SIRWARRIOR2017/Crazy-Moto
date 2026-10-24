@@ -950,6 +950,19 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   Del lado de Unity sólo cambiaron los textos de ayuda (`MenuCamara`,
   `MenuOpciones`): el protocolo UDP es el mismo. El alumno lo probó con la
   cámara real contra el build y **anda bien**.
+- **2026-10-23** — **Video de YouTube** (#16, entrega del 05 nov): [youtu.be/SZbZtkWUglE](https://youtu.be/SZbZtkWUglE),
+  1:40. Motion graphics con el estilo "Ruta de noche" + voz en off de Joaquín +
+  clips de partidas + música "All In" (Everet Almond, Biblioteca de audio de
+  YouTube). Todo el código está en `video/` (ver `video/README.md`): las
+  animaciones se dibujan con **Pillow + numpy** cuadro por cuadro (Manim no
+  tiene versión para Python 3.14) con los colores, la fuente y los sprites del
+  menú, y `montar.py` une escenas, foto, clips, voz y música con el ffmpeg de
+  `imageio-ffmpeg`. Los tiempos de las escenas siguen las pausas de cada audio
+  de voz, para que cada cosa aparezca cuando se nombra. El material crudo (voz,
+  clips, música) y los `.mp4` quedan fuera del repo (`video/material/`,
+  `video/render/`). Ojo con Pillow: `ImageDraw` sobre una imagen RGBA **pisa**
+  los píxeles en vez de mezclarlos; por eso cada forma se dibuja en un parche y
+  se mezcla con `alpha_composite`.
 - **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
   reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No
   está descartado del todo, pero solo se retoma si el de cámara no convence. La
@@ -974,8 +987,9 @@ efectos de cámara e iluminación del 17 de septiembre). Quedan dos:
   valen CERO**. La carpeta para Drive se arma copiando `Build/Windows/` sin
   `Crazy Moto_BurstDebugInformation_DoNotShip` y con un `LEEME.txt`, en
   `Build/Joaquin Pastorino y Santiago Castiñeira - Crazy Moto/` (gitignorada).
-- **05 de noviembre** (2 puntos) — itch.io, video de YouTube y decoración del
-  ambiente (folletería). Es la próxima fecha.
+- **05 de noviembre** (2 puntos) — itch.io (✅ publicado, #15) y video de YouTube
+  (✅ publicado, #16). Falta la decoración del ambiente (folletería, #17). Es la
+  próxima fecha.
 
 El detalle de cada entrega está en `docs/ENTREGAS.md`. Los pendientes se siguen
 como **issues de GitHub** (repo `SIRWARRIOR2017/Crazy-Moto`), agrupados en los
