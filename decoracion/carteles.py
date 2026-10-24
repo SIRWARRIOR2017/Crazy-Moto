@@ -6,7 +6,7 @@ del juego.
     py decoracion/carteles.py poster     solo el poster A3
     py decoracion/carteles.py instrucciones
 
-Salen en PDF listos para imprimir a 300 dpi (y un PNG chico para mirarlos):
+Salen en PDF listos para imprimir a 300 dpi (y una vista previa en vistas/):
   - poster-a3.pdf          A3 vertical, para pegar en el stand y verse de lejos.
   - instrucciones-a4.pdf   A4 vertical, al lado de la compu: como se juega con la camara.
 
@@ -299,9 +299,11 @@ CARTELES = {"poster": (poster, "poster-a3"), "instrucciones": (instrucciones, "i
 def guardar(img, nombre):
     RENDER.mkdir(parents=True, exist_ok=True)
     img.save(RENDER / f"{nombre}.pdf", resolution=DPI)
+    # Vista previa liviana para mostrar en el README (GitHub no muestra PDFs ahi).
+    (AQUI / "vistas").mkdir(exist_ok=True)
     vista = img.copy()
-    vista.thumbnail((900, 1300))
-    vista.save(RENDER / f"{nombre}-vista.png")
+    vista.thumbnail((800, 1130), Image.LANCZOS)
+    vista.save(AQUI / "vistas" / f"{nombre}.jpg", quality=88)
     print(f"{nombre}: {img.width}x{img.height} px -> {RENDER / (nombre + '.pdf')}")
 
 

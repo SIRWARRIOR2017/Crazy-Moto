@@ -963,6 +963,18 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   `video/render/`). Ojo con Pillow: `ImageDraw` sobre una imagen RGBA **pisa**
   los píxeles en vez de mezclarlos; por eso cada forma se dibuja en un parche y
   se mezcla con `alpha_composite`.
+- **2026-10-23** — **Decoración del stand** (#17): póster A3 y cartel A4 con las
+  instrucciones de la cámara, en PDF a 300 dpi (`decoracion/render/`), con su
+  generador `decoracion/carteles.py` y una propuesta de armado del stand en
+  `decoracion/README.md`. Usa el motor del video: `Lienzo` acepta otro tamaño
+  (`ancho`, `alto`) y `cuadro(alta=True)` devuelve la resolución interna (el
+  doble), que es la de impresión. El sol, la grilla y el resplandor se dibujan por
+  código porque los sprites del menú (512 px) salían borrosos en A3. La captura
+  del póster (`decoracion/img/contramano.jpg`) es el cuadro anterior al choque
+  del clip, con el puntaje recortado y el puntero del mouse borrado con
+  `cv2.inpaint`. Además, el README del repo ahora muestra una imagen principal,
+  la miniatura del video, 6 capturas (`docs/capturas/`) y las vistas previas de
+  los carteles (`decoracion/vistas/`).
 - **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
   reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No
   está descartado del todo, pero solo se retoma si el de cámara no convence. La
@@ -987,9 +999,9 @@ efectos de cámara e iluminación del 17 de septiembre). Quedan dos:
   valen CERO**. La carpeta para Drive se arma copiando `Build/Windows/` sin
   `Crazy Moto_BurstDebugInformation_DoNotShip` y con un `LEEME.txt`, en
   `Build/Joaquin Pastorino y Santiago Castiñeira - Crazy Moto/` (gitignorada).
-- **05 de noviembre** (2 puntos) — itch.io (✅ publicado, #15) y video de YouTube
-  (✅ publicado, #16). Falta la decoración del ambiente (folletería, #17). Es la
-  próxima fecha.
+- **05 de noviembre** (2 puntos) — itch.io (✅ publicado, #15), video de YouTube
+  (✅ publicado, #16) y decoración del ambiente (✅ carteles listos, #17). Falta
+  imprimir los carteles y armar el stand. Es la próxima fecha.
 
 El detalle de cada entrega está en `docs/ENTREGAS.md`. Los pendientes se siguen
 como **issues de GitHub** (repo `SIRWARRIOR2017/Crazy-Moto`), agrupados en los

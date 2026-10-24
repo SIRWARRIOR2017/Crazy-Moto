@@ -63,5 +63,6 @@ py decoracion/carteles.py
 
 Usa el motor del video (`video/estilo.py`) y la captura `img/contramano.jpg`,
 que sale del clip del choque: es el cuadro justo antes de que los dos autos
-lleguen, con el puntaje recortado y el puntero del mouse borrado. Las vistas
-previas en PNG (`render/*-vista.png`) no se suben al repo.
+lleguen, con el puntaje recortado y el puntero del mouse borrado. Además de los
+PDF deja una vista previa liviana de cada uno en `vistas/`, que es la que se
+muestra en el README del proyecto.

@@ -10,6 +10,8 @@
 > Se juega con el teclado… **o moviendo las manos frente a la webcam**, como si
 > agarraras un manubrio de verdad.
 
+![Crazy Moto: dos autos vienen de frente por la autopista, vistos desde el manubrio de la moto](docs/capturas/ciudad.jpg)
+
 ---
 
 ## ⬇️ Descargar y jugar
@@ -32,6 +34,16 @@ por cámara web hace falta además el detector (ver el [paso 5](#paso-5-opcional
 
 ---
 
+## 🎬 Video
+
+[![Video de Crazy Moto en YouTube (1:40)](docs/capturas/video.jpg)](https://youtu.be/SZbZtkWUglE)
+
+En 1:40: de qué trata el juego, el wheelie, cómo funciona el control por cámara y
+el problema que tuvimos que resolver. El guion, las animaciones y el montaje
+están en [`video/`](video/).
+
+---
+
 ## 🎮 De qué trata
 
 Avanzás por una autopista **en contramano**, esquivando autos que vienen de frente
@@ -42,6 +54,40 @@ cuanto más rápido vas, más puntos da el wheelie.
 
 Cuando chocás, se termina la partida y tu puntaje entra al **ranking**, que se
 guarda en disco y se ve en el menú (Top 10 + en qué puesto quedaste).
+
+---
+
+## 📸 Capturas
+
+<table>
+  <tr>
+    <td><img src="docs/capturas/menu.jpg" alt="Menú principal con el ranking"><br><sub>El menú, con el ranking Top 10.</sub></td>
+    <td><img src="docs/capturas/ciudad.jpg" alt="Dos autos de frente en la ciudad"><br><sub>Autopista en contramano: dos autos de frente.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/capturas/campo.jpg" alt="El campo al atardecer"><br><sub>El campo al atardecer (se alterna con la ciudad).</sub></td>
+    <td><img src="docs/capturas/wheelie.jpg" alt="Haciendo wheelie, el puntaje en magenta"><br><sub>En wheelie: el puntaje se pone magenta mientras suma.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/capturas/game-over.jpg" alt="Pantalla de Game Over"><br><sub>Game Over, con el puntaje final y el puesto en el ranking.</sub></td>
+    <td><img src="docs/capturas/opciones.jpg" alt="Pantalla de Opciones"><br><sub>Opciones: volumen, nombre, probar la cámara y controles.</sub></td>
+  </tr>
+</table>
+
+---
+
+## 🖼️ Carteles del stand
+
+Para la feria hay un póster A3 y un cartel A4 con las instrucciones de la cámara,
+listos para imprimir (detalles y propuesta de armado del stand en
+[`decoracion/`](decoracion/)).
+
+<table>
+  <tr>
+    <td width="50%"><a href="decoracion/render/poster-a3.pdf"><img src="decoracion/vistas/poster-a3.jpg" alt="Póster A3 de Crazy Moto"></a><br><sub><a href="decoracion/render/poster-a3.pdf">Póster A3 (PDF)</a></sub></td>
+    <td width="50%"><a href="decoracion/render/instrucciones-a4.pdf"><img src="decoracion/vistas/instrucciones-a4.jpg" alt="Cartel A4 con las instrucciones de la cámara"></a><br><sub><a href="decoracion/render/instrucciones-a4.pdf">Instrucciones A4 (PDF)</a></sub></td>
+  </tr>
+</table>
 
 ---
 
@@ -205,7 +251,9 @@ Crazy-Moto/
 │   ├── modelo/                   ← modelo de MediaPipe (.task)
 │   └── README.md                 ← detalle técnico de cómo funciona
 ├── video/                        ← el video de YouTube: guion, animaciones y montaje (Python)
+├── decoracion/                   ← carteles del stand (PDF para imprimir) y su generador
 ├── docs/                         ← documentos de la feria, auditoría y entregas
+│   └── capturas/                 ← capturas del juego que se ven en este README
 └── README.md                     ← este archivo
 ```
 
