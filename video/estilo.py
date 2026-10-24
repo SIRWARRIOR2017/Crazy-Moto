@@ -221,10 +221,13 @@ def _rgba(color, alfa):
 
 
 class Lienzo:
-    def __init__(self, fondo=None):
+    def __init__(self, fondo=None, ancho=ANCHO, alto=ALTO):
+        """`ancho` y `alto` en px "de diseño": por defecto el video. Los carteles
+        para imprimir usan otro tamaño (ver decoracion/carteles.py)."""
+        self.ancho, self.alto = ancho, alto
         self.fondo = fondo if fondo is not None else fondo_noche()
-        self.capa = Image.new("RGBA", (ANCHO * SS, ALTO * SS), (0, 0, 0, 0))
-        self.brillo = Image.new("RGBA", (ANCHO * SS, ALTO * SS), (0, 0, 0, 0))
+        self.capa = Image.new("RGBA", (ancho * SS, alto * SS), (0, 0, 0, 0))
+        self.brillo = Image.new("RGBA", (ancho * SS, alto * SS), (0, 0, 0, 0))
         self._medidor = ImageDraw.Draw(self.capa)
 
     @staticmethod
@@ -391,18 +394,23 @@ class Lienzo:
             cx = x0 + x + im.width / SS / 2
             self.imagen(im, (cx, centro[1] + sube), 1 / SS, alfa * salida(v), brillo=True)
 
-    def cuadro(self, intensidad_brillo=1.0):
-        """Junta fondo + neon + capa y devuelve el cuadro final (RGB 1920x1080)."""
-        img = self.fondo.copy()
+    def cuadro(self, intensidad_brillo=1.0, alta=False):
+        """
+        Junta fondo + neon + capa y devuelve el cuadro final (RGB). Normalmente
+        sale al tamaño de diseño (el video, 1920x1080); con alta=True sale al
+        doble (la resolución interna), que es lo que se imprime.
+        """
+        w, h = (self.ancho * SS, self.alto * SS) if alta else (self.ancho, self.alto)
+        img = self.fondo.copy() if self.fondo.size == (w, h) else self.fondo.resize((w, h), Image.LANCZOS)
         if intensidad_brillo > 0 and self.brillo.getbbox():
             # Premultiplicado (RGBa): el color ya trae el alfa adentro y se puede
             # sumar al fondo como si fuera luz.
-            chico = self.brillo.convert("RGBa").resize((ANCHO // 4, ALTO // 4), Image.BILINEAR)
+            chico = self.brillo.convert("RGBa").resize((self.ancho // 4, self.alto // 4), Image.BILINEAR)
             chico = chico.filter(ImageFilter.GaussianBlur(5))
-            luz = np.asarray(chico.resize((ANCHO, ALTO), Image.BILINEAR), dtype=np.float32)[:, :, :3]
+            luz = np.asarray(chico.resize((w, h), Image.BILINEAR), dtype=np.float32)[:, :, :3]
             suma = np.asarray(img, dtype=np.float32) + luz * (1.6 * intensidad_brillo)
             img = Image.fromarray(np.clip(suma, 0, 255).astype(np.uint8))
-        capa = self.capa.convert("RGBa").resize((ANCHO, ALTO), Image.LANCZOS).convert("RGBA")
+        capa = self.capa if alta else self.capa.convert("RGBa").resize((w, h), Image.LANCZOS).convert("RGBA")
         img = img.convert("RGBA")
         img.alpha_composite(capa)
         return img.convert("RGB")

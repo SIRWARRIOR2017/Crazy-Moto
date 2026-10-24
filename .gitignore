@@ -104,3 +104,4 @@ __pycache__/
 /video/render/
 /video/material/
 __pycache__/
+/decoracion/render/*-vista.png
