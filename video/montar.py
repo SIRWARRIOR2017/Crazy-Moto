@@ -157,13 +157,17 @@ def main():
     musica = buscar(MATERIAL, "musica")
     if musica:
         entradas += ["-stream_loop", "-1", "-i", musica]
-        audio.append(f"[{n}:a]volume=0.35,aresample=48000,afade=t=in:d=1.5,"
-                     f"afade=t=out:st={total - 2.5:.2f}:d=2.5[mus]")
+        # Los temas vienen masterizados muy fuertes: se los lleva a -20 LUFS,
+        # bastante por debajo de la voz (-16), y entra y sale con fundido.
+        audio.append(f"[{n}:a]atrim=0:{total:.2f},aresample=48000,loudnorm=I=-20:TP=-2:LRA=11,"
+                     f"aresample=48000,afade=t=in:d=1.0,afade=t=out:st={total - 3:.2f}:d=3[mus]")
         if voces:
-            # La musica baja sola cuando hablas (sidechain).
+            # La musica baja sola cuando hablas (sidechain). apad: la voz termina
+            # antes que el video y el compresor necesita la senal hasta el final.
             audio.append("[voz]asplit[voz1][voz2]")
-            audio.append("[mus][voz2]sidechaincompress=threshold=0.03:ratio=8:attack=20:release=400[musb]")
-            audio.append("[voz1][musb]amix=inputs=2:normalize=0[audio]")
+            audio.append("[voz2]apad[vozpad]")
+            audio.append("[mus][vozpad]sidechaincompress=threshold=0.02:ratio=6:attack=20:release=500[musb]")
+            audio.append("[voz1][musb]amix=inputs=2:normalize=0:duration=longest,alimiter=limit=0.89:level=false[audio]")
         else:
             audio.append("[mus]anull[audio]")
     elif voces:
