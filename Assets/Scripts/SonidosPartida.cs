@@ -11,7 +11,7 @@ using UnityEngine;
 public class SonidosPartida : MonoBehaviour
 {
     [Header("Motor")]
-    public float volumenMotor = 0.5f;           // se multiplica por el volumen de "Efectos" de Opciones
+    public float volumenMotor = 1f;             // se multiplica por el volumen de "Efectos" de Opciones
     public float frecuenciaBase = 55f;          // Hz de las "explosiones" del motor
     public float pitchMinimo = 0.8f;            // a velocidad inicial
     public float pitchMaximo = 1.9f;            // a velocidad máxima
@@ -21,7 +21,7 @@ public class SonidosPartida : MonoBehaviour
     public float fadeSalida = 0.12f;            // segundos para callarse (menú, pausa, choque)
 
     [Header("Autos pasando (whoosh)")]
-    public float volumenWhoosh = 0.8f;          // se multiplica por el volumen de "Efectos"
+    public float volumenWhoosh = 1f;            // se multiplica por el volumen de "Efectos"
     public float duracionWhoosh = 0.5f;         // segundos del primer clip (el segundo es más largo)
     public float distanciaXLejana = 7f;         // a esta distancia lateral el volumen ya es el mínimo
     [Range(0f, 1f)]
@@ -32,6 +32,9 @@ public class SonidosPartida : MonoBehaviour
     public float pitchWhooshMin = 0.88f;
     public float pitchWhooshMax = 1.12f;
     public float saltoMaximoCruce = 60f;        // un salto mayor es un auto reciclado, no un cruce
+
+    [Header("Fuerza del sonido")]
+    public float saturacion = 2f;               // 0 = sin saturar; más alto = suena más fuerte (se aplica al arrancar)
 
     private const int FrecuenciaMuestreo = 44100;
     private const int FuentesWhoosh = 4;
@@ -227,7 +230,7 @@ public class SonidosPartida : MonoBehaviour
             maximo = Mathf.Max(maximo, Mathf.Abs(muestra));
         }
 
-        Normalizar(datos, maximo, 0.9f);
+        Saturar(datos, maximo);
 
         AudioClip clip = AudioClip.Create("MotorMoto", n, 1, FrecuenciaMuestreo, false);
         clip.SetData(datos, 0);
@@ -279,19 +282,24 @@ public class SonidosPartida : MonoBehaviour
             maximo = Mathf.Max(maximo, Mathf.Abs(muestra));
         }
 
-        Normalizar(datos, maximo, 0.9f);
+        Saturar(datos, maximo);
 
         AudioClip clip = AudioClip.Create(nombre, n, 1, FrecuenciaMuestreo, false);
         clip.SetData(datos, 0);
         return clip;
     }
 
-    void Normalizar(float[] datos, float maximo, float objetivo)
+    // En Unity el volumen de una fuente no pasa de 1, así que lo que haga falta
+    // para sonar más fuerte tiene que estar en el clip. Normaliza y pasa cada
+    // muestra por una tanh: lo bajo sube más que los picos, que nunca llegan a 1,
+    // así el sonido se escucha más fuerte sin crujir.
+    void Saturar(float[] datos, float maximo)
     {
         if (maximo < 0.000001f) return;
 
-        float k = objetivo / maximo;
+        float k = Mathf.Max(saturacion, 0.01f);
+        float escala = 0.95f / (float)System.Math.Tanh(k);
         for (int i = 0; i < datos.Length; i++)
-            datos[i] *= k;
+            datos[i] = escala * (float)System.Math.Tanh(k * datos[i] / maximo);
     }
 }
