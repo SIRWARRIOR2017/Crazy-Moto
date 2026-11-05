@@ -363,7 +363,10 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   diferencia en X y más volumen cuanto más cerca pasó. Un salto grande
   (`saltoMaximoCruce`) o un auto apagado en el pool no cuentan como cruce. Usa
   4 `AudioSource` que se turnan, porque pan y pitch son de la fuente y no del
-  clip. Todos los valores son campos públicos.
+  clip. Todos los valores son campos públicos. Los dos clips pasan por
+  `Saturar()` (normaliza + `tanh` con `saturacion` = 2): lo bajo sube más que los
+  picos, así suenan más fuertes sin crujir. Hace falta porque en Unity el volumen
+  de una fuente no pasa de 1 (#42).
 
 Comunicación entre scripts: casi todo pasa por `GameManager.Instance` (acceso
 directo al singleton) o por referencias asignadas a mano en el Inspector
@@ -975,6 +978,16 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   `cv2.inpaint`. Además, el README del repo ahora muestra una imagen principal,
   la miniatura del video, 6 capturas (`docs/capturas/`) y las vistas previas de
   los carteles (`decoracion/vistas/`).
+- **2026-11-05** — **Volumen más fuerte** (#42, pedido del profesor: "se escucha
+  bajo"). Los sliders de Opciones ya estaban al 100 % y `AudioSource.volume` /
+  `AudioListener.volume` no pasan de 1, así que se subieron los sonidos mismos:
+  (a) `SonidosPartida`: `volumenMotor` 0,5 → 1 y `volumenWhoosh` 0,8 → 1, más la
+  saturación suave (el motor sube ~+11 dB en total: de −21 a −10 dBFS RMS);
+  (b) los mp3 de `Assets/Sounds/` se reprocesaron con ffmpeg (ganancia +
+  `alimiter` a −1 dB, mismo nombre, así el `.meta` y las referencias de la escena
+  no cambian): click +10 dB, choque +3 dB, música +2 dB. La música y el choque ya
+  estaban cerca del máximo (−12 / −11 LUFS): más que eso cruje. En la feria lo
+  que más suma es el volumen de Windows al 100 % y parlantes externos.
 - **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
   reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No
   está descartado del todo, pero solo se retoma si el de cámara no convence. La
