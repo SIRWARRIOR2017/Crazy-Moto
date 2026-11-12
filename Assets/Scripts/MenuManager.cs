@@ -228,6 +228,7 @@ public class MenuManager : MonoBehaviour
     // Botón VOLVER A JUGAR (recarga y arranca jugando directo)
     public void VolverAJugar()
     {
+        GuardarNombrePendiente();
         irAJugar = true;
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -237,8 +238,17 @@ public class MenuManager : MonoBehaviour
     // panel de pausa.
     public void VolverAlMenu()
     {
+        GuardarNombrePendiente();
         irAJugar = false;
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    // Si el Game Over estaba pidiendo el nombre (puntaje del Top 10) y se apretó
+    // Continuar o Menú sin guardar, el puntaje no se pierde.
+    void GuardarNombrePendiente()
+    {
+        Hud hud = FindAnyObjectByType<Hud>();
+        if (hud != null) hud.GuardarNombreSiFalta();
     }
 }

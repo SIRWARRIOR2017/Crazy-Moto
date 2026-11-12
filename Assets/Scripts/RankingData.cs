@@ -100,6 +100,22 @@ public class RankingData : ScriptableObject
         return -1;
     }
 
+    // Puesto que le toca a un puntaje (1 = primero), sea de quien sea: uno más
+    // que la cantidad de puntajes guardados que le ganan.
+    public int PuestoDePuntaje(int puntaje)
+    {
+        CargarSiHaceFalta();
+        int puesto = 1;
+        foreach (Entrada e in entradas)
+            if (e.puntaje > puntaje) puesto++;
+        return puesto;
+    }
+
+    public bool EntraAlTop(int puntaje, int top = 10)
+    {
+        return puntaje > 0 && PuestoDePuntaje(puntaje) <= top;
+    }
+
     private static bool MismoNombre(string a, string b)
     {
         return string.Equals(a, b, System.StringComparison.OrdinalIgnoreCase);
