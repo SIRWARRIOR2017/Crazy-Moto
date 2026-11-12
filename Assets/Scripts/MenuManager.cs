@@ -35,6 +35,17 @@ public class MenuManager : MonoBehaviour
             return;
         }
 
+        // Copia del juego abierta desde Opciones para mostrar el ranking en el
+        // segundo monitor: sólo esa pantalla, nada de menús.
+        if (PantallaRanking.ModoRanking)
+        {
+            panelMenu.SetActive(false);
+            panelJuego.SetActive(false);
+            panelGameOver.SetActive(false);
+            PantallaRanking.Iniciar(panelMenu.transform.parent);
+            return;
+        }
+
         // La tabla de ranking, el panel de Opciones y el de Pausa se arman por
         // código; se crean acá para que existan en cada carga de escena.
         if (FindAnyObjectByType<MenuRanking>() == null)

@@ -49,7 +49,7 @@ public class RankingData : ScriptableObject
         }
     }
 
-    private string RutaArchivo => Path.Combine(Application.persistentDataPath, "ranking.json");
+    public string RutaArchivo => Path.Combine(Application.persistentDataPath, "ranking.json");
 
     // ---- API ----
 
@@ -115,23 +115,30 @@ public class RankingData : ScriptableObject
         if (!cargado) Cargar();
     }
 
+    // También la llama la ventana del ranking (PantallaRanking) cada vez que el
+    // juego guarda: si justo lo agarra a mitad de escritura (archivo vacío o
+    // cortado), se queda con lo que ya tenía en vez de mostrar la tabla vacía.
     public void Cargar()
     {
-        entradas = new List<Entrada>();
+        List<Entrada> leidas = new List<Entrada>();
         try
         {
             if (File.Exists(RutaArchivo))
             {
-                Envoltorio e = JsonUtility.FromJson<Envoltorio>(File.ReadAllText(RutaArchivo));
-                if (e != null && e.entradas != null) entradas = e.entradas;
+                string json = File.ReadAllText(RutaArchivo);
+                if (string.IsNullOrWhiteSpace(json) && cargado) return;
+
+                Envoltorio e = JsonUtility.FromJson<Envoltorio>(json);
+                if (e != null && e.entradas != null) leidas = e.entradas;
             }
         }
         catch (System.Exception ex)
         {
-            Debug.LogWarning("RankingData: no pude leer el ranking (" + ex.Message + "). Arranco vacío.");
-            entradas = new List<Entrada>();
+            Debug.LogWarning("RankingData: no pude leer el ranking (" + ex.Message + ").");
+            if (cargado) return;
         }
 
+        entradas = leidas;
         Deduplicar();   // limpia nombres repetidos de datos viejos
         Ordenar();
         cargado = true;

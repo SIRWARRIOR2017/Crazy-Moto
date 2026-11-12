@@ -27,6 +27,11 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // La copia del juego que sólo muestra el ranking (ver PantallaRanking) no
+        // crea nada de la partida: ni tráfico, ni sonidos, ni el receptor de la
+        // cámara, que le robaría el puerto UDP al juego de verdad.
+        if (PantallaRanking.ModoRanking) return;
+
         velocidadActual = velocidadInicial;
         juegoTerminado = false;
         puntaje = 0;

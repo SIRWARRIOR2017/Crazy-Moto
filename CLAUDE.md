@@ -207,7 +207,8 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   `VerticalLayoutGroup`: **AUDIO** (3 sliders: "Volumen general" →
   `AudioListener.volume`, "Volumen música" → `AudioManager.musica.volume`,
   "Volumen efectos" → `AudioManager.efectos.volume`), **PERFIL** (campo "Tu nombre
-  (para el ranking)" → `PlayerPrefs("NombreJugador")`), **DATOS** (botón "Reiniciar
+  (para el ranking)" → `PlayerPrefs("NombreJugador")`), **RANKING** (botón "Abrir
+  ranking en otra ventana" → `PantallaRanking.AbrirVentana()`, y "Reiniciar
   tabla de ranking" → `RankingData.Instance.BorrarTodo()`), **CÁMARA** (botón
   "Probar cámara" → `MenuManager.MostrarPruebaCamara()`), **CONTROLES** (texto
   informativo con los gestos de cámara y las teclas, no editable), y un
@@ -217,9 +218,26 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   `OnClick` cableado en el Inspector. Lo único que quedó acá es
   `VerificarBotonOpciones()`, que avisa por consola si alguien lo borró. Desde el
   2026-09-30 está armado con el kit de `EstiloUI`: dos tarjetas lado a lado
-  (AUDIO + PERFIL / CÁMARA + DATOS + CONTROLES) sobre el cielo nocturno del menú.
+  (AUDIO + PERFIL / CÁMARA + RANKING + CONTROLES) sobre el cielo nocturno del menú.
   **"Reiniciar tabla" pide un segundo clic** dentro de 3 s antes de borrar: en la
   feria el ranking tiene los puntajes de todos.
+- **`PantallaRanking.cs`** — (2026-11-12, #44) La **ventana aparte con el
+  ranking** para el segundo monitor del stand (punto 3 de la rúbrica: "ranking en
+  pantalla paralela"). Unity no abre dos ventanas desde un mismo juego, así que
+  `AbrirVentana()` (botón de Opciones) lanza **otra copia del `.exe`** con el
+  argumento `-ranking`, en ventana de 960×720. Esa copia (`ModoRanking`) no crea
+  nada de la partida: `GameManager.Start()` sale antes de crear los managers (sobre
+  todo `EntradaCamara`, que le robaría el puerto UDP al juego) y
+  `MenuManager.Start()` apaga los paneles y llama a `Iniciar()`, que arma el Top 10
+  en grande con `EstiloUI`, pone `timeScale` 0, 20 fps, sin audio, la cámara sin
+  dibujar el mundo, y **`runInBackground = true`** (el foco lo tiene el juego; sin
+  eso el ranking se congelaba). Cada 1 s mira la fecha de `ranking.json` y, si
+  cambió, lo vuelve a leer (`RankingData.Cargar()`, que ahora conserva lo que
+  tenía si agarra el archivo a mitad de escritura). **F11** la pone en pantalla
+  completa en el monitor donde está (`Screen.mainWindowDisplayInfo`). En el
+  Editor el botón sólo avisa "SÓLO EN EL JUEGO COMPILADO". Verificado en el build:
+  se abre desde el botón, se actualiza sola con el juego en primer plano y F11 va y
+  vuelve.
 - **`MenuCamara.cs`** — Se crea en runtime desde `MenuManager`. Arma por código el
   `PanelCamara` (hermano de los otros paneles) y lo registra en
   `MenuManager.panelCamara`. Es la pantalla de **"Probar cámara"**: sirve para que
@@ -988,6 +1006,13 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   no cambian): click +10 dB, choque +3 dB, música +2 dB. La música y el choque ya
   estaban cerca del máximo (−12 / −11 LUFS): más que eso cruje. En la feria lo
   que más suma es el volumen de Windows al 100 % y parlantes externos.
+- **2026-11-12** — **Ranking en pantalla paralela** (#44). En el stand: la
+  notebook corre el juego (el proyector la duplica) y un segundo monitor muestra
+  el ranking. El alumno pidió un botón en Opciones que abra una ventana para
+  arrastrar a ese monitor; como Unity no abre una segunda ventana, es una segunda
+  copia del juego en modo ranking (ver `PantallaRanking`). Se descartó
+  `Display.displays[1].Activate()` (multi-display de Unity) porque el alumno
+  prefirió una ventana que se mueve a mano.
 - **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
   reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No
   está descartado del todo, pero solo se retoma si el de cámara no convence. La
