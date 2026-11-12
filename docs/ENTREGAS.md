@@ -2,7 +2,7 @@
 
 Calendario de entregas de la feria de ciencias, con el estado de cada una.
 
-- Fecha de análisis: **2026-08-27** (última actualización: **2026-10-23**).
+- Fecha de análisis: **2026-08-27** (última actualización: **2026-11-12**).
 - **El estado de cada entrega es el oficial del cronograma de la materia**, tal
   como lo confirmó el alumno el 2026-10-23. Las notas de cada sección guardan, como
   historia, qué se hizo y cuándo.
@@ -22,7 +22,36 @@ Calendario de entregas de la feria de ciencias, con el estado de cada una.
 
 ---
 
-## Resumen
+## 12 de noviembre — Entrega final de la feria (nota del integrador)
+
+El proyecto se entrega el **jueves 12 de noviembre de 2026** y puede usarse como
+nota del integrador, con esta rúbrica:
+
+| # | Punto | Pts | Estado |
+|---|---|---|---|
+| 1 | Juego funcionando desde el ejecutable y sin errores | 2 | ✅ Build de Windows del 2026-11-12 (`Build/Windows/`), con todo lo de abajo. Se arreglaron el volumen bajo ([#42](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/42)) y el texto del Game Over con 0 puntos ([#45](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/45)). |
+| 2 | Interactividad más allá de teclado y mouse (hardware extra) | 2 | ✅ Control por **cámara web**: manubrio imaginario para doblar y las dos manos arriba para el wheelie (`vision/deteccion.py` + `EntradaCamara.cs`, [#35](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/35)). |
+| 3 | Pantalla con el ranking de jugadores en pantalla paralela | 2 | ✅ Botón **Opciones → Ranking → Abrir ranking en otra ventana**: se arrastra al segundo monitor, F11 la pone en pantalla completa y se actualiza sola ([#44](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/44)). Si el puntaje entra al Top 10, el juego pide el nombre ([#45](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/45)). |
+| 4 | Sonido y efectos | 1 | ✅ Música del menú, motor y autos pasando generados por código, choque; partículas, post-proceso y efectos de cámara. Volumen subido a pedido del profesor ([#42](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/42)). |
+| 5 | Decorado del lugar físico acorde al juego | 1 | ✅ Póster A3 y cartel A4 de instrucciones impresos y stand armado ([#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17), `decoracion/`). |
+| 6 | Publicación en itch.io | 1 | ✅ [s1rwa.itch.io/crazy-moto](https://s1rwa.itch.io/crazy-moto) ([#15](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/15)). |
+| 7 | Video presentación en YouTube | 1 | ✅ [youtu.be/SZbZtkWUglE](https://youtu.be/SZbZtkWUglE) ([#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16)). |
+
+**Total: 10 / 10 puntos cubiertos.** La página de itch.io y la carpeta de Drive
+tienen el build del 2026-10-23: el alumno decidió no volver a subirlos. El build
+actualizado está en este repo (`Build/Windows/` en la notebook del stand).
+
+### Armado del stand (pantallas)
+
+- **Notebook:** corre el juego. El **proyector** duplica su pantalla.
+- **Segundo monitor** (extendido): la ventana del ranking a pantalla completa.
+- La webcam frente al jugador y el detector (`vision/deteccion.py`) abierto antes
+  de jugar. Ver `decoracion/README.md` y la sección "Ranking en el segundo
+  monitor" del `README.md`.
+
+---
+
+## Cronograma anterior — resumen
 
 | Fecha | Pts | Estado | Riesgo / pendiente |
 |---|---|---|---|
@@ -241,16 +270,15 @@ Es la **próxima fecha**. Se sigue en el milestone "Entrega 05 nov — Publicaci
 |---|---|---|
 | Publicación en itch.io | 0.5 | ✅ Publicado el 2026-10-23: [s1rwa.itch.io/crazy-moto](https://s1rwa.itch.io/crazy-moto) (gratis, build de Windows de 49 MB) — [#15](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/15). |
 | Video de promoción en YouTube | 0.5 | ✅ Publicado el 2026-10-23: [youtu.be/SZbZtkWUglE](https://youtu.be/SZbZtkWUglE) (1:40, motion graphics + voz en off + clips del juego; el código está en `video/`) — [#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16). |
-| Decoración del ambiente (folletería, decoración relacionada al juego) | 1 | ✅ Carteles hechos el 2026-10-23: póster A3 y cartel A4 con las instrucciones de la cámara, en PDF para imprimir, más una propuesta de armado del stand (`decoracion/`) — [#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17). Falta imprimirlos y armar el stand el día de la feria. |
+| Decoración del ambiente (folletería, decoración relacionada al juego) | 1 | ✅ Carteles hechos el 2026-10-23: póster A3 y cartel A4 con las instrucciones de la cámara, en PDF para imprimir, más una propuesta de armado del stand (`decoracion/`) — [#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17). Impresos y stand armado (confirmado el 2026-11-12). |
 
-**Veredicto: ⏳ PENDIENTE.**
+**Veredicto: ✅ TERMINADA.** Los tres ítems quedaron también en la rúbrica final
+del 12 de noviembre (arriba).
 
 ---
 
-## Qué hacer ahora (prioridad)
+## Qué hacer ahora
 
-1. **Entrega del 28 sep:** está todo hecho. Falta hablar con el profesor por la
-   fecha vencida.
-2. **Entrega del 05 nov:** itch.io ya está publicado ([#15](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/15)).
-   El video de YouTube también ([#16](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/16)). Los carteles del stand están listos para imprimir ([#17](https://github.com/SIRWARRIOR2017/Crazy-Moto/issues/17)): falta imprimirlos y armar el stand.
-   Recordá que lo entregado fuera de tiempo vale cero.
+Todos los puntos de la rúbrica final del 12 de noviembre están cubiertos (ver
+arriba). El día de la feria: abrir el detector de la cámara, abrir el juego,
+abrir la ventana del ranking desde Opciones y llevarla al segundo monitor.

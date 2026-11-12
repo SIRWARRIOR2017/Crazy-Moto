@@ -20,7 +20,7 @@
 
 **[▶️ Video en YouTube](https://youtu.be/SZbZtkWUglE)** — 1:40 con cómo se juega y cómo funciona el control por cámara.
 
-**[📁 Carpeta del juego en Google Drive](https://drive.google.com/drive/folders/1uzdDwrgAJaFdZmjhe8o6fqzH9Q4M7_rZ?usp=drive_link)** — el mismo build de Windows, listo para jugar.
+**[📁 Carpeta del juego en Google Drive](https://drive.google.com/drive/folders/1uzdDwrgAJaFdZmjhe8o6fqzH9Q4M7_rZ?usp=drive_link)** — un build de Windows, listo para jugar.
 
 1. Bajá el `.zip` de itch.io, o la **carpeta entera** de Drive (clic derecho →
    *Descargar*, también baja un `.zip`). No alcanza con el `.exe`: necesita los
@@ -53,7 +53,9 @@ está el riesgo. El juego se va acelerando solo, así que cada vez es más difí
 cuanto más rápido vas, más puntos da el wheelie.
 
 Cuando chocás, se termina la partida y tu puntaje entra al **ranking**, que se
-guarda en disco y se ve en el menú (Top 10 + en qué puesto quedaste).
+guarda en disco y se ve en el menú (Top 10 + en qué puesto quedaste). Si entrás
+al Top 10, el juego te pide el nombre ahí mismo. En el stand, el ranking además
+se muestra todo el tiempo en un segundo monitor (ver [más abajo](#-ranking-en-el-segundo-monitor)).
 
 ---
 
@@ -107,6 +109,24 @@ Con la cámara agarrás un manubrio imaginario con las dos manos, delante del pe
 y lo girás como uno de verdad. Para el wheelie, levantás las dos manos como si
 tiraras del manubrio para arriba. No hace falta calibrar: te podés correr,
 acercar o alejar de la cámara y el gesto se lee igual.
+
+---
+
+## 🏆 Ranking en el segundo monitor
+
+En la feria, la notebook corre el juego (el proyector muestra su pantalla) y un
+segundo monitor muestra el ranking mientras la gente juega:
+
+1. En el juego, entrá a **Opciones → Ranking → Abrir ranking en otra ventana**.
+2. Se abre una ventana con el Top 10. Arrastrala al segundo monitor y apretá
+   **`F11`** para ponerla en pantalla completa (otra vez `F11` la vuelve a
+   ventana).
+3. Hacé un clic en la ventana del juego para seguir jugando. El ranking se
+   actualiza solo cada vez que alguien termina una partida.
+
+La ventana es otra copia del juego abierta en "modo ranking" (`Crazy Moto.exe
+-ranking`): sólo muestra la tabla, sin sonido ni control por cámara. Funciona en
+el juego compilado, no desde el Editor de Unity.
 
 ---
 
