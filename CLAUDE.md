@@ -49,7 +49,10 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   Over. Además, en `GameOver()` guarda el puntaje en el ranking:
   `RankingData.Instance.Agregar(nombre, puntaje)` con el nombre de
   `PlayerPrefs("NombreJugador")`, **solo si el puntaje es mayor que 0** (una
-  partida en la que nunca hiciste wheelie no entra al ranking, #22).
+  partida en la que nunca hiciste wheelie no entra al ranking, #22). **Si el
+  puntaje entra al Top 10** (`RankingData.EntraAlTop`) no lo guarda todavía:
+  pone `esperandoNombre` y el Game Over pide el nombre (ver `Hud`);
+  `GuardarConNombre(nombre)` lo guarda y deja ese nombre en PlayerPrefs (#45).
 - **`PlayerController.cs`** — Vive en el GameObject "Jugador" (tag `Player`). Cada
   `Update()` avanza el transform en Z según `GameManager.Instance.velocidadActual`,
   mueve lateralmente con `Input.GetAxisRaw("Horizontal")` (A-D) clampeado a
@@ -159,7 +162,14 @@ alumno la renombró desde Unity, así que conserva el mismo GUID
   `MenuManager.panelJuego` (tarjeta oscura para que se lea contra el cielo de día;
   el número se pone **magenta mientras estás haciendo wheelie**, o sea sumando), y
   (b) la **tarjeta de resultado** del Game Over, hija de `panelGameOver`: "PUNTAJE
-  FINAL" + el número grande con degradado + "Estás en el puesto N del ranking".
+  FINAL" + el número grande con degradado + "Quedaste en el puesto N del ranking"
+  (el puesto de **ese puntaje**, `RankingData.PuestoDePuntaje`, no el del nombre
+  guardado; con 0 puntos dice "Hacé wheelie para sumar puntos"). Si el puntaje
+  entró al Top 10, la tarjeta crece hacia arriba y muestra "¡ENTRASTE AL TOP 10!"
+  + un campo para el nombre (ya enfocado) + "Guardar" (o Enter). Si se sale con
+  Continuar, Menú o cerrando el juego sin guardar, `GuardarNombreSiFalta()` lo
+  guarda igual con lo escrito o "Jugador" (lo llama `MenuManager` antes de
+  recargar la escena).
 - **`EfectosParticulas.cs`** — Se crea en runtime desde `GameManager` (como `Hud`).
   Arma por código, en `Start()`, todos los `ParticleSystem` (en simulación World):
   (a) **choque**: chispas amarillo/naranja con gravedad + pedazos oscuros, en la
@@ -1013,6 +1023,14 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
   copia del juego en modo ranking (ver `PantallaRanking`). Se descartó
   `Display.displays[1].Activate()` (multi-display de Unity) porque el alumno
   prefirió una ventana que se mueve a mano.
+- **2026-11-12** — **Nombre al entrar al Top 10** (#45). En la feria juega gente
+  distinta una partida tras otra: el puntaje se guardaba con el nombre que había
+  quedado en Opciones (el del visitante anterior) y, como hay una fila por
+  nombre, si era menor que el de él se perdía. Ahora el Game Over pide el nombre
+  cuando el puntaje entra al Top 10. De paso se arregló el texto del Game Over
+  con 0 puntos, que decía "Estás en el puesto 1" por el récord de otra partida.
+  Los puntajes que no entran al Top 10 se siguen guardando con el nombre de
+  Opciones (no se ven en la tabla).
 - **Manubrio con Arduino:** quedó **en pausa** — el alumno lo vio muy caro y lo
   reemplazó por el control con cámara web (ver la decisión del 2026-09-09). No
   está descartado del todo, pero solo se retoma si el de cámara no convence. La

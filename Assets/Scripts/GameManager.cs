@@ -17,6 +17,10 @@ public class GameManager : MonoBehaviour
     public bool juegoTerminado { get; private set; }
     public int puntaje { get; private set; }
 
+    // El puntaje entró al Top 10 y el Game Over está pidiendo el nombre (ver Hud):
+    // todavía no se guardó en el ranking.
+    public bool esperandoNombre { get; private set; }
+
     private float puntajeExacto;
     private PlayerController jugador;
 
@@ -97,8 +101,18 @@ public class GameManager : MonoBehaviour
 
         // Guardar el puntaje en el ranking persistente (JSON en disco). Una
         // partida sin ningún punto (chocaste sin hacer wheelie) no entra.
+        //
+        // Si entra al Top 10, primero se pide el nombre: en la feria juega gente
+        // distinta una partida tras otra, y con el nombre que quedó en Opciones el
+        // puntaje se guardaba a nombre del visitante anterior (y, como hay una
+        // fila por nombre, si era menor que el de él se perdía).
         if (puntaje > 0)
-            RankingData.Instance.Agregar(RankingData.NombreActual(), puntaje);
+        {
+            if (RankingData.Instance.EntraAlTop(puntaje))
+                esperandoNombre = true;
+            else
+                RankingData.Instance.Agregar(RankingData.NombreActual(), puntaje);
+        }
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.ReproducirChoque();
@@ -106,5 +120,22 @@ public class GameManager : MonoBehaviour
         MenuManager menu = FindAnyObjectByType<MenuManager>();
         if (menu != null)
             menu.MostrarGameOver();
+    }
+
+    // Guarda el puntaje que estaba esperando el nombre. La llama el Hud (botón
+    // Guardar o Enter) y también al salir del Game Over sin guardar, para que el
+    // puntaje no se pierda: queda con lo que se haya escrito, o "Jugador".
+    public void GuardarConNombre(string nombre)
+    {
+        if (!esperandoNombre) return;
+        esperandoNombre = false;
+
+        nombre = nombre == null ? "" : nombre.Trim();
+        if (nombre.Length > 0)
+            PlayerPrefs.SetString(RankingData.ClaveNombre, nombre);
+        else
+            nombre = RankingData.NombrePorDefecto;
+
+        RankingData.Instance.Agregar(nombre, puntaje);
     }
 }
