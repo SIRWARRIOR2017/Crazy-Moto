@@ -1041,24 +1041,21 @@ es el wheelie) y que la **música va solo en el menú**, no durante la partida
 - **UI a arte real:** hecho el 2026-09-30 (todas las pantallas). El entorno
   también (ver la decisión del 2026-09-30 sobre el entorno).
 
-## Pendiente de fecha (checklist de la feria)
+## Entrega final (12 de noviembre de 2026)
 
-Estado **oficial** confirmado por el alumno el 2026-10-23, según el cronograma de
-la materia: **todas las entregas hasta el 17 de septiembre están terminadas**
-(incluido el boceto del 6 de agosto y los efectos/partículas, hardware externo,
-efectos de cámara e iluminación del 17 de septiembre). Quedan dos:
+La feria se entrega el **jueves 12 de noviembre de 2026** con la rúbrica del
+integrador (10 puntos): ejecutable sin errores (2), hardware extra (2, la cámara
+web), ranking en pantalla paralela (2, `PantallaRanking`), sonido y efectos (1),
+decorado del lugar (1, impreso y armado), itch.io (1) y YouTube (1). **Los 7
+puntos están cubiertos** (detalle y links en `docs/ENTREGAS.md`).
 
-- **28 de septiembre** (1 punto) — **hecha el 2026-10-23, fuera de fecha**: versión
-  final sin errores + build ejecutable probado (cámara y ranking persistente, #13)
-  + carpeta en Drive con el link al principio del `README.md` (#14). Falta que el
-  alumno hable con el profesor, porque **los trabajos entregados fuera de tiempo
-  valen CERO**. La carpeta para Drive se arma copiando `Build/Windows/` sin
-  `Crazy Moto_BurstDebugInformation_DoNotShip` y con un `LEEME.txt`, en
-  `Build/Joaquin Pastorino y Santiago Castiñeira - Crazy Moto/` (gitignorada).
-- **05 de noviembre** (2 puntos) — itch.io (✅ publicado, #15), video de YouTube
-  (✅ publicado, #16) y decoración del ambiente (✅ carteles listos, #17). Falta
-  imprimir los carteles y armar el stand. Es la próxima fecha.
+- La página de itch.io y la carpeta de Drive tienen el build del 2026-10-23: el
+  alumno decidió no volver a subirlos. El build al día está en `Build/Windows/`
+  (gitignorado), en la notebook del stand.
+- Stand: la notebook corre el juego (el proyector la duplica) y un segundo
+  monitor extendido muestra la ventana del ranking a pantalla completa.
+- Del cronograma anterior, la entrega del **28 de septiembre** quedó hecha fuera
+  de fecha (2026-10-23); el alumno tenía que hablarlo con el profesor.
 
-El detalle de cada entrega está en `docs/ENTREGAS.md`. Los pendientes se siguen
-como **issues de GitHub** (repo `SIRWARRIOR2017/Crazy-Moto`), agrupados en los
-milestones "Entrega 28 sep — Versión final" y "Entrega 05 nov — Publicación".
+Los issues están en `SIRWARRIOR2017/Crazy-Moto`, en los milestones "Entrega 28
+sep — Versión final" y "Entrega 05 nov — Publicación".
