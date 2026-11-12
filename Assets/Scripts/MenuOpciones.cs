@@ -8,8 +8,9 @@ using TMPro;
 //
 // Dos tarjetas lado a lado:
 //   izquierda -> AUDIO (3 volúmenes) y PERFIL (tu nombre para el ranking)
-//   derecha   -> CÁMARA (Probar cámara), DATOS (reiniciar el ranking) y
-//                CONTROLES (texto informativo, no editable)
+//   derecha   -> CÁMARA (Probar cámara), RANKING (abrirlo en otra ventana para
+//                el segundo monitor, y reiniciarlo) y CONTROLES (texto
+//                informativo, no editable)
 public class MenuOpciones : MonoBehaviour
 {
     // "Reiniciar tabla" pide un segundo clic antes de borrar: en la feria el
@@ -20,10 +21,14 @@ public class MenuOpciones : MonoBehaviour
     private TMP_InputField inputNombre;
 
     private const string TextoReiniciar = "REINICIAR TABLA DE RANKING";
+    private const string TextoVentana = "ABRIR RANKING EN OTRA VENTANA";
 
     private TMP_Text textoReiniciar;
     private float confirmarHasta = -1f;   // mientras no venza, el próximo clic borra
     private float avisoHasta = -1f;       // hasta cuándo se muestra "TABLA REINICIADA"
+
+    private TMP_Text textoVentana;
+    private float avisoVentanaHasta = -1f;   // hasta cuándo se muestra el resultado de abrir la ventana
 
     void Start()
     {
@@ -59,6 +64,12 @@ public class MenuOpciones : MonoBehaviour
             avisoHasta = -1f;
             textoReiniciar.text = TextoReiniciar;
         }
+
+        if (avisoVentanaHasta > 0f && ahora > avisoVentanaHasta)
+        {
+            avisoVentanaHasta = -1f;
+            textoVentana.text = TextoVentana;
+        }
     }
 
     // El botón "Opciones" del menú principal ES un objeto de la escena
@@ -78,7 +89,7 @@ public class MenuOpciones : MonoBehaviour
         EstiloUI.CrearTitulo(pantalla, "OPCIONES");
 
         // --- Izquierda: lo que se ajusta ---
-        RectTransform izq = EstiloUI.CrearTarjeta(pantalla, "TarjetaAjustes", new Vector2(700f, 450f), new Vector2(-370f, 40f));
+        RectTransform izq = EstiloUI.CrearTarjeta(pantalla, "TarjetaAjustes", new Vector2(700f, 520f), new Vector2(-370f, 40f));
 
         EstiloUI.CrearRotulo(izq, "AUDIO");
         FilaSlider(izq, "Volumen general", PlayerPrefs.GetFloat(AudioManager.ClaveVolumenGeneral, 1f),
@@ -92,13 +103,19 @@ public class MenuOpciones : MonoBehaviour
         FilaNombre(izq);
 
         // --- Derecha: acciones e información ---
-        RectTransform der = EstiloUI.CrearTarjeta(pantalla, "TarjetaMas", new Vector2(700f, 450f), new Vector2(370f, 40f));
+        RectTransform der = EstiloUI.CrearTarjeta(pantalla, "TarjetaMas", new Vector2(700f, 520f), new Vector2(370f, 40f));
 
         EstiloUI.CrearRotulo(der, "CÁMARA");
         EstiloUI.CrearBoton(der, "Probar cámara", EstiloUI.TipoBoton.Secundario,
             () => menu.MostrarPruebaCamara(), 60f, 22f);
 
-        EstiloUI.CrearRotulo(der, "DATOS");
+        // La ventana del ranking se arrastra al segundo monitor del stand (ver
+        // PantallaRanking).
+        EstiloUI.CrearRotulo(der, "RANKING");
+        Button ventana = EstiloUI.CrearBoton(der, TextoVentana, EstiloUI.TipoBoton.Secundario,
+            AbrirVentanaRanking, 60f, 22f);
+        textoVentana = ventana.GetComponentInChildren<TMP_Text>();
+
         Button reiniciar = EstiloUI.CrearBoton(der, "Reiniciar tabla de ranking", EstiloUI.TipoBoton.Peligro,
             PedirReinicio, 60f, 22f);
         textoReiniciar = reiniciar.GetComponentInChildren<TMP_Text>();
@@ -179,6 +196,12 @@ public class MenuOpciones : MonoBehaviour
 
         avisoHasta = Time.unscaledTime + 1.5f;   // el aviso se ve un rato y vuelve solo
         textoReiniciar.text = "TABLA REINICIADA";
+    }
+
+    void AbrirVentanaRanking()
+    {
+        textoVentana.text = PantallaRanking.AbrirVentana();
+        avisoVentanaHasta = Time.unscaledTime + 2.5f;
     }
 
     void RefrescarRanking()
