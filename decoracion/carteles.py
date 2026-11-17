@@ -5,10 +5,13 @@ del juego.
     py decoracion/carteles.py            genera los dos carteles en decoracion/render/
     py decoracion/carteles.py poster     solo el poster A3
     py decoracion/carteles.py instrucciones
+    py decoracion/carteles.py pared      solo las instrucciones en A2 y A1
 
-Salen en PDF listos para imprimir a 300 dpi (y una vista previa en vistas/):
+Salen en PDF listos para imprimir (y una vista previa en vistas/):
   - poster-a3.pdf          A3 vertical, para pegar en el stand y verse de lejos.
   - instrucciones-a4.pdf   A4 vertical, al lado de la compu: como se juega con la camara.
+  - instrucciones-a2.pdf   el mismo cartel para la pared, 42 x 59 cm (300 dpi).
+  - instrucciones-a1.pdf   el mismo cartel para la pared, 59 x 84 cm (212 dpi).
 
 Usa el mismo motor que el video (video/estilo.py): colores, fuente Chakra Petch y
 efecto neon. Lo que en el video eran sprites del menu (sol, grilla, resplandor)
@@ -27,7 +30,8 @@ AQUI = Path(__file__).resolve().parent
 sys.path.insert(0, str(AQUI.parent / "video"))
 
 from escenas import codo  # noqa: E402
-from estilo import (AMBAR, CYAN, FONDO, MAGENTA, MEDIA, SS, TINTA, TINTA_APAGADA,  # noqa: E402
+import estilo  # noqa: E402
+from estilo import (AMBAR, CYAN, FONDO, MAGENTA, MEDIA, TINTA, TINTA_APAGADA,  # noqa: E402
                     TINTA_CLARA, TINTA_SUAVE, Lienzo, codigo_qr, fuente, sprite)
 
 RENDER = AQUI / "render"
@@ -48,11 +52,11 @@ A4 = (1240, 1754)
 
 def fondo_cartel(ancho, alto, horizonte, radio_sol=0, alfa_grilla=0.5):
     """Todo en px de diseño; la imagen sale al doble (resolucion de impresion)."""
-    W, H, hz = ancho * SS, alto * SS, int(horizonte * SS)
+    W, H, hz = ancho * estilo.SS, alto * estilo.SS, int(horizonte * estilo.SS)
     base = sprite("FondoNoche").resize((W, H), Image.BICUBIC)
 
     if radio_sol:
-        R = radio_sol * SS
+        R = radio_sol * estilo.SS
         cx, cy = W // 2, hz + int(R * 0.12)
         # Halo: un brillo radial que tiñe el cielo alrededor del sol.
         yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
@@ -100,7 +104,7 @@ def fondo_cartel(ancho, alto, horizonte, radio_sol=0, alfa_grilla=0.5):
     g = Image.new("RGBA", (W, H - hz), (0, 0, 0, 0))
     dg = ImageDraw.Draw(g)
     tinta = CYAN + (int(255 * alfa_grilla),)
-    grosor = max(2, int(1.6 * SS))
+    grosor = max(2, int(1.6 * estilo.SS))
     for k in range(-18, 19):                      # lineas que se van al punto de fuga
         dg.line([(W / 2, 0), (W / 2 + k * W * 0.11, H - hz)], fill=tinta, width=grosor)
     n = 14
@@ -112,7 +116,7 @@ def fondo_cartel(ancho, alto, horizonte, radio_sol=0, alfa_grilla=0.5):
     g.putalpha(Image.fromarray(a.astype(np.uint8)))
     base.alpha_composite(g, (0, hz))
 
-    linea = Image.new("RGBA", (W, max(3, int(1.5 * SS))), (255, 120, 200, 255))
+    linea = Image.new("RGBA", (W, max(3, int(1.5 * estilo.SS))), (255, 120, 200, 255))
     base.alpha_composite(linea, (0, hz - linea.height // 2))
     base.alpha_composite(sprite("Vineta").resize((W, H), Image.BICUBIC))
     return base.convert("RGB")
@@ -128,7 +132,7 @@ def parrafo(lz, x, y, texto, tam, ancho_max, color=TINTA, nombre=MEDIA, interlin
     renglones, actual = [], ""
     for palabra in texto.split():
         prueba = (actual + " " + palabra).strip()
-        if f.getlength(prueba) / SS > ancho_max and actual:
+        if f.getlength(prueba) / estilo.SS > ancho_max and actual:
             renglones.append(actual)
             actual = palabra
         else:
@@ -149,7 +153,7 @@ def bloque_qr(lz, centro, lado, titulo, url_visible, url, color):
     lz.texto((x, y - lado / 2 - 60), titulo, 40, color, espaciado=6, brillo=True)
     lz.rect((x - lado / 2 - 24, y - lado / 2 - 24), (x + lado / 2 + 24, y + lado / 2 + 24), (255, 255, 255), 1,
             radio=10)
-    lz.imagen(codigo_qr(url, lado), (x, y), 1 / SS)
+    lz.imagen(codigo_qr(url, lado), (x, y), 1 / estilo.SS)
     lz.texto((x, y + lado / 2 + 58), url_visible, 30, TINTA_CLARA, nombre=MEDIA)
 
 
@@ -295,20 +299,40 @@ def instrucciones():
 
 CARTELES = {"poster": (poster, "poster-a3"), "instrucciones": (instrucciones, "instrucciones-a4")}
 
+# Las instrucciones para pegar en la pared, en una sola hoja de imprenta. Todas
+# las hojas A tienen la misma forma, asi que es el mismo cartel del A4 dibujado
+# a SS = 4 (4960 x 7016 px): en A2 queda a 300 dpi y en A1 a 212 dpi, que para
+# un afiche que se mira de lejos sobra. Ancho de cada hoja en mm.
+PARED_SS = 4
+PARED = {"instrucciones-a2": 420, "instrucciones-a1": 594}
 
-def guardar(img, nombre):
+
+def guardar(img, nombre, dpi=DPI, vista=True):
     RENDER.mkdir(parents=True, exist_ok=True)
-    img.save(RENDER / f"{nombre}.pdf", resolution=DPI)
+    img.save(RENDER / f"{nombre}.pdf", resolution=dpi, quality=92)
+    print(f"{nombre}: {img.width}x{img.height} px a {dpi:.0f} dpi -> {RENDER / (nombre + '.pdf')}")
+    if not vista:
+        return
     # Vista previa liviana para mostrar en el README (GitHub no muestra PDFs ahi).
     (AQUI / "vistas").mkdir(exist_ok=True)
-    vista = img.copy()
-    vista.thumbnail((800, 1130), Image.LANCZOS)
-    vista.save(AQUI / "vistas" / f"{nombre}.jpg", quality=88)
-    print(f"{nombre}: {img.width}x{img.height} px -> {RENDER / (nombre + '.pdf')}")
+    chica = img.copy()
+    chica.thumbnail((800, 1130), Image.LANCZOS)
+    chica.save(AQUI / "vistas" / f"{nombre}.jpg", quality=88)
+
+
+def pared():
+    estilo.usar_resolucion(PARED_SS)
+    img = instrucciones()
+    estilo.usar_resolucion(2)
+    for nombre, ancho_mm in PARED.items():
+        guardar(img, nombre, dpi=img.width / (ancho_mm / 25.4), vista=False)
 
 
 if __name__ == "__main__":
-    elegidos = sys.argv[1:] or list(CARTELES)
+    elegidos = sys.argv[1:] or list(CARTELES) + ["pared"]
     for clave in elegidos:
+        if clave == "pared":
+            pared()
+            continue
         funcion, nombre = CARTELES[clave]
         guardar(funcion(), nombre)

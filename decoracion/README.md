@@ -8,15 +8,24 @@ retro del menú.
 |---|---|---|
 | [`render/poster-a3.pdf`](render/poster-a3.pdf) | A3 vertical | Pegarlo en el stand. Se lee de lejos: título, una captura con dos autos de frente, "¡Manejá con tu cuerpo!" y dos QR (jugarlo en itch.io y ver el video) |
 | [`render/instrucciones-a4.pdf`](render/instrucciones-a4.pdf) | A4 vertical | Al lado de la compu: los tres pasos para jugar con la cámara (pararse, doblar, wheelie) y qué hacer si no te detecta |
+| [`render/instrucciones-a2.pdf`](render/instrucciones-a2.pdf) | A2 vertical (42 × 59 cm) | Las mismas instrucciones para pegar en la pared |
+| [`render/instrucciones-a1.pdf`](render/instrucciones-a1.pdf) | A1 vertical (59 × 84 cm) | Las mismas instrucciones, tamaño afiche, para que se lean desde el pasillo |
 
 ## Cómo imprimirlos
 
-- Los dos están a **300 dpi**, en color.
+- Están a **300 dpi**, en color (el A1, a 212 dpi: para un afiche que se mira
+  de lejos sobra).
 - **Póster A3:** en una fotocopiadora o imprenta, pedí "**A3 a color, tamaño
   real (100 %)**". Si se puede, en papel un poco más grueso (ilustración de
   150 g o más) para que no se arrugue.
 - **Instrucciones A4:** en cualquier impresora a color, con la opción **"Tamaño
   real"** (no "Ajustar a la página", que achica todo).
+- **Instrucciones A2 o A1 (pared):** en una imprenta o casa de ploteo, pedí
+  "**A2 (o A1) a color, tamaño real**", en papel ilustración o fotográfico
+  (150 g o más). Cada PDF ya tiene el tamaño de la hoja: no hay que agrandarlo.
+  Es el mismo diseño del A4, dibujado a más resolución, así que no sale
+  borroso. Para pegarlo sin que se ondule, cinta doble faz en las cuatro
+  esquinas y en el medio de cada lado.
 - El fondo es oscuro hasta el borde. Las impresoras comunes dejan un margen
   blanco de unos milímetros: es normal, todo el texto está lejos del borde.
 - **Probá los QR con el celular** antes de imprimir (se pueden escanear de la
@@ -64,5 +73,7 @@ py decoracion/carteles.py
 Usa el motor del video (`video/estilo.py`) y la captura `img/contramano.jpg`,
 que sale del clip del choque: es el cuadro justo antes de que los dos autos
 lleguen, con el puntaje recortado y el puntero del mouse borrado. Además de los
-PDF deja una vista previa liviana de cada uno en `vistas/`, que es la que se
-muestra en el README del proyecto.
+PDF deja una vista previa liviana del póster y del A4 en `vistas/`, que es la
+que se muestra en el README del proyecto. Las instrucciones de pared se generan
+solas con `py decoracion/carteles.py pared`: es el cartel del A4 dibujado a
+`SS = 4` (4960 × 7016 px) en vez de 2.

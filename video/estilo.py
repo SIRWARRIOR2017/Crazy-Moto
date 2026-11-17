@@ -22,6 +22,16 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 ANCHO, ALTO, FPS = 1920, 1080, 30
 SS = 2
 
+
+def usar_resolucion(ss):
+    """Cambia SS (cuantas veces mas grande se dibuja). La usan los carteles de
+    pared, que se dibujan a SS = 4 para imprimirse en A2 y A1 sin verse borrosos.
+    Vacia las caches que guardan cosas ya dibujadas a la resolucion anterior."""
+    global SS
+    SS = ss
+    for f in (fuente, letras_degradado, codigo_qr):
+        f.cache_clear()
+
 RAIZ = Path(__file__).resolve().parent.parent
 SPRITES = RAIZ / "Assets" / "Resources" / "Sprites"
 FUENTES = RAIZ / "Assets" / "Fonts"
